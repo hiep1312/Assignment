@@ -1,8 +1,7 @@
 <?php
 
 //---------------------Bài 2:---------------------
-$list100Numbers = [];
-$list150Numbers = [];
+$list100Numbers = $list150Numbers = [];
 
 for($i = 0; $i < 150; $i++){
     if($i < 100) $list100Numbers[] = rand(6, 666);

@@ -11,11 +11,11 @@ class Student{
 }
 
 $students = [
-    new Student(1001, "Nguyễn Văn An", 20, 8.5),
-    new Student(1002, "Trần Thị Bích", 17, 7.8),
-    new Student(1003, "Lê Minh Quang", 22, 9.1),
-    new Student(1004, "Phạm Hoàng Duy", 19, 6.9),
-    new Student(1005, "Đỗ Thùy Trang", 18, 8.2),
+    new Student(id: 1001, name: "Nguyễn Văn An", age: 20, score: 8.5),
+    new Student(id: 1002, name: "Trần Thị Bích", age: 17, score: 7.8),
+    new Student(id: 1003, name: "Lê Minh Quang", age: 22, score: 9.1),
+    new Student(id: 1004, name: "Phạm Hoàng Duy", age: 19, score: 6.9),
+    new Student(id: 1005, name: "Đỗ Thùy Trang", age: 18, score: 8.2),
 ];
 
 $bestStudent = null;
@@ -33,12 +33,12 @@ echo "Điểm: " . $bestStudent->score . PHP_EOL;
 
 //Sắp xếp sinh viên theo tuổi tăng dần:
 //Cách 1:
-/* $studentsSorted = $students;
+$studentsSorted = $students;
 usort($studentsSorted, fn(Student $studentA, Student $studentB) => $studentA->age <=> $studentB->age);
-print_r($studentsSorted); */
+print_r($studentsSorted);
 
 //Cách 2: (Thuật toán bubble sort)
-$studentsSorted = $students;
+/* $studentsSorted = $students;
 for($i = 0, $length = count($studentsSorted); $i < $length; $i++){
     for($j = 0; $j < $length - $i - 1; $j++){
         if($studentsSorted[$j]->age > $studentsSorted[$j + 1]->age){
@@ -47,7 +47,7 @@ for($i = 0, $length = count($studentsSorted); $i < $length; $i++){
             $studentsSorted[$j] = $tempData;
         }
     }
-}
+} */
 
 print_r($studentsSorted);
 //---------------------Done Bài 6---------------------

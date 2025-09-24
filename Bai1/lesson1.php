@@ -13,7 +13,7 @@ array_splice($listNumbersSorted, 50, 100);
 
 $length = count($listNumbers);
 $listNumbersSortedTemp = $listNumbersSorted;
-for($i = 0; $i < $length && !empty($listNumbersSortedTemp); $i++){
+for($i = 0; $i < $length; $i++){
     if(in_array($listNumbers[$i], $listNumbersSortedTemp, true)){
         $keyCurrent = array_search($listNumbers[$i], $listNumbersSortedTemp, true);
         unset($listNumbersSortedTemp[$keyCurrent]);

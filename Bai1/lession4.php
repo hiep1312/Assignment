@@ -26,7 +26,7 @@ for($i = 1; $i < count($list20Numbers); $i++){
     //Tính giá trị trung bình:
     $averageValue += $list20Numbers[$i];
 }
-$averageValue = $averageValue / (count($list20Numbers) ?: 1);
+$averageValue = $averageValue / count($list20Numbers);
 
 echo "Số lớn nhất trong mảng: " . $valueBiggest . PHP_EOL;
 echo "Số nhỏ nhất trong mảng: " . $valueSmallest . PHP_EOL;
@@ -35,8 +35,7 @@ echo "Giá trị trung bình trong mảng: " . $averageValue . PHP_EOL;
 //Đếm số chẵn và số lẻ trong mảng:
 $numberEven = $numberOdd = 0;
 for($i = 0; $i < count($list20Numbers); $i++){
-    if($list20Numbers[$i] % 2 === 0) $numberEven++;
-    else $numberOdd++;
+    $list20Numbers[$i] % 2 === 0 ? $numberEven++ : $numberOdd++;
 }
 
 echo "Số phần tử chẵn trong mảng: " . $numberEven . PHP_EOL;
