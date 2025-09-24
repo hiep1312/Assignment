@@ -42,7 +42,9 @@ $studentsSorted = $students;
 for($i = 0, $length = count($studentsSorted); $i < $length; $i++){
     for($j = 0; $j < $length - $i - 1; $j++){
         if($studentsSorted[$j]->age > $studentsSorted[$j + 1]->age){
-            list($studentsSorted[$j + 1], $studentsSorted[$j]) = array($studentsSorted[$j], $studentsSorted[$j + 1]);
+            $tempData = $studentsSorted[$j + 1];
+            $studentsSorted[$j + 1] = $studentsSorted[$j];
+            $studentsSorted[$j] = $tempData;
         }
     }
 }
