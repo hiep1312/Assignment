@@ -13,23 +13,29 @@
 ```php
 <?php
 $listNumbers = [];
-for($i = 0; $i < 100; $i++, $listNumbers[] = rand(1, 50));
+for($i = 0; $i < 100; $i++){
+    $listNumbers[] = rand(1, 50);
+};
 // print_r($listNumbers);
 
 $listNumbersSorted = $listNumbers;
 rsort($listNumbersSorted);
 array_splice($listNumbersSorted, 50, 100);
 
-for($i = 0, $length = count($listNumbers), $listNumbersSortedTemp = $listNumbersSorted; $i < $length && !empty($listNumbersSortedTemp); $i++){
+$length = count($listNumbers);
+$listNumbersSortedTemp = $listNumbersSorted;
+for($i = 0; $i < $length && !empty($listNumbersSortedTemp); $i++){
     if(in_array($listNumbers[$i], $listNumbersSortedTemp, true)){
-        unset($listNumbersSortedTemp[array_search($listNumbers[$i], $listNumbersSortedTemp, true)]);
+        $keyCurrent = array_search($listNumbers[$i], $listNumbersSortedTemp, true);
+        unset($listNumbersSortedTemp[$keyCurrent]);
         unset($listNumbers[$i]);
     }
 }
 
 $listNumbers = array_merge($listNumbersSorted, $listNumbers);
 
-for($i = 0, $list0Numbers = []; $i < count($listNumbers); $i++){
+$list0Numbers = [];
+for($i = 0; $i < count($listNumbers); $i++){
     if($listNumbers[$i] < 10 && !in_array($listNumbers[$i], $list0Numbers, true)){
         $list0Numbers[] = $listNumbers[$i];
         $listNumbers[$i] = "0" . $listNumbers[$i];
@@ -74,29 +80,31 @@ Array
 $list100Numbers = [];
 $list150Numbers = [];
 
-for($i = 0; $i < 150; $i++, $list100Numbers[] = rand(6, 666), $list150Numbers[] = rand(6, 666));
-array_splice($list100Numbers, 100, 150);
+for($i = 0; $i < 150; $i++){
+    if($i < 100) $list100Numbers[] = rand(6, 666);
+    $list150Numbers[] = rand(6, 666);
+};
 
 //Cách 1:
-print_r(array_intersect($list100Numbers, $list150Numbers)); // Các phần tử trùng nhau
-print_r(array_diff($list100Numbers, $list150Numbers));      // Các phần tử không trùng nhau
+print_r(array_intersect($list100Numbers, $list150Numbers));
+print_r(array_diff($list100Numbers, $list150Numbers));
 
-//Cách 2: Thủ công
-// Các phần tử trùng nhau:
+//Cách 2:
+//Các phần tử trùng nhau:
 $overlapItems = [];
 for($i = 0; $i < count($list100Numbers); $i++){
-    if(in_array($list100Numbers[$i], $list150Numbers, true) && !in_array($list100Numbers[$i], $overlapItems, true)):
+    if(in_array($list100Numbers[$i], $list150Numbers, true) && !in_array($list100Numbers[$i], $overlapItems, true)){
         $overlapItems[] = $list100Numbers[$i];
-    endif;
+    }
 }
 print_r($overlapItems);
 
-// Các phần tử không trùng nhau:
+//Các phần tử không trùng nhau:
 $nonOverlapItems = [];
 for($i = 0; $i < count($list100Numbers); $i++){
-    if(!in_array($list100Numbers[$i], $list150Numbers, true) && !in_array($list100Numbers[$i], $nonOverlapItems, true)):
+    if(!in_array($list100Numbers[$i], $list150Numbers, true) && !in_array($list100Numbers[$i], $nonOverlapItems, true)){
         $nonOverlapItems[] = $list100Numbers[$i];
-    endif;
+    }
 }
 print_r($nonOverlapItems);
 ```
@@ -140,14 +148,12 @@ $arraySplit = explode("\n", $stringOrigin);
 $arrayResult = [];
 for($i = 0; $i < count($arraySplit); $i++){
     $arraySeparation = explode("=>", $arraySplit[$i]);
-    if(array_key_exists($arraySeparation[0], $arrayResult)):
-        $arrayResult[$arraySeparation[0]] = [
-            ...(is_array($arrayResult[$arraySeparation[0]]) ? $arrayResult[$arraySeparation[0]] : [$arrayResult[$arraySeparation[0]]]),
-            $arraySeparation[1]
-        ];
-    else:
+    if(array_key_exists($arraySeparation[0], $arrayResult)){
+        $arrayCurrent = is_array($arrayResult[$arraySeparation[0]]) ? $arrayResult[$arraySeparation[0]] : [$arrayResult[$arraySeparation[0]]];
+        $arrayResult[$arraySeparation[0]] = array_merge($arrayCurrent, [$arraySeparation[1]]);
+    }else{
         $arrayResult[$arraySeparation[0]] = $arraySeparation[1];
-    endif;
+    }
 }
 
 print_r($arrayResult);
@@ -184,7 +190,9 @@ Array
 ```php
 <?php
 $list20Numbers = [];
-for($i = 0; $i < 20; $i++, $list20Numbers[] = rand(1, 100));
+for($i = 0; $i < 20; $i++){
+    $list20Numbers[] = rand(1, 100);
+};
 
 //In ra mảng gốc:
 print_r($list20Numbers);
@@ -328,9 +336,9 @@ $students = [
 // Tìm sinh viên có điểm cao nhất
 $bestStudent = null;
 foreach($students as $student){
-    if($bestStudent === null || $bestStudent?->score < $student->score):
+    if($bestStudent === null || $bestStudent?->score < $student->score){
         $bestStudent = $student;
-    endif;
+    }
 }
 
 echo "Sinh viên có điểm cao nhất: " . $bestStudent->name . PHP_EOL;
@@ -338,19 +346,21 @@ echo "Id: " . $bestStudent->id . PHP_EOL;
 echo "Tuổi: " . $bestStudent->age . PHP_EOL;
 echo "Điểm: " . $bestStudent->score . PHP_EOL;
 
-// Sắp xếp sinh viên theo tuổi tăng dần
-// Cách 1:
+//Sắp xếp sinh viên theo tuổi tăng dần:
+//Cách 1:
 $studentsSorted = $students;
 usort($studentsSorted, fn(Student $studentA, Student $studentB) => $studentA->age <=> $studentB->age);
 print_r($studentsSorted);
 
-// Cách 2: (Thuật toán bubble sort)
+//Cách 2: (Thuật toán bubble sort)
 $studentsSorted = $students;
 for($i = 0, $length = count($studentsSorted); $i < $length; $i++){
     for($j = 0; $j < $length - $i - 1; $j++){
-        if($studentsSorted[$j]->age > $studentsSorted[$j + 1]->age):
-            list($studentsSorted[$j + 1], $studentsSorted[$j]) = array($studentsSorted[$j], $studentsSorted[$j + 1]);
-        endif;
+        if($studentsSorted[$j]->age > $studentsSorted[$j + 1]->age){
+            $tempData = $studentsSorted[$j + 1];
+            $studentsSorted[$j + 1] = $studentsSorted[$j];
+            $studentsSorted[$j] = $tempData;
+        }
     }
 }
 
