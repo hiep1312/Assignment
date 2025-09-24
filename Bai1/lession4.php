@@ -2,7 +2,9 @@
 
 //---------------------Bài 4:---------------------
 $list20Numbers = [];
-for($i = 0; $i < 20; $i++, $list20Numbers[] = rand(1, 100));
+for($i = 0; $i < 20; $i++){
+    $list20Numbers[] = rand(1, 100);
+};
 
 //In ra mảng gốc:
 print_r($list20Numbers);
