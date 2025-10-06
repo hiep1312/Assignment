@@ -5,20 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Product extends Model
+class Blog extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
         'title',
         'slug',
-        'description',
+        'content',
+        'author_id',
         'status',
     ];
 
     protected $casts = [
         'status' => 'integer',
     ];
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
 
     public function categories()
     {
@@ -30,13 +36,8 @@ class Product extends Model
         return $this->morphToMany(Image::class, 'imageable');
     }
 
-    public function variants()
+    public function comments()
     {
-        return $this->hasMany(ProductVariant::class, 'product_id');
-    }
-
-    public function reviews()
-    {
-        return $this->hasMany(ProductReview::class, 'product_id');
+        return $this->hasMany(BlogComment::class, 'blog_id');
     }
 }

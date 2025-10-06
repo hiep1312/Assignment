@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('banners', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->foreignId('created_by')->constrained('users')->onDelete('restrict');
+            $table->string('title', 255)->nullable();
+            $table->string('link_url');
+            $table->integer('position');
+            $table->tinyInteger('status')->default(1)
+                ->comment('Status rules: 1 -> active | 2 -> inactive');
             $table->timestamps();
         });
     }
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('banners');
     }
 };

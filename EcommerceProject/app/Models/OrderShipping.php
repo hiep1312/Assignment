@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class OrderShipping extends Model
+{
+    protected $fillable = [
+        'order_id',
+        'recipient_name',
+        'phone',
+        'province',
+        'district',
+        'ward',
+        'street',
+        'postal_code',
+        'note',
+    ];
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
+    }
+}

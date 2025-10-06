@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
-            $table->bigInteger('price');
-            $table->string('image_url')->nullable();
+            $table->string('title', 255);
+            $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->integer('sold_number')->default(0);
+            $table->tinyInteger('status')->default(1)
+                ->comment('Status rules: 0 -> inactive | 1 -> active');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

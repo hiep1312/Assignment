@@ -4,27 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Cart extends Model
+class UserAddress extends Model
 {
     protected $fillable = [
         'user_id',
-        'guest_token',
-        'status',
-        'expires_at',
+        'recipient_name',
+        'phone',
+        'province',
+        'district',
+        'ward',
+        'street',
+        'postal_code',
+        'is_default',
     ];
 
     protected $casts = [
-        'status' => 'integer',
-        'expires_at' => 'datetime',
+        'is_default' => 'boolean',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function items()
-    {
-        return $this->hasMany(CartItem::class, 'cart_id');
     }
 }
