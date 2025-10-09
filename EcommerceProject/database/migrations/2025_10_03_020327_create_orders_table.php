@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('order_code', 100)->unique();
             $table->bigInteger('total_amount');
             $table->bigInteger('shipping_fee')->default(0);
-            $table->tinyInteger('status')->default(1)
+            $table->tinyInteger('status')->default(1)->index()
                 ->comment('Status rules: 1 -> new | 2 -> confirmed | 3 -> processing | 4 -> shipped | 5 -> delivered | 6 -> completed | 7 -> failed | 8 -> buyer_cancel | 9 -> admin_cancel');
             $table->text('customer_note')->nullable();
             $table->text('admin_note')->nullable();

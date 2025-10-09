@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('content');
             $table->foreignId('author_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->tinyInteger('status')->default(0)
+            $table->tinyInteger('status')->default(0)->index()
                 ->comment('Status rules: 0 -> draft | 1 -> published | 2 -> archived');
             $table->timestamps();
             $table->softDeletes();

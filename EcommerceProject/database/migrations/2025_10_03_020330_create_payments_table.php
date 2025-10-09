@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->enum('method', ['cash', 'bank_transfer', 'credit_card']);
-            $table->tinyInteger('status')->default(0)
+            $table->tinyInteger('status')->default(0)->index()
                 ->comment('Status rules: 0 -> pending | 1 -> paid | 2 -> failed');
             $table->bigInteger('amount');
             $table->string('transaction_id', 255)->nullable();
