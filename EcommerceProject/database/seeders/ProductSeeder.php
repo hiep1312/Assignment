@@ -20,9 +20,9 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        /* Create random 20 products with images and categories */
-        $products = Product::factory(20)->has(
-            Image::factory(4)->product()->state(new Sequence(
+        /* Create random 25 products with images and categories */
+        $products = Product::factory(25)->has(
+            Image::factory(5)->product()->state(new Sequence(
                 fn (Sequence $sequence) => [
                     'is_main' => $sequence->index === 0,
                     'position' => $sequence->index

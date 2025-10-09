@@ -61,6 +61,7 @@
             "@php artisan test"
         ],
         "db:refresh": [
+            "Composer\\Config::disableProcessTimeout",
             "@php artisan app:refresh && php artisan migrate --seed"
         ]
     },

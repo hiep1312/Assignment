@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('password_resets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('token', 100);
+            $table->string('token', 100)->unique();
             $table->timestamp('expired_at');
             $table->timestamps();
         });

@@ -16,8 +16,8 @@ class BlogSeeder extends Seeder
      */
     public function run(): void
     {
-        /* Create random 15 blogs with images and categories */
-        $blogs = Blog::factory(15)->has(
+        /* Create random 20 blogs with images and categories */
+        $blogs = Blog::factory(20)->has(
             Image::factory(1)->blog()->main(),
             'images'
         )->has(
