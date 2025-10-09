@@ -21,7 +21,7 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         /* Create random 25 products with images and categories */
-        $products = Product::factory(25)->has(
+        $products = Product::factory(23)->has(
             Image::factory(5)->product()->state(new Sequence(
                 fn (Sequence $sequence) => [
                     'is_main' => $sequence->index === 0,
