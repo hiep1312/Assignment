@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MailUser extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'mail_id',
         'user_id',

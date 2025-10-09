@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('ward', 100);
             $table->string('street', 255)->nullable();
             $table->string('postal_code', 20)->nullable();
-            $table->boolean('is_default')->default(false);
+            $table->boolean('is_default')->default(false)->index();
             $table->timestamps();
         });
     }

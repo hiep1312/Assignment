@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('body');
             $table->json('variable')->nullable();
             $table->tinyInteger('type')->default(0)
-                ->comment('Type rules: 0 -> custom | 1 -> order_success | 2 -> order_failed | 3 -> shipping_update');
+                ->comment('Type rules: 0 -> custom | 1 -> order_success | 2 -> order_failed | 3 -> shipping_update | 4 -> forgot_password | 5 -> register_success');
             $table->timestamps();
         });
     }

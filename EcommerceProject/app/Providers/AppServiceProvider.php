@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         if(class_exists(FakerPicsumImagesProvider::class)){
-            $this->app->extend(Generator::class. ':' . (config('app.faker_locale') ?? 'en_US'), function (Generator $faker) {
+            $this->app->extend(Generator::class, function (Generator $faker) {
                 $faker->addProvider(new FakerPicsumImagesProvider($faker));
                 return $faker;
             });

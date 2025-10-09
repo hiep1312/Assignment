@@ -2,10 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
+use App\Models\Image;
 use App\Models\Product;
+use App\Models\ProductReview;
+use App\Models\ProductVariant;
+use App\Models\ProductVariantInventory;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
@@ -14,14 +20,32 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $faker = fake();
+        /* Create random 20 products with images and categories */
+        $products = Product::factory(20)->has(
+            Image::factory(4)->product()->state(new Sequence(
+                fn (Sequence $sequence) => [
+                    'is_main' => $sequence->index === 0,
+                    'position' => $sequence->index
+                ]
+            )),
+            'images'
+        )->has(
+            Category::factory(2),
+            'categories'
+        )->create();
 
-        for ($i = 0; $i < 30; $i++) {
-            Product::create([
-                'title' => ($title = $faker->unique()->words(3, true)),
-                'slug' => Str::slug($title),
-                'description' => $faker->paragraph(5),
-                'status' => $faker->randomElement([0, 1])
+        foreach($products->pluck('id') as $productId) {
+            /* Create random variants with inventory */
+            ProductVariant::factory(rand(1, 6))->has(
+                ProductVariantInventory::factory(1),
+                'inventory'
+            )->create([
+                'product_id' => $productId
+            ]);
+
+            /* Create random product reviews */
+            ProductReview::factory(rand(5, 30))->create([
+                'product_id' => $productId
             ]);
         }
     }

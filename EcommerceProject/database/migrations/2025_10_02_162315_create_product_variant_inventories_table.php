@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_variant_inventory', function (Blueprint $table) {
+        Schema::create('product_variant_inventories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('variant_id')->constrained('product_variants')->onDelete('cascade');
             $table->integer('stock')->default(0);
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_variant_inventory');
+        Schema::dropIfExists('product_variant_inventories');
     }
 };

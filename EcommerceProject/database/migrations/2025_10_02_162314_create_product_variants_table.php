@@ -21,6 +21,7 @@ return new class extends Migration
             $table->tinyInteger('status')->default(1)
                 ->comment('Status rules: 0 -> inactive | 1 -> active');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
