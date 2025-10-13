@@ -12,13 +12,6 @@ class Image extends Model
 
     protected $fillable = [
         'image_url',
-        'is_main',
-        'position',
-    ];
-
-    protected $casts = [
-        'is_main' => 'boolean',
-        'position' => 'integer',
     ];
 
     public function products()

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('guest_token', 100)->unique()->nullable();
-            $table->tinyInteger('status')->default(1)
+            $table->tinyInteger('status')->default(1)->index()
                 ->comment('Status rules: 1 -> active | 2 -> expired');
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();

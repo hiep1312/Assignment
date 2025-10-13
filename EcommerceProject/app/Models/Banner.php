@@ -12,12 +12,10 @@ class Banner extends Model
     protected $fillable = [
         'title',
         'link_url',
-        'position',
         'status',
     ];
 
     protected $casts = [
-        'position' => 'integer',
         'status' => 'integer',
     ];
 

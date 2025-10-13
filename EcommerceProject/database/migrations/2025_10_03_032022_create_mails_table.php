@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('subject', 255)->nullable();
             $table->text('body');
             $table->json('variable')->nullable();
-            $table->tinyInteger('type')->default(0)
+            $table->tinyInteger('type')->default(0)->index()
                 ->comment('Type rules: 0 -> custom | 1 -> order_success | 2 -> order_failed | 3 -> shipping_update | 4 -> forgot_password | 5 -> register_success');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -8,12 +8,19 @@ use Illuminate\View\Component;
 
 class ConfirmModal extends Component
 {
+    public static string $idModal;
     /**
      * Create a new component instance.
      */
-    public function __construct()
-    {
-        //
+    public function __construct(
+        public string $title,
+        public string $type,
+        public string $message = '',
+        public string $id = 'confirm-modal',
+        public string $confirmLabel = 'Confirm',
+        public ?string $confirmAction = null
+    ){
+        self::$idModal = $id;
     }
 
     /**

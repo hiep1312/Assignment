@@ -15,8 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('image_id')->constrained('images')->onDelete('cascade');
             $table->numericMorphs('imageable');
+            $table->boolean('is_main')->default(false);
+            $table->integer('position')->nullable();
             $table->timestamps();
 
+            $table->index(['imageable_type', 'imageable_id', 'is_main']);
+            $table->index(['imageable_type', 'imageable_id', 'position']);
             $table->comment('Polymorphic: Product | Banner | Blog');
         });
     }

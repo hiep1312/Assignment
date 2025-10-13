@@ -13,6 +13,13 @@ class Imageable extends Model
         'image_id',
         'imageable_id',
         'imageable_type',
+        'is_main',
+        'position',
+    ];
+
+    protected $casts = [
+        'is_main' => 'boolean',
+        'position' => 'integer',
     ];
 
     public function image()

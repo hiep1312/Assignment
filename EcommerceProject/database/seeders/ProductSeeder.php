@@ -21,13 +21,16 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         /* Create random 25 products with images and categories */
-        $products = Product::factory(23)->has(
-            Image::factory(4)->product()->state(new Sequence(
-                fn (Sequence $sequence) => [
-                    'is_main' => $sequence->index === 0,
-                    'position' => $sequence->index
-                ]
-            )),
+        $products = Product::factory(23)->hasAttached(
+            Image::factory(4)->product(),
+            function() {
+                static $index = 0;
+
+                return [
+                    'is_main' => $index === 0,
+                    'position' => $index++
+                ];
+            },
             'images'
         )->has(
             Category::factory(2),

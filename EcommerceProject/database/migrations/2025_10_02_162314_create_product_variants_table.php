@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('sku', 100)->unique();
             $table->bigInteger('price');
             $table->bigInteger('discount')->nullable();
-            $table->tinyInteger('status')->default(1)
+            $table->tinyInteger('status')->default(1)->index()
                 ->comment('Status rules: 0 -> inactive | 1 -> active');
             $table->timestamps();
             $table->softDeletes();

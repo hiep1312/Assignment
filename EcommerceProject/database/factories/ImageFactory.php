@@ -25,8 +25,6 @@ class ImageFactory extends Factory
 
         return [
             'image_url' => basename($pathImages) . "/" . $this->faker->image(dir: $pathImages, width: self::$width, height: self::$height, isFullPath: false, randomize: true, imageExtension: FakerPicsumImagesProvider::WEBP_IMAGE),
-            'is_main' => false,
-            'position' => null
         ];
     }
 
@@ -48,15 +46,5 @@ class ImageFactory extends Factory
         self::$width = 1200;
         self::$height = 675;
         return $this;
-    }
-
-    public function main(): static
-    {
-        return $this->state(fn (array $attributes) => ['is_main' => true]);
-    }
-
-    public function position(int $sortOrder): static
-    {
-        return $this->state(fn (array $attributes) => ['position' => $sortOrder]);
     }
 }

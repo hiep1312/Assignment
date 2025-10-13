@@ -29,6 +29,8 @@ class ImageableFactory extends Factory
             'image_id' => Image::factory(),
             'imageable_id' => $modelId,
             'imageable_type' => $modelType,
+            'is_main' => false,
+            'position' => null
         ];
     }
 
@@ -45,6 +47,7 @@ class ImageableFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'imageable_id' => Banner::inRandomOrder()->value('id') ?? Banner::factory()->create()->id,
             'imageable_type' => Banner::class,
+            'position' => $this->faker->unique()->numberBetween(1, 30),
         ]);
     }
 
@@ -54,5 +57,15 @@ class ImageableFactory extends Factory
             'imageable_id' => Blog::inRandomOrder()->value('id') ?? Blog::factory()->create()->id,
             'imageable_type' => Blog::class,
         ]);
+    }
+
+    public function main(): static
+    {
+        return $this->state(fn (array $attributes) => ['is_main' => true]);
+    }
+
+    public function position(int $sortOrder): static
+    {
+        return $this->state(fn (array $attributes) => ['position' => $sortOrder]);
     }
 }

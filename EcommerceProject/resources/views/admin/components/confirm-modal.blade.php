@@ -1,33 +1,37 @@
-@php $typeIcon = [
+@php
+$typeIcon = match($type){
     'success' => 'fas fa-check',
     'warning' => 'fas fa-exclamation-triangle',
     'error' => 'fas fa-times',
     'info' => 'fas fa-info',
     'question' => 'fas fa-question',
-    'delete' => 'fas fa-trash-alt'
-]; @endphp
-<div class="modal fade" tabindex="-1" aria-hidden="true">
+    'delete' => 'fas fa-trash-alt',
+};
+
+$typeBtn = match($type){
+    'success', 'question' => 'btn-primary',
+    'warning' => 'btn-warning',
+    'error', 'delete' => 'btn-danger',
+    'info' => 'btn-info',
+};
+@endphp
+<div class="modal fade" id="{{ $id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalCenterTitle">Modal title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
             <div class="modal-body">
                 <div class="modal-icon">
-                    <i class="fas fa-trash-alt"></i>
+                    <i class="{{ $typeIcon }}"></i>
                 </div>
-                <h4 class="modal-title mb-3">Xác nhận xóa</h4>
-                <p class="modal-text">
-                    Bạn có chắc chắn muốn xóa mục này không?
-                </p>
-                <p class="modal-text text-danger small fw-bold">
-                    ⚠️ Hành động này không thể hoàn tác!
-                </p>
+                <h4 class="modal-title mb-3">{{ $title }}</h4>
+                @if($message)
+                    <p class="modal-text">
+                        {{ $message }}
+                    </p>
+                @endif
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn {{ $typeBtn }}" @if($confirmAction) wire:click="{{ $confirmAction }}" @else data-bs-dismiss="modal" @endif>{{ $confirmLabel }}</button>
             </div>
         </div>
     </div>

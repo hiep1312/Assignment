@@ -19,7 +19,6 @@ class BannerFactory extends Factory
         return [
             'title' => $this->faker->sentence(4),
             'link_url' => $this->faker->url(),
-            'position' => $this->faker->unique()->numberBetween(1, 30),
             'status' => $this->faker->randomElement([1, 2])
         ];
     }

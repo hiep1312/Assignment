@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title', 255)->nullable();
             $table->string('link_url');
-            $table->integer('position');
-            $table->tinyInteger('status')->default(1)
+            $table->tinyInteger('status')->default(1)->index()
                 ->comment('Status rules: 1 -> active | 2 -> inactive');
             $table->timestamps();
         });

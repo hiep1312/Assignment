@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('images', function (Blueprint $table) {
             $table->id();
             $table->string('image_url');
-            $table->boolean('is_main')->default(false);
-            $table->integer('position')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -34,7 +34,9 @@ class Blog extends Model
 
     public function images()
     {
-        return $this->morphToMany(Image::class, 'imageable');
+        return $this->morphToMany(Image::class, 'imageable')
+            ->withPivot('is_main')
+            ->withTimestamps();
     }
 
     public function comments()
