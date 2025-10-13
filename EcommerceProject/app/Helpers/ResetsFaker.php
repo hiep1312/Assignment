@@ -4,7 +4,8 @@ namespace App\Helpers;
 
 use Faker\Generator;
 
-trait ResetsFaker{
+trait ResetsFaker
+{
     /**
      * Resets the Faker instance for the current Factory to clear unique() and generate new fake values.
      */

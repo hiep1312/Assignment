@@ -1,0 +1,90 @@
+/* Override Library */
+.custom-pagination ul.pagination, p.small {
+    margin-bottom: 0 !important;
+}
+
+/* Original bootstrap variable */
+:root {
+    --bs-primary-rgb-origin: 13, 110, 253;
+    --bs-secondary-rgb-origin: 108, 117, 125;
+    --bs-success-rgb-origin: 25, 135, 84;
+    --bs-info-rgb-origin: 13, 202, 240;
+    --bs-warning-rgb-origin: 255, 193, 7;
+    --bs-danger-rgb-origin: 220, 53, 69;
+    --bs-light-rgb-origin: 248, 249, 250;
+    --bs-dark-rgb-origin: 33, 37, 41;
+    --bs-bg-opacity-origin: 1;
+    --bs-text-opacity-origin: 1;
+}
+
+/* Background */
+.bootstrap.bg-primary {
+    background-color: rgba(var(--bs-primary-rgb-origin), var(--bs-bg-opacity-origin)) !important;
+}
+
+.bootstrap.bg-secondary {
+    background-color: rgba(var(--bs-secondary-rgb-origin), var(--bs-bg-opacity-origin)) !important;
+}
+
+.bootstrap.bg-success {
+    background-color: rgba(var(--bs-success-rgb-origin), var(--bs-bg-opacity-origin)) !important;
+}
+
+.bootstrap.bg-info {
+    background-color: rgba(var(--bs-info-rgb-origin), var(--bs-bg-opacity-origin)) !important;
+}
+
+.bootstrap.bg-warning {
+    background-color: rgba(var(--bs-warning-rgb-origin), var(--bs-bg-opacity-origin)) !important;
+}
+
+.bootstrap.bg-danger {
+    background-color: rgba(var(--bs-danger-rgb-origin), var(--bs-bg-opacity-origin)) !important;
+}
+
+.bootstrap.bg-light {
+    background-color: rgba(var(--bs-light-rgb-origin), var(--bs-bg-opacity-origin)) !important;
+}
+
+.bootstrap.bg-dark {
+    background-color: rgba(var(--bs-dark-rgb-origin), var(--bs-bg-opacity-origin)) !important;
+}
+
+/* Text */
+.bootstrap.text-primary {
+    color: rgba(var(--bs-primary-rgb-origin), var(--bs-text-opacity-origin)) !important;
+}
+
+.bootstrap.text-secondary {
+    color: rgba(var(--bs-secondary-rgb-origin), var(--bs-text-opacity-origin)) !important;
+}
+
+.bootstrap.text-success {
+    color: rgba(var(--bs-success-rgb-origin), var(--bs-text-opacity-origin)) !important;
+}
+
+.bootstrap.text-info {
+    color: rgba(var(--bs-info-rgb-origin), var(--bs-text-opacity-origin)) !important;
+}
+
+.bootstrap.text-warning {
+    color: rgba(var(--bs-warning-rgb-origin), var(--bs-text-opacity-origin)) !important;
+}
+
+.bootstrap.text-danger {
+    color: rgba(var(--bs-danger-rgb-origin), var(--bs-text-opacity-origin)) !important;
+}
+
+.bootstrap.text-light {
+    color: rgba(var(--bs-light-rgb-origin), var(--bs-text-opacity-origin)) !important;
+}
+
+.bootstrap.text-dark {
+    color: rgba(var(--bs-dark-rgb-origin), var(--bs-text-opacity-origin)) !important;
+}
+
+h6.bootstrap, h5.bootstrap, h4.bootstrap, h3.bootstrap, h2.bootstrap, h1.bootstrap
+.h6.bootstrap, .h5.bootstrap, .h4.bootstrap, .h3.bootstrap, .h2.bootstrap, .h1.bootstrap {
+    color: inherit;
+    line-height: 1.2;
+}

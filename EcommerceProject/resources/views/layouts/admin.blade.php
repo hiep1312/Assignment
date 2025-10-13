@@ -1,12 +1,18 @@
-@php $currentPage = basename($_SERVER['PATH_INFO']); @endphp
+@php $currentPage = basename($_SERVER['PATH_INFO'] ?? request()->path()); @endphp
 <!DOCTYPE html>
-<html lang="en" class="light-style @if(in_array($currentPage, ['auth-forgot-password-basic', 'auth-login-basic', 'auth-register-basic'], true)) customizer-hide @else layout-menu-fixed @endif" dir="ltr">
+<html lang="en" class="light-style @unless(in_array($currentPage, ['auth-forgot-password-basic', 'auth-login-basic', 'auth-register-basic', 'login'], true)) layout-menu-fixed @endunless" dir="ltr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>@yield('title', "Sneat Admin")</title>
+    <title>
+        @hasSection('title')
+            @yield('title', "Bookio Admin")
+        @else
+            {{ $title ?? "Bookio Admin" }}
+        @endif
+    </title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset("admin/assets/img/favicon/favicon.ico") }}" />
@@ -46,7 +52,11 @@
                 <div class="layout-page">
                     @include('admin.partials.header')
                     <div class="content-wrapper">
-                        @yield('content')
+                        @hasSection('content')
+                            @yield('content')
+                        @else
+                            {{ $slot ?? '' }}
+                        @endif
                         @include('admin.partials.footer')
 
                         <div class="content-backdrop fade"></div>

@@ -1,13 +1,32 @@
 <?php
 
+use App\Livewire\Admin\Auth\Login;
+use App\Livewire\Admin\Users\UserCreate;
+use App\Livewire\Admin\Users\UserIndex;
 use Illuminate\Support\Facades\Route;
 
+Route::prefix('admin')->name('admin.')->group(function() {
+    /* Users */
+    Route::prefix('users')->name('users.')->group(function(){
+        Route::get('/', UserIndex::class)->name('index');
+        Route::get('/create', UserCreate::class)->name('create');
+    });
+
+
+});
+
+Route::name('auth.')->group(function() {
+    Route::prefix('admin')->name('admin.')->group(function() {
+        Route::get('/login', Login::class);
+    });
+
+});
 
 Route::prefix('template')->name('template.')->group(function() {
     Route::match(['get', 'post'], '/', fn() => view('admin.template.index'))->name('index');
-    Route::view('/auth-forgot-password-basic', 'admin.pages.auth.forgot-password')->name('auth-forgot-password-basic');
-    Route::view('/auth-login-basic', 'admin.pages.auth.login')->name('auth-login-basic');
-    Route::view('/auth-register-basic', 'admin.pages.auth.register')->name('auth-register-basic');
+    Route::view('/auth-forgot-password-basic', 'admin.template.forgot-password')->name('auth-forgot-password-basic');
+    Route::view('/auth-login-basic', 'admin.template.login')->name('auth-login-basic');
+    Route::view('/auth-register-basic', 'admin.template.register')->name('auth-register-basic');
     Route::view('/cards-basic', 'admin.template.cards-basic')->name('cards-basic');
     Route::view('/extended-ui-perfect-scrollbar', 'admin.template.extended-ui-perfect-scrollbar')->name('extended-ui-perfect-scrollbar');
     Route::view('/extended-ui-text-divider', 'admin.template.extended-ui-text-divider')->name('extended-ui-text-divider');

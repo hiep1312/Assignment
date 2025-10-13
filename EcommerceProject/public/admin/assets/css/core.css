@@ -6343,7 +6343,7 @@ label.btn {
   box-shadow: 0 0.125rem 0.25rem 0 rgba(133, 146, 163, 0.4);
   transform: translateY(-1px);
 }
-.btn-check:focus + .btn-outline-secondary, .btn-outline-secondary:focus {
+.btn-check:focus + .btn-outline-secondary, .btn-outline-secondary:focus:not(.bootstrap) {
   color: #fff;
   background-color: #788393;
   border-color: #788393;
@@ -6499,7 +6499,7 @@ label.btn {
   box-shadow: 0 0.125rem 0.25rem 0 rgba(3, 195, 236, 0.4);
   transform: translateY(-1px);
 }
-.btn-check:focus + .btn-outline-info, .btn-outline-info:focus {
+.btn-check:focus + .btn-outline-info, .btn-outline-info:focus:not(.bootstrap) {
   color: #fff;
   background-color: #03b0d4;
   border-color: #03b0d4;
@@ -6655,7 +6655,7 @@ label.btn {
   box-shadow: 0 0.125rem 0.25rem 0 rgba(255, 62, 29, 0.4);
   transform: translateY(-1px);
 }
-.btn-check:focus + .btn-outline-danger, .btn-outline-danger:focus {
+.btn-check:focus + .btn-outline-danger, .btn-outline-danger:focus:not(.bootstrap) {
   color: #fff;
   background-color: #e6381a;
   border-color: #e6381a;

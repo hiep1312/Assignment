@@ -24,7 +24,7 @@ class ImageFactory extends Factory
         if(!file_exists($pathImages)) mkdir($pathImages, 0777, true);
 
         return [
-            'image_url' => basename($pathImages) . $this->faker->image(dir: $pathImages, width: self::$width, height: self::$height, isFullPath: false, randomize: true, imageExtension: FakerPicsumImagesProvider::WEBP_IMAGE),
+            'image_url' => basename($pathImages) . "/" . $this->faker->image(dir: $pathImages, width: self::$width, height: self::$height, isFullPath: false, randomize: true, imageExtension: FakerPicsumImagesProvider::WEBP_IMAGE),
             'is_main' => false,
             'position' => null
         ];

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PaymentMethod;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('method', ['cash', 'bank_transfer', 'credit_card']);
+            $table->enum('method', PaymentMethod::cases());
             $table->tinyInteger('status')->default(0)->index()
                 ->comment('Status rules: 0 -> pending | 1 -> paid | 2 -> failed');
             $table->bigInteger('amount');
