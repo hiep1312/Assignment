@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Faker\Generator;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Smknstd\FakerPicsumImages\FakerPicsumImagesProvider;
 
@@ -26,6 +27,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Blade::componentNamespace("App\\Livewire\\Admin\\Components", 'livewire');
     }
 }

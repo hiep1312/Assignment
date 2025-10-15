@@ -14,11 +14,11 @@ class Repository
 
     public static function wrapValue(mixed ...$arguments): object
     {
-        $hasMultipleParams = count($arguments) > 1;
+        $hasMultipleParams = (count($arguments) > 1 || count($arguments) === 0);
 
         return (object)[
             'get' => (object)[
-                'value' => $hasMultipleParams ? $arguments : ($arguments[0] ?? null),
+                'value' => $hasMultipleParams ? ($arguments ?? []) : ($arguments[0] ?? null),
                 '__has_multi_params__' => $hasMultipleParams,
             ],
             '__is_repository_value__' => true
@@ -30,21 +30,18 @@ class Repository
         return (($value instanceof stdClass) && isset($value->{self::IS_REPOSITORY_VALUE}) && isset($value->get->{self::HAS_MULTI_PARAMS}));
     }
 
-    public static function handleFilters(QueryBuilder|EloquentBuilder &$query, array $filters): void
+    public static function handleCriteria(QueryBuilder|EloquentBuilder &$query, array $criteria): void
     {
-        foreach($filters as $method => $value) {
-            if(is_int($method)){
-                if(config('app.env') === "production") continue;
-                else throw new InvalidArgumentException("Invalid filter key at position {$method}. Each filter key must be a string representing a query method name.");
-            }
-            $method = preg_replace('/[^a-zA-Z-_]/', '', $method);
+        foreach($criteria as $method => $value) {
+            $isMethodAsValue = is_int($method);
+            $method = preg_replace('/[^a-zA-Z-_]/', '', strval($isMethodAsValue ? $value : $method));
 
             if(self::isRepositoryValue($value)) {
                 $value->get->{self::HAS_MULTI_PARAMS}
                     ? $query->{$method}(...$value->get->value)
                     : $query->{$method}($value->get->value);
             }else {
-                $query->{$method}($value);
+                $isMethodAsValue ? $query->{$method}() : $query->{$method}($value);
             }
         }
     }

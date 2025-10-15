@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\PaymentMethod;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -18,7 +19,7 @@ class PaymentFactory extends Factory
      */
     public function definition(): array
     {
-        $method = $this->faker->randomElement(['cash', 'bank_transfer', 'credit_card']);
+        $method = $this->faker->randomElement(array_column(PaymentMethod::cases(), 'value'));
         $status = $this->faker->numberBetween(1, 2);
         $amount = $this->faker->numberBetween(100_000, 3_000_000);
         $transactionId = "pi_" . $this->faker->unique()->regexify('[A-Za-z0-9]{24}');

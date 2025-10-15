@@ -1,6 +1,6 @@
 <?php
 
-namespace App\View\Components\Admin;
+namespace App\Livewire\Admin\Components;
 
 use Closure;
 use Illuminate\Contracts\View\View;

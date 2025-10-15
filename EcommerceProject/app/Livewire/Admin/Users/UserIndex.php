@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Admin\Users;
 
-use App\Repositories\UserRepository;
+use App\Helpers\Repository;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -12,14 +14,15 @@ class UserIndex extends Component
 {
     use WithPagination;
 
-    protected UserRepository $repository;
+    public bool $isTrashed = false;
+    protected UserRepositoryInterface $repository;
 
     public string $search = '';
     public string $role = '';
     public ?int $emailVerified = null;
     public array $selectedUserIds = [];
 
-    public function boot(UserRepository $repository){
+    public function boot(UserRepositoryInterface $repository){
         $this->repository = $repository;
     }
 
@@ -28,23 +31,47 @@ class UserIndex extends Component
         $this->resetPage();
     }
 
-    public function softDeleteUser(?int $id = null){
-
+    public function updatedIsTrashed(){
+        $this->reset('selectedUserIds');
+        $this->js(<<<JS
+            new Promise(resolve => setTimeout(updateSelectAllState));
+        JS);
     }
 
-    public function forceDeleteUser(){
+    #[On('user.deleted')]
+    public function softDelete(?int $id = null){
+        $this->repository->delete($id ?? [
+            'whereIn' => Repository::wrapValue('id', $this->selectedUserIds),
+        ]);
+    }
 
+    #[On('user.restored')]
+    public function restore(?int $id = null){
+        $this->repository->restore(
+            $id ??
+            (empty($this->selectedUserIds) ? null : ['whereIn' => Repository::wrapValue('id', $this->selectedUserIds)])
+        );
+    }
+
+    #[On('user.forceDeleted')]
+    public function forceDelete(?int $id = null){
+        $this->repository->forceDelete(
+            $id ??
+            (empty($this->selectedUserIds) ? null : ['whereIn' => Repository::wrapValue('id', $this->selectedUserIds)])
+        );
     }
 
     #[Title('User List - Bookio Admin')]
     #[Layout('layouts.admin')]
     public function render()
     {
-        $users = $this->repository->getAll(filters: function(&$query) {
+        $users = $this->repository->getAll(criteria: function(&$query) {
+            if($this->isTrashed) $query->onlyTrashed();
+
             $query->when($this->search, function($innerQuery){
                 $innerQuery->where(function($subQuery){
                     $subQuery->whereLike('email', '%'. trim($this->search) .'%')
-                        ->orWhereLike('name', "%{$this->search}%");
+                        ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%'. trim($this->search) .'%']);
                 });
             })
             ->when(
@@ -55,8 +82,31 @@ class UserIndex extends Component
                 $this->emailVerified !== null,
                 fn($innerQuery) => $innerQuery->where('email_verified_at', $this->emailVerified ? '!=' : '=', null)
             );
-        }, perPage: 10, columns: ['*'], pageName: 'page');
+        }, perPage: 20, columns: ['*'], pageName: 'page');
 
-        return view('admin.pages.users.user-index', compact('users'));
+        $statistic = [
+            [
+                'title' => 'Total Users',
+                'value' => $this->repository->count(['withTrashed']),
+                'icon' => 'fas fa-users',
+            ],
+            [
+                'title' => 'Active Users',
+                'value' => $this->repository->count(),
+                'icon' => 'fas fa-user-check',
+            ],
+            [
+                'title' => 'Deleted Users',
+                'value' => $this->repository->count(['onlyTrashed']),
+                'icon' => 'fas fa-user-slash',
+            ],
+            [
+                'title' => 'Unverified Users',
+                'value' => $this->repository->count(fn($query) => $query->whereNull('email_verified_at')),
+                'icon' => 'fas fa-user-clock',
+            ]
+        ];
+
+        return view('admin.pages.users.user-index', compact('users', 'statistic'));
     }
 }

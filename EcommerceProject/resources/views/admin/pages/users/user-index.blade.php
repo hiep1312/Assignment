@@ -1,71 +1,10 @@
 @use('App\Enums\UserRole')
-<div class="container-xxl flex-grow-1 container-p-y">
-    <x-admin.management-header title="User List" add-new-url="{{ route('admin.users.create') }}" add-label="Add New User" />
+<div class="container-xxl flex-grow-1 container-p-y" id="main-component">
+    <x-livewire::management-header title="User List" add-new-url="{{ route('admin.users.create') }}" add-label="Add New User" />
 
-    <div class="row mb-2">
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card bg-primary bootstrap text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-subtitle mb-2 bootstrap">Total Users</h6>
-                            <h3 class="card-title mb-0 bootstrap">1,234</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-users fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card bg-success bootstrap text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-subtitle mb-2 bootstrap">Active Users</h6>
-                            <h3 class="card-title mb-0 bootstrap">987</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-user-check fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card bg-warning bootstrap text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-subtitle mb-2 bootstrap">Pending</h6>
-                            <h3 class="card-title mb-0 bootstrap">45</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-user-clock fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card stat-card bg-danger bootstrap text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-subtitle mb-2 bootstrap">Inactive</h6>
-                            <h3 class="card-title mb-0 bootstrap">202</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-user-times fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-livewire::stats-overview :data-stats="$statistic" />
 
-    <x-admin.filter-bar placeholderSearch="Search users..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire::filter-bar placeholderSearch="Search users..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="role">
                 <option value="">All Roles</option>
@@ -80,19 +19,53 @@
                 <option value="0">Not Verified</option>
             </select>
         </div>
-    </x-admin.filter-bar>
+    </x-livewire::filter-bar>
 
-    <x-admin.data-table caption="User Records">
+    <livewire:admin.components.confirm-modal>
+
+    <x-livewire::data-table caption="User Records">
         <x-slot:actions>
-            <button type="button" class="btn btn-outline-danger bootstrap" style="padding: 0.4rem 1.25rem;"
-                wire:click="softDeleteUser" title="Remove User" x-show="$wire.selectedUserIds.length" x-transition>
-                <i class="fas fa-list-alt me-1"></i>
-                Remove User
-            </button>
-            <button type="button" class="btn btn-outline-primary bootstrap" style="padding: 0.4rem 1.25rem;" title="View Deleted Users">
-                <i class="fas fas fa-trash-restore me-1"></i>
-                Deleted Users
-            </button>
+            @if($isTrashed)
+                <button type="button" class="btn btn-outline-secondary bootstrap" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedUserIds.length ? `Restore Users` : `Restore All Users`"
+                    onclick="confirmModalAction(this)" :data-title="$wire.selectedUserIds.length ? `Restore Users` : `Restore All Users`" data-type="question"
+                    x-bind:data-message="$wire.selectedUserIds.length
+                        ? `Are you sure you want to restore these ${$wire.selectedUserIds.length} users? They will be moved back to the active users list.`
+                        : `Are you sure you want to restore all users? They will be moved back to the active users list.`
+                    "
+                    data-confirm-label="Confirm Restore" data-event-name="user.restored" wire:key="restore">
+                    <i class="fas fa-history me-1"></i>
+                    <span x-text="$wire.selectedUserIds.length ? `Restore Users` : `Restore All Users`"></span>
+                </button>
+                <button type="button" class="btn btn-outline-danger bootstrap" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedUserIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`"
+                    onclick="confirmModalAction(this)" :data-title="$wire.selectedUserIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`" data-type="warning"
+                    x-bind:data-message="$wire.selectedUserIds.length
+                        ? `Are you sure you want to permanently delete these ${$wire.selectedUserIds.length} users? This action cannot be undone.`
+                        : `Are you sure you want to permanently delete all users? This action cannot be undone.`
+                    "
+                    data-confirm-label="Confirm Delete" data-event-name="user.forceDeleted" wire:key="force-delete">
+                    <i class="fas fa-trash-alt me-1"></i>
+                    <span x-text="$wire.selectedUserIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`"></span>
+                </button>
+                <button type="button" class="btn btn-outline-primary bootstrap" style="padding: 0.4rem 1.25rem;"
+                    title="View Active Users"
+                    wire:click="$toggle('isTrashed', true)">
+                    <i class="fas fa-user-check me-1"></i>
+                    Active Users
+                </button>
+            @else
+                <button type="button" class="btn btn-outline-danger bootstrap" style="padding: 0.4rem 1.25rem;" title="Remove Users"
+                    x-show="$wire.selectedUserIds.length" x-transition onclick="confirmModalAction(this)"
+                    data-title="Remove Users" data-type="warning" x-bind:data-message="`Are you sure you want to remove these ${$wire.selectedUserIds.length} users? They can be restored later.`"
+                    data-confirm-label="Confirm Delete" data-event-name="user.deleted" wire:key="delete">
+                    <i class="fas fa-user-times me-1"></i>
+                    Remove Users
+                </button>
+                <button type="button" class="btn btn-outline-primary bootstrap" style="padding: 0.4rem 1.25rem;" title="View Deleted Users"
+                    wire:click="$toggle('isTrashed', true)">
+                    <i class="fas fa-trash-restore-alt me-1"></i>
+                    Deleted Users
+                </button>
+            @endif
         </x-slot:actions>
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -121,7 +94,14 @@
                                     <img src="{{ asset('storage/' . ($user->avatar ?? '404.webp')) }}"
                                         class="rounded-circle me-2" width="40" height="40" alt="User Avatar">
                                     <div class="text-start">
-                                        <div class="fw-bold">{{ Str::limit(trim("{$user->first_name} {$user->last_name}"), 20, '...') }}</div>
+                                        <div class="fw-bold">
+                                            {{ Str::limit(trim("{$user->first_name} {$user->last_name}"), 20, '...') }}
+                                            @if($isTrashed)
+                                                <span class="badge badge-center rounded-pill bg-label-danger ms-1" style="font-size: 0.7rem; vertical-align: middle;">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </span>
+                                            @endif
+                                        </div>
                                         <small class="text-muted">ID: #{{ $user->id }}</small>
                                     </div>
                                 </div>
@@ -148,8 +128,8 @@
                             <td>
                                 <span class="badge rounded-pill
                                     @switch($user->role)
-                                        @case(UserRole::ADMIN->value) bg-primary @break
-                                        @case(UserRole::USER->value) bg-secondary @break
+                                        @case(UserRole::ADMIN) bg-primary @break
+                                        @case(UserRole::USER) bg-secondary @break
                                     @endswitch
                                 ">
                                     {{ $user->role }}
@@ -162,12 +142,27 @@
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-warning" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger" title="Delete" wire:click="softDeleteUser({{ $user->id }})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    @if($isTrashed)
+                                        <button class="btn btn-outline-warning btn-action" title="Restore" onclick="confirmModalAction(this)"
+                                            data-title="Restore User" data-type="question" data-message="Are you sure you want to restore this user #{{ $user->id }}? The user will be moved back to the active users list."
+                                            data-confirm-label="Confirm Restore" data-event-name="user.restored" data-event-data="{{ $user->id }}">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" title="Permanently Delete" onclick="confirmModalAction(this)"
+                                            data-title="Permanently Delete User" data-type="warning" data-message="Are you sure you want to permanently delete this user #{{ $user->id }}? This action cannot be undone."
+                                            data-confirm-label="Confirm Delete" data-event-name="user.forceDeleted" data-event-data="{{ $user->id }}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    @else
+                                        <button class="btn btn-outline-warning btn-action" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" title="Delete" onclick="confirmModalAction(this)"
+                                            data-title="Remove User" data-type="warning" data-message="Are you sure you want to remove this user #{{ $user->id }}? The user can be restored later."
+                                            data-confirm-label="Confirm Delete" data-event-name="user.deleted" data-event-data="{{ $user->id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -192,26 +187,5 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-admin.data-table>
+    </x-livewire::data-table>
 </div>
-@script
-<script>
-    window.toggleSelectAll = function(checkboxElement){
-        const reverseState = !Boolean(+checkboxElement.dataset.state);
-        const dataIds = Array.from(document.querySelectorAll('.user-checkbox'), (checkbox) => {
-            checkbox.checked = reverseState;
-            return reverseState && checkbox.value;
-        });
-
-        checkboxElement.dataset.state = checkboxElement.checked = +reverseState;
-        $wire.selectedUserIds = reverseState ? dataIds : [];
-    }
-
-    window.updateSelectAllState = function(){
-        const toggleAllElement = document.getElementById('toggleAll');
-        const stateNew = Array.from(document.querySelectorAll('.user-checkbox')).every(checkbox => checkbox.checked);
-
-        toggleAllElement.dataset.state = toggleAllElement.checked = +stateNew;
-    }
-</script>
-@endscript

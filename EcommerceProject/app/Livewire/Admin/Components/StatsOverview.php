@@ -1,18 +1,18 @@
 <?php
 
-namespace App\View\Components\Admin;
+namespace App\Livewire\Admin\Components;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class DataTable extends Component
+class StatsOverview extends Component
 {
     /**
      * Create a new component instance.
      */
     public function __construct(
-        public string $caption,
+        public array $dataStats
     ){}
 
     /**
@@ -20,6 +20,6 @@ class DataTable extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('admin.components.data-table');
+        return view('admin.components.stats-overview');
     }
 }

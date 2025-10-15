@@ -1,18 +1,20 @@
 <?php
 
-namespace App\View\Components\Admin;
+namespace App\Livewire\Admin\Components;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class StatsOverview extends Component
+class FilterBar extends Component
 {
     /**
      * Create a new component instance.
      */
     public function __construct(
-        public array $data
+        public string $placeholderSearch = 'Search data...',
+        public string $modelSearch = 'search',
+        public string $resetAction = 'resetFilters',
     ){}
 
     /**
@@ -20,6 +22,6 @@ class StatsOverview extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('admin.components.stats-overview');
+        return view('admin.components.filter-bar');
     }
 }

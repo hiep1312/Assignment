@@ -19,20 +19,31 @@ $typeBtn = match($type){
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <div class="modal-icon">
+                <div class="modal-icon {{ $type }}">
                     <i class="{{ $typeIcon }}"></i>
                 </div>
-                <h4 class="modal-title mb-3">{{ $title }}</h4>
+                <h3 class="modal-title text-center mb-3">{{ $title }}</h3>
                 @if($message)
-                    <p class="modal-text">
+                    <p class="modal-text text-center">
                         {{ $message }}
                     </p>
                 @endif
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn {{ $typeBtn }}" @if($confirmAction) wire:click="{{ $confirmAction }}" @else data-bs-dismiss="modal" @endif>{{ $confirmLabel }}</button>
+                <button type="button" class="btn {{ $typeBtn }}" wire:click="confirmAction" data-bs-dismiss="modal">{{ $confirmLabel }}</button>
             </div>
         </div>
     </div>
 </div>
+@script
+<script>
+    window.syncModal = function(isOpen = null){
+        const modal = bootstrap.Modal.getOrCreateInstance("#{{ $id }}");
+        const condition = typeof isOpen === 'boolean' ? isOpen : @json($realtimeOpen);
+
+        condition ? modal.show() : modal.hide();
+    }
+    syncModal();
+</script>
+@endscript
