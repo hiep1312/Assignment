@@ -26,16 +26,16 @@ class UserIndex extends Component
         $this->repository = $repository;
     }
 
-    public function resetFilters(){
-        $this->reset('search', 'role', 'emailVerified');
-        $this->resetPage();
-    }
-
     public function updatedIsTrashed(){
         $this->reset('selectedUserIds');
         $this->js(<<<JS
             new Promise(resolve => setTimeout(updateSelectAllState));
         JS);
+    }
+
+    public function resetFilters(){
+        $this->reset('search', 'role', 'emailVerified');
+        $this->resetPage();
     }
 
     #[On('user.deleted')]
@@ -82,6 +82,8 @@ class UserIndex extends Component
                 $this->emailVerified !== null,
                 fn($innerQuery) => $innerQuery->where('email_verified_at', $this->emailVerified ? '!=' : '=', null)
             );
+
+            $query->orderBy('id', 'desc');
         }, perPage: 20, columns: ['*'], pageName: 'page');
 
         $statistic = [

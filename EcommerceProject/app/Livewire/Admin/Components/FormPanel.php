@@ -6,17 +6,17 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class ManagementHeader extends Component
+class FormPanel extends Component
 {
     /**
      * Create a new component instance.
      */
     public function __construct(
-        public string $title,
-        public string $btnLink = '',
-        public string $btnLabel = '',
-        public string $btnIcon = 'fas fa-user-plus',
-        public string $btnClass = 'btn btn-primary'
+        public bool $isFormNormal = true,
+        public string $id = 'form-panel',
+        public string $action = '',
+        public string $method = 'GET',
+        public string $enctype = 'application/x-www-form-urlencoded'
     ){}
 
     /**
@@ -24,6 +24,6 @@ class ManagementHeader extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('admin.components.management-header');
+        return view('admin.components.form-panel');
     }
 }

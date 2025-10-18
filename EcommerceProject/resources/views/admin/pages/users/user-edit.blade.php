@@ -1,14 +1,16 @@
 @use('App\Enums\UserRole')
+@use('Illuminate\Http\UploadedFile')
 @use('App\Livewire\Admin\Components\FormPanel\ImageUploader')
 @use('App\Enums\DefaultImage')
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
-    <x-livewire::management-header title="Add New User" btn-link="{{ route('admin.users.index') }}" btn-label="Back to List"
+    <x-livewire::management-header title="Edit User" btn-link="{{ route('admin.users.index') }}" btn-label="Back to List"
         btn-icon="fas fa-arrow-left" btn-class="btn btn-outline-secondary bootstrap-focus" />
 
-    <x-livewire::form-panel :isFormNormal="false" id="user-create-form" action="store">
+    <x-livewire::form-panel :isFormNormal="false" id="user-edit-form" action="update">
         <x-livewire::form-panel.image-uploader :isMultiple="false" :type="ImageUploader::TYPE_AVATAR" label="Profile Avatar" labelIcon="fa-solid fa-image-user">
             @php $previewImage = match(true){
-                $avatar && str_starts_with($avatar?->getMimeType() ?? '', 'image') => $avatar->temporaryUrl(),
+                $avatar instanceof UploadedFile && str_starts_with($avatar?->getMimeType() ?? '', 'image') => $avatar->temporaryUrl(),
+                is_string($avatar) => asset("storage/{$avatar}"),
                 default => DefaultImage::getDefaultPath(ImageUploader::TYPE_AVATAR)
             } @endphp
             <x-slot:image :src="$previewImage" alt="Avatar Preview"></x-slot:image>
@@ -41,7 +43,7 @@
 
             <x-livewire::form-panel.group.input-group label="Email Address" icon="fas fa-envelope" for="email" column="col-md-6" required>
                 <input type="email" class="form-control custom-radius-end @error('email') is-invalid @enderror" id="email"
-                    wire:model="email" placeholder="Enter email">
+                    value="{{ $email }}" placeholder="Enter email" readonly>
                 <x-slot:feedback>
                     @error('email')
                         <div class="invalid-feedback">
@@ -49,29 +51,6 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
-
-            <x-livewire::form-panel.group.input-group label="Password" icon="fas fa-lock" for="password" column="col-md-6" required>
-                <input :type="showPassword ? 'text' : 'password'" class="form-control custom-border-right @error('password') is-invalid @enderror" id="password"
-                    wire:model="password" placeholder="Enter password">
-                <span class="input-group-text cursor-pointer custom-radius-end" x-on:click="showPassword = !showPassword">
-                    <i :class="{'bx': true, 'bx-show': showPassword, 'bx-hide': !showPassword}"></i>
-                </span>
-                <x-slot:feedback>
-                    @error('password')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
-                </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
-
-            <x-livewire::form-panel.group.input-group label="Confirm Password" icon="fas fa-lock" for="password_confirmation" column="col-md-6" required>
-                <input :type="showPassword ? 'text' : 'password'" class="form-control custom-border-right @error('password') is-invalid @enderror" id="password_confirmation"
-                    wire:model="password_confirmation" placeholder="Re-enter password">
-                <span class="input-group-text cursor-pointer custom-radius-end" x-on:click="showPassword = !showPassword">
-                    <i :class="{'bx': true, 'bx-show': showPassword, 'bx-hide': !showPassword}"></i>
-                </span>
             </x-livewire::form-panel.group.input-group>
 
             <x-livewire::form-panel.group.input-group label="First Name" icon="fas fa-user" for="first_name" column="col-md-6" required>
@@ -132,8 +111,8 @@
                 Reset Form
             </button>
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-user-plus me-2"></i>
-                Create User
+                <i class="fas fa-save me-2"></i>
+                Update User
             </button>
         </x-slot:actions>
     </x-livewire::form-panel>

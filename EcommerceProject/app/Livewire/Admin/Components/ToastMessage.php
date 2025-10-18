@@ -6,17 +6,17 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class ManagementHeader extends Component
+class ToastMessage extends Component
 {
     /**
      * Create a new component instance.
      */
     public function __construct(
         public string $title,
-        public string $btnLink = '',
-        public string $btnLabel = '',
-        public string $btnIcon = 'fas fa-user-plus',
-        public string $btnClass = 'btn btn-primary'
+        public string $time,
+        public string $type = 'white',
+        public bool $show = false,
+        public ?int $duration = 5
     ){}
 
     /**
@@ -24,6 +24,6 @@ class ManagementHeader extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('admin.components.management-header');
+        return view('admin.components.toast-message');
     }
 }
