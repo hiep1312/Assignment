@@ -1,6 +1,9 @@
 <?php
 
 use App\Livewire\Admin\Auth\Login;
+use App\Livewire\Admin\Banners\BannerCreate;
+use App\Livewire\Admin\Banners\BannerEdit;
+use App\Livewire\Admin\Banners\BannerIndex;
 use App\Livewire\Admin\Users\UserCreate;
 use App\Livewire\Admin\Users\UserEdit;
 use App\Livewire\Admin\Users\UserIndex;
@@ -14,6 +17,12 @@ Route::prefix('admin')->name('admin.')->group(function() {
         Route::get('/edit/{user}', UserEdit::class)->name('edit');
     });
 
+    /* Banners */
+    Route::prefix('banners')->name('banners.')->group(function(){
+        Route::get('/', BannerIndex::class)->name('index');
+        Route::get('/create', BannerCreate::class)->name('create');
+        Route::get('/edit/{banner}', BannerEdit::class)->name('edit');
+    });
 
 });
 

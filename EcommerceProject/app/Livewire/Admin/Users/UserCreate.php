@@ -49,7 +49,7 @@ class UserCreate extends Component
             ]
         );
 
-        return redirect()->route('admin.users.index')->with('data-changed', ['New user account has been created successfully.', now()]);
+        return redirect()->route('admin.users.index')->with('data-changed', ['New user account has been created successfully.', now()->toISOString()]);
     }
 
     public function resetForm(){

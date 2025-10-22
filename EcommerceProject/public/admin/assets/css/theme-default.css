@@ -248,7 +248,7 @@ button.list-group-item-primary.active {
   box-shadow: 0 0.125rem 0.25rem 0 rgba(105, 108, 255, 0.4);
   transform: translateY(-1px);
 }
-.btn-check:focus + .btn-outline-primary, .btn-outline-primary:focus {
+.btn-check:focus + .btn-outline-primary, .btn-outline-primary:focus:not(.bootstrap-focus) {
   color: #fff;
   background-color: #5f61e6;
   border-color: #5f61e6;

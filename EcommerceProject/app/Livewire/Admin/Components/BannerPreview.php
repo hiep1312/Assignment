@@ -6,17 +6,14 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class ToastMessage extends Component
+class BannerPreview extends Component
 {
     /**
      * Create a new component instance.
      */
     public function __construct(
         public string $title,
-        public int|string $time,
-        public string $type = 'white',
-        public bool $show = false,
-        public ?int $duration = 5
+        public string $icon = 'fas fa-images'
     ){}
 
     /**
@@ -24,6 +21,6 @@ class ToastMessage extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('admin.components.toast-message');
+        return view('admin.components.banner-preview');
     }
 }

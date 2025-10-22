@@ -6421,7 +6421,7 @@ label.btn {
   box-shadow: 0 0.125rem 0.25rem 0 rgba(113, 221, 55, 0.4);
   transform: translateY(-1px);
 }
-.btn-check:focus + .btn-outline-success, .btn-outline-success:focus {
+.btn-check:focus + .btn-outline-success, .btn-outline-success:focus:not(.bootstrap-focus) {
   color: #fff;
   background-color: #66c732;
   border-color: #66c732;
@@ -7987,7 +7987,7 @@ form select.selectpicker.is-invalid ~ .btn {
   }
 }
 @media (max-width: 767.98px) {
-  .modal .modal-dialog:not(.modal-fullscreen) {
+  .modal .modal-dialog:not(.modal-fullscreen):not(.bootstrap-padding) {
     padding: 0 0.75rem;
     padding-left: 0.75rem !important;
   }

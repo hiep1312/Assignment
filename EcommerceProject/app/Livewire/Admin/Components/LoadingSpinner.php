@@ -6,24 +6,18 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class ToastMessage extends Component
+class LoadingSpinner extends Component
 {
     /**
      * Create a new component instance.
      */
-    public function __construct(
-        public string $title,
-        public int|string $time,
-        public string $type = 'white',
-        public bool $show = false,
-        public ?int $duration = 5
-    ){}
+    public function __construct(){}
 
     /**
      * Get the view / contents that represent the component.
      */
     public function render(): View|Closure|string
     {
-        return view('admin.components.toast-message');
+        return view('admin.components.loading-spinner');
     }
 }

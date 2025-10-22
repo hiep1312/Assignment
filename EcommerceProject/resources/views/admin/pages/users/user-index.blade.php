@@ -4,7 +4,7 @@
     <livewire:admin.components.confirm-modal>
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update User List" type="primary" time="{{ session('data-changed')[1]?->diffForHumans() }}" :show="true" :duration="8">
+        <x-livewire::toast-message title="Update User List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
         </x-livewire::toast-message>
     @endif
@@ -33,25 +33,25 @@
     <x-livewire::data-table caption="User Records">
         <x-slot:actions>
             @if($isTrashed)
-                <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedUserIds.length ? `Restore Users` : `Restore All Users`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedUserIds.length ? `Restore Users` : `Restore All Users`" data-type="question"
-                    x-bind:data-message="$wire.selectedUserIds.length
-                        ? `Are you sure you want to restore these ${$wire.selectedUserIds.length} users? They will be moved back to the active users list.`
+                <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Users` : `Restore All Users`"
+                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Restore Users` : `Restore All Users`" data-type="question"
+                    x-bind:data-message="$wire.selectedRecordIds.length
+                        ? `Are you sure you want to restore these ${$wire.selectedRecordIds.length} users? They will be moved back to the active users list.`
                         : `Are you sure you want to restore all users? They will be moved back to the active users list.`
                     "
                     data-confirm-label="Confirm Restore" data-event-name="user.restored" wire:key="restore">
                     <i class="fas fa-history me-1"></i>
-                    <span x-text="$wire.selectedUserIds.length ? `Restore Users` : `Restore All Users`"></span>
+                    <span x-text="$wire.selectedRecordIds.length ? `Restore Users` : `Restore All Users`"></span>
                 </button>
-                <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedUserIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedUserIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`" data-type="warning"
-                    x-bind:data-message="$wire.selectedUserIds.length
-                        ? `Are you sure you want to permanently delete these ${$wire.selectedUserIds.length} users? This action cannot be undone.`
+                <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`"
+                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`" data-type="warning"
+                    x-bind:data-message="$wire.selectedRecordIds.length
+                        ? `Are you sure you want to permanently delete these ${$wire.selectedRecordIds.length} users? This action cannot be undone.`
                         : `Are you sure you want to permanently delete all users? This action cannot be undone.`
                     "
                     data-confirm-label="Confirm Delete" data-event-name="user.forceDeleted" wire:key="force-delete">
                     <i class="fas fa-trash-alt me-1"></i>
-                    <span x-text="$wire.selectedUserIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`"></span>
+                    <span x-text="$wire.selectedRecordIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`"></span>
                 </button>
                 <button type="button" class="btn btn-outline-primary bootstrap-focus" style="padding: 0.4rem 1.25rem;"
                     title="View Active Users"
@@ -61,8 +61,8 @@
                 </button>
             @else
                 <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Remove Users"
-                    x-show="$wire.selectedUserIds.length" x-transition onclick="confirmModalAction(this)"
-                    data-title="Remove Users" data-type="warning" x-bind:data-message="`Are you sure you want to remove these ${$wire.selectedUserIds.length} users? They can be restored later.`"
+                    x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
+                    data-title="Remove Users" data-type="warning" x-bind:data-message="`Are you sure you want to remove these ${$wire.selectedRecordIds.length} users? They can be restored later.`"
                     data-confirm-label="Confirm Delete" data-event-name="user.deleted" wire:key="delete">
                     <i class="fas fa-user-times me-1"></i>
                     Remove Users
@@ -93,7 +93,7 @@
                     @forelse($users as $user)
                         <tr class="text-center" wire:key="user-{{ $user->id }}">
                             <td>
-                                <input type="checkbox" class="form-check-input user-checkbox" wire:model="selectedUserIds"
+                                <input type="checkbox" class="form-check-input record-checkbox" wire:model="selectedRecordIds"
                                     value="{{ $user->id }}" onclick="updateSelectAllState()">
                             </td>
                             <td>

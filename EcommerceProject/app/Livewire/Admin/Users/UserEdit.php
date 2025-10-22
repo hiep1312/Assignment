@@ -76,7 +76,7 @@ class UserEdit extends Component
             ]
         );
 
-        return redirect()->route('admin.users.index')->with('data-changed', ['User account has been updated successfully.', now()]);
+        return redirect()->route('admin.users.index')->with('data-changed', ['User account has been updated successfully.', now()->toISOString()]);
     }
 
     public function resetForm(){

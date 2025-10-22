@@ -149,4 +149,11 @@ interface RepositoryInterface
      * @return bool Returns true if at least one matching record exists, false otherwise.
      */
     public function exists($criteria);
+
+    /**
+     * Get the fully qualified class name of the Eloquent model associated with this repository.
+     *
+     * @return class-string<\Illuminate\Database\Eloquent\Model> The fully qualified model class name.
+     */
+    public function getModel();
 }

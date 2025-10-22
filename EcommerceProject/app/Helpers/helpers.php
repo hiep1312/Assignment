@@ -66,3 +66,32 @@ if(!function_exists('deleteImage')){
         return Storage::disk($disk)->exists($imagePath) && Storage::disk($disk)->delete($imagePath);
     }
 }
+
+if(!function_exists('formatFileSize')){
+    /**
+     * Format bytes into a human-readable file size string.
+     *
+     * Converts a byte value into an appropriate unit (TB, GB, MB, KB, or B)
+     * with two decimal places for easier reading.
+     *
+     * @param int $bytes The file size in bytes
+     * @return string The formatted file size (e.g., "2.50 MB", "1.25 GB")
+     */
+    function formatFileSize(int $bytes): string
+    {
+        $units = [
+            1099511627776 => 'TB',
+            1073741824 => 'GB',
+            1048576 => 'MB',
+            1024 => 'KB',
+        ];
+
+        foreach ($units as $threshold => $unit) {
+            if ($bytes >= $threshold || $unit === 'KB') {
+                return number_format($bytes / $threshold, 2) . ' ' . $unit;
+            }
+        }
+
+        return $bytes . ' B';
+    }
+}

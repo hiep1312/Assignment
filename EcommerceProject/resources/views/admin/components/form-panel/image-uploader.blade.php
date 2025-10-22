@@ -24,7 +24,15 @@
                     $src = $image->attributes->get('src', DefaultImage::getDefaultPath($type));
                     $showCameraIcon = empty($src) || Str::contains($src, DefaultImage::values());
                 @endphp
-                <label @if($showCameraIcon) for="{{ $idInput }}" @else wire:click="$set('{{ $input->attributes->whereStartsWith('wire:model')->first() }}', null, true)" @endif
+                <label @if($showCameraIcon)
+                            @if($type === ImageUploader::TYPE_AVATAR) for="{{ $idInput }}"
+                            @else {{ $uploadButton->attributes }} @endif
+                       @else
+                            wire:click="$set('{{ $type === ImageUploader::TYPE_AVATAR
+                                ? $input->attributes->whereStartsWith('wire:model')->first()
+                                : $uploadButton->attributes->whereStartsWith('wire:model')->first()
+                            }}', null)"
+                       @endif
                     @class(["upload-btn", "trash-background" => !$showCameraIcon])>
 
                     <i @class([
@@ -36,23 +44,11 @@
                 </label>
             </div>
 
-            @if($type === ImageUploader::TYPE_BANNER)
-                @isset($action)
-                    {{ $action }}
-                @else
-                    <button {{ $btnDelete->attributes->merge(['class' => 'uploader delete-btn']) }}>
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    <button {{ $btnView->attributes->merge(['class' => 'uploader view-btn']) }}>
-                        <i class="fas fa-eye"></i>
-                    </button>
-                @endisset
+            @if($type === ImageUploader::TYPE_AVATAR)
+                <input {{ $input->attributes->merge(['type' => 'file', 'id' => $idInput, 'accept' => 'image/*', 'hidden' => true]) }}>
             @endif
-
-            <input {{ $input->attributes->merge(['type' => 'file', 'id' => $idInput, 'accept' => 'image/*', 'hidden' => true]) }}>
-
-            {{ $feedback ?? '' }}
         </div>
+
+        {{ $feedback ?? '' }}
     </div>
 @endif
-

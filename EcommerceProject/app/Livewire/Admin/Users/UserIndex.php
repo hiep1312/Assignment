@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Admin\Users;
 
-use App\Helpers\Repository;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -20,14 +19,14 @@ class UserIndex extends Component
     public string $search = '';
     public string $role = '';
     public ?int $emailVerified = null;
-    public array $selectedUserIds = [];
+    public array $selectedRecordIds = [];
 
     public function boot(UserRepositoryInterface $repository){
         $this->repository = $repository;
     }
 
     public function updatedIsTrashed(){
-        $this->reset('selectedUserIds');
+        $this->reset('selectedRecordIds');
         $this->js(<<<JS
             new Promise(resolve => setTimeout(updateSelectAllState));
         JS);
@@ -40,16 +39,14 @@ class UserIndex extends Component
 
     #[On('user.deleted')]
     public function softDelete(?int $id = null){
-        $this->repository->delete($id ?? [
-            'whereIn' => Repository::wrapValue('id', $this->selectedUserIds),
-        ]);
+        $this->repository->delete($id ?? fn(&$query) => $query->whereIn('id', $this->selectedRecordIds));
     }
 
     #[On('user.restored')]
     public function restore(?int $id = null){
         $this->repository->restore(
             $id ??
-            (empty($this->selectedUserIds) ? null : ['whereIn' => Repository::wrapValue('id', $this->selectedUserIds)])
+            (empty($this->selectedRecordIds) ? null : fn(&$query) => $query->whereIn('id', $this->selectedRecordIds))
         );
     }
 
@@ -57,7 +54,7 @@ class UserIndex extends Component
     public function forceDelete(?int $id = null){
         $this->repository->forceDelete(
             $id ??
-            (empty($this->selectedUserIds) ? null : ['whereIn' => Repository::wrapValue('id', $this->selectedUserIds)])
+            (empty($this->selectedRecordIds) ? null : fn(&$query) => $query->whereIn('id', $this->selectedRecordIds))
         );
     }
 
@@ -83,7 +80,7 @@ class UserIndex extends Component
                 fn($innerQuery) => $innerQuery->where('email_verified_at', $this->emailVerified ? '!=' : '=', null)
             );
 
-            $query->orderBy('id', 'desc');
+            $query->latest();
         }, perPage: 20, columns: ['*'], pageName: 'page');
 
         $statistic = [
