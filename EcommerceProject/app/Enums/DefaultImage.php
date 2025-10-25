@@ -7,6 +7,7 @@ enum DefaultImage: string
     case NOT_FOUND = '404.webp';
     case AVATAR = 'avatar-default.webp';
     case BANNER = 'banner-default.webp';
+    case PRODUCT = 'product-default.webp';
 
     public static function values(): array
     {

@@ -61,17 +61,23 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->model->create($attributes);
     }
 
-    public function update($idOrCriteria, $attributes)
+    public function update($idOrCriteria, $attributes, &$updatedModel = null)
     {
         $query = $this->model->query();
+        $shouldReturnUpdatedModel = func_num_args() > 2;
 
         if(is_int($idOrCriteria) || is_string($idOrCriteria)) {
-            return $query->find($idOrCriteria)->update($attributes);
+            $updatedModel = $query->find($idOrCriteria);
+
+            return $updatedModel?->update($attributes);
         }else {
             $this->buildCriteria($query, $idOrCriteria);
+            $shouldReturnUpdatedModel && ($updatedModel = $query->get());
         }
 
-        return $query->update($attributes);
+        return $shouldReturnUpdatedModel
+            ? ($updatedModel->isNotEmpty() ? $updatedModel->toQuery()->update($attributes) : 0)
+            : $query->update($attributes);
     }
 
     public function delete($idOrCriteria)
@@ -125,12 +131,26 @@ abstract class BaseRepository implements RepositoryInterface
         return $query->forceDelete();
     }
 
-    public function count($criteria = null, $colums = '*')
+    public function count($criteria = null, $column = '*')
     {
         $query = $this->model->query();
         if($criteria) $this->buildCriteria($query, $criteria);
 
-        return $query->count($colums);
+        return $query->count($column);
+    }
+
+    public function sum($column, $criteria = null){
+        $query = $this->model->query();
+        if($criteria) $this->buildCriteria($query, $criteria);
+
+        return $query->sum($column);
+    }
+
+    public function avg($column, $criteria = null){
+        $query = $this->model->query();
+        if($criteria) $this->buildCriteria($query, $criteria);
+
+        return $query->avg($column);
     }
 
     public function exists($criteria)

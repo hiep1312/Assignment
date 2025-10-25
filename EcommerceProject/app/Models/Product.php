@@ -42,4 +42,16 @@ class Product extends Model
     {
         return $this->hasMany(ProductReview::class, 'product_id');
     }
+
+    public function mainImages()
+    {
+        return $this->morphToMany(Image::class, 'imageable')
+                ->wherePivot('is_main', true)
+                ->orderBy('position');
+    }
+
+    public function getMainImageAttribute()
+    {
+        return $this->mainImages->first();
+    }
 }

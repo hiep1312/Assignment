@@ -13,6 +13,7 @@ class DataTable extends Component
      */
     public function __construct(
         public string $caption,
+        public bool $isDetailFilter = false
     ){}
 
     /**

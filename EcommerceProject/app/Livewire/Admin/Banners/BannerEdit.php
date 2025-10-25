@@ -10,11 +10,10 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 class BannerEdit extends Component
 {
-    use WithFileUploads, AutoValidatesRequest;
+    use AutoValidatesRequest;
 
     public $id;
     public $title = null;
@@ -33,7 +32,7 @@ class BannerEdit extends Component
     }
 
     public function mount(int $banner){
-        $banner = $this->repository->find($banner);
+        $banner = $this->repository->find(idOrCriteria: $banner, throwNotFound: true);
         $banner->load('imageable');
 
         $this->fill(
@@ -58,10 +57,11 @@ class BannerEdit extends Component
                 'title',
                 'link_url',
                 'status',
-            ])
+            ]),
+            $bannerUpdated
         );
 
-        $this->repository->find($this->id, ['id'])->imageable()->update(['image_id' => $this->image_id, 'position' => $this->position]);
+        $bannerUpdated->imageable()->update($this->only('image_id', 'position'));
 
         return redirect()->route('admin.banners.index')->with('data-changed', ['Banner has been updated successfully.', now()->toISOString()]);
     }

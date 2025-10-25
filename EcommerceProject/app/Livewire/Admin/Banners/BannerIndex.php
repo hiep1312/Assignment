@@ -16,7 +16,7 @@ class BannerIndex extends Component
     protected BannerRepositoryInterface $repository;
 
     public string $search = '';
-    public string $status = '';
+    public ?int $status = null;
     public string $sortOrder = '';
     public array $selectedRecordIds = [];
 
@@ -58,7 +58,7 @@ class BannerIndex extends Component
                 });
             })
             ->when(
-                $this->status,
+                $this->status !== null,
                 fn($innerQuery) => $innerQuery->where('status', $this->status)
             );
 

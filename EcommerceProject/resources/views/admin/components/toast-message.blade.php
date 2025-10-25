@@ -42,7 +42,7 @@
     }
 
     document.addEventListener('livewire:initialized', initLiveToast);
-    Livewire.hook('morphed', function({ el }) {
+    Livewire.hook('morphed', function() {
         if(document.getElementById(@json($attributes->get('id', 'toast-container')))){
             cleanupToast();
             initLiveToast();

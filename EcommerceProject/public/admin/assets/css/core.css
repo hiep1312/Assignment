@@ -6577,7 +6577,7 @@ label.btn {
   box-shadow: 0 0.125rem 0.25rem 0 rgba(255, 171, 0, 0.4);
   transform: translateY(-1px);
 }
-.btn-check:focus + .btn-outline-warning, .btn-outline-warning:focus {
+.btn-check:focus + .btn-outline-warning, .btn-outline-warning:focus:not(.bootstrap-focus) {
   color: #fff;
   background-color: #e69a00;
   border-color: #e69a00;

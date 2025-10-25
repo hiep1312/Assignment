@@ -6,13 +6,14 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class FilterBar extends Component
+class DataSelector extends Component
 {
     /**
      * Create a new component instance.
      */
     public function __construct(
-        public bool $isDetailFilter = false
+        public string $title,
+        public string $resetProperty = ''
     ){}
 
     /**
@@ -20,6 +21,6 @@ class FilterBar extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('admin.components.filter-bar');
+        return view('admin.components.data-selector');
     }
 }

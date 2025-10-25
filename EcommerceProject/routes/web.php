@@ -4,6 +4,11 @@ use App\Livewire\Admin\Auth\Login;
 use App\Livewire\Admin\Banners\BannerCreate;
 use App\Livewire\Admin\Banners\BannerEdit;
 use App\Livewire\Admin\Banners\BannerIndex;
+use App\Livewire\Admin\Products\ProductCreate;
+use App\Livewire\Admin\Products\ProductEdit;
+use App\Livewire\Admin\Products\ProductIndex;
+use App\Livewire\Admin\ProductVariants\ProductVariantCreate;
+use App\Livewire\Admin\ProductVariants\ProductVariantEdit;
 use App\Livewire\Admin\Users\UserCreate;
 use App\Livewire\Admin\Users\UserEdit;
 use App\Livewire\Admin\Users\UserIndex;
@@ -24,6 +29,18 @@ Route::prefix('admin')->name('admin.')->group(function() {
         Route::get('/edit/{banner}', BannerEdit::class)->name('edit');
     });
 
+    /* Products */
+    Route::prefix('products')->name('products.')->group(function(){
+        Route::get('/', ProductIndex::class)->name('index');
+        Route::get('/create', ProductCreate::class)->name('create');
+        Route::get('/edit/{product}', ProductEdit::class)->name('edit');
+
+        /* Variants */
+        Route::prefix('{product}/variants')->name('variants.')->group(function(){
+            Route::get('/create', ProductVariantCreate::class)->name('create');
+            Route::get('/edit/{variant}', ProductVariantEdit::class)->name('edit');
+        });
+    });
 });
 
 Route::name('auth.')->group(function() {

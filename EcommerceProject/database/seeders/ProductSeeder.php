@@ -25,6 +25,7 @@ class ProductSeeder extends Seeder
             Image::factory(4)->product(),
             function() {
                 static $index = 0;
+                $index = $index % 4;
 
                 return [
                     'is_main' => $index === 0,

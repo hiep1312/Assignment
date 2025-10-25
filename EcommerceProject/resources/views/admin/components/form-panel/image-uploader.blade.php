@@ -1,7 +1,26 @@
 @use('App\Livewire\Admin\Components\FormPanel\ImageUploader')
 @use('App\Enums\DefaultImage')
 @if($isMultiple)
-    {{-- $isMultiple, $type, $label, $labelIcon --}}
+    <div class="section-card mb-5" id="{{ $attributes->get('id', 'frame-image-uploader') }}" wire:key="{{ $attributes->get('wire:key', 'frame-image-uploader') }}">
+        <div class="section-header">
+            <h4><i class="{{ $labelIcon }} me-2"></i>{{ $label }}</h4>
+            <button type="button" class="btn btn-primary" {{ $uploadButton->attributes }}>
+                <i class="fas fa-plus me-2"></i>Add Image
+            </button>
+        </div>
+        <div class="section-body">
+            <div class="gallery-uploader" @if($galleryUploader) {{ $galleryUploader->attributes }} @endif>
+                @isset($emptyState)
+                    <div {{ $emptyState->attributes->merge(['class' => 'gallery-empty-state']) }}>
+                        <i class="fas fa-images fa-3x mb-3"></i>
+                        <p>{{ $emptyState }}</p>
+                    </div>
+                @else
+                    {{ $slot }}
+                @endisset
+            </div>
+        </div>
+    </div>
 @else
     @php
         $typeClass = match($type){

@@ -1,6 +1,5 @@
 @use('App\Enums\DefaultImage')
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
-
     <livewire:admin.components.confirm-modal wire:key="confirm-modal">
 
     @if(session()->has('data-changed'))

@@ -10,11 +10,10 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 class BannerCreate extends Component
 {
-    use WithFileUploads, AutoValidatesRequest;
+    use AutoValidatesRequest;
 
     public $title = null;
     public $link_url = '';

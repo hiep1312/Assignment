@@ -70,12 +70,15 @@ interface RepositoryInterface
      *        - If array: treated as criteria to apply complex queries for multiple records.
      *        - If callable: a function that receives the query builder for custom, complex filtering.
      * @param array $attributes The attributes/data to update the record(s) with.
+     * @param \Illuminate\Database\Eloquent\Model|\Illuminate\Support\Collection|null $updatedModel (Optional, passed by reference)
+     *        - Receives the model (for single update) or collection (for batch update) before the update is executed.
+     *        - Null if no record is found.
      *
      * @return bool|int
      *         - Returns true if a single record was successfully updated.
      *         - Returns the number of affected rows if multiple records were updated.
      */
-    public function update($idOrCriteria, $attributes);
+    public function update($idOrCriteria, $attributes, &$updatedModel = null);
 
     /**
      * Delete a record or multiple records from the repository.
@@ -131,12 +134,42 @@ interface RepositoryInterface
      *        - If a callable is provided, it receives the query builder instance for custom, complex filtering.
      *        - If an array is provided, each element should represent a condition for complex queries.
      *        - If null, all records will be counted.
-     * @param string $colums
+     * @param string $column
      *        Optional. The column name to count. Default is '*'.
      *
      * @return int The total number of matching records.
      */
-    public function count($criteria = null, $colums = '*');
+    public function count($criteria = null, $column = '*');
+
+    /**
+     * Calculate the sum of values in a specific column that match the given criteria.
+     *
+     * @param string $column The column name to calculate the sum for.
+     *
+     * @param callable(\Illuminate\Database\Eloquent\Builder $query)|array|null $criteria
+     *        Optional. A callback or an array of conditions to apply complex queries.
+     *        - If a callable is provided, it receives the query builder instance for custom, complex filtering.
+     *        - If an array is provided, each element should represent a condition for complex queries.
+     *        - If null, all records will be included in the calculation.
+     *
+     * @return float|int The total sum of the specified column for the matching records.
+     */
+    public function sum($column, $criteria = null);
+
+    /**
+     * Calculate the average values of a specific column that match the given criteria.
+     *
+     * @param string $column The column name to calculate the average for.
+     *
+     * @param callable(\Illuminate\Database\Eloquent\Builder $query)|array|null $criteria
+     *        Optional. A callback or an array of conditions to apply complex queries.
+     *        - If a callable is provided, it receives the query builder instance for custom, complex filtering.
+     *        - If an array is provided, each element should represent a condition for complex queries.
+     *        - If null, all records will be included in the calculation.
+     *
+     * @return float|null The average value of the specified column for the matching records, or null if no records match.
+     */
+    public function avg($column, $criteria = null);
 
     /**
      * Determine whether any records exist that match the given criteria.

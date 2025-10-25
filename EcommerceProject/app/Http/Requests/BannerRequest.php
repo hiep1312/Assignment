@@ -49,7 +49,7 @@ class BannerRequest extends FormRequest
             'position.min' => 'The position must be at least 1.',
             'status.required' => 'The status is required.',
             'status.integer' => 'The status must be an integer.',
-            'status.in' => 'The status must be either Active or Inactive.',
+            'status.in' => 'The status must be either active or inactive.',
         ];
     }
 }

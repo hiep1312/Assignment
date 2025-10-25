@@ -10,6 +10,7 @@ class ImageUploader extends Component
 {
     const TYPE_AVATAR = 'avatar';
     const TYPE_BANNER = 'banner';
+    const TYPE_PRODUCT = 'product';
 
     /**
      * Create a new component instance.

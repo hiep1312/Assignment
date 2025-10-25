@@ -15,7 +15,7 @@ $typeBtn = match($type){
     'info' => 'btn-info',
 };
 @endphp
-<div class="modal fade" id="{{ $id }}" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="{{ $id }}" tabindex="-1" aria-hidden="true" style="z-index: 1100;">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-body">

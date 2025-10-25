@@ -6,13 +6,15 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class FilterBar extends Component
+class DetailModal extends Component
 {
     /**
      * Create a new component instance.
      */
     public function __construct(
-        public bool $isDetailFilter = false
+        public string $title,
+        public string $icon = 'fas fa-info-circle',
+        public string $activeRecordVariable = 'recordDetail'
     ){}
 
     /**
@@ -20,6 +22,6 @@ class FilterBar extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('admin.components.filter-bar');
+        return view('admin.components.detail-modal');
     }
 }

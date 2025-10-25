@@ -1,4 +1,4 @@
-<div class="col-md-4">
+<div class="{{ $columnSearch }}">
     <div class="input-group">
         <span class="input-group-text">
             <i class="fas fa-search"></i>
