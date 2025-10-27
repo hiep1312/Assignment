@@ -3,6 +3,7 @@
 @import url('https://site-assets.fontawesome.com/releases/v7.1.0/css/solid.css');
 @import url('https://site-assets.fontawesome.com/releases/v7.1.0/css/regular.css');
 @import "./style.css";
+@import "./markdown.css";
 
 /* Default CSS */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

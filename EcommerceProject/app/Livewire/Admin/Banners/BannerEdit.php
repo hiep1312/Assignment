@@ -32,8 +32,11 @@ class BannerEdit extends Component
     }
 
     public function mount(int $banner){
-        $banner = $this->repository->find(idOrCriteria: $banner, throwNotFound: true);
-        $banner->load('imageable');
+        $banner = $this->repository->first(criteria: function($query) use ($banner){
+            $query->with('imageable');
+
+            $query->where('id', $banner);
+        }, throwNotFound: true);
 
         $this->fill(
             $banner->only([
@@ -42,8 +45,8 @@ class BannerEdit extends Component
                 'link_url',
                 'status',
             ]) + [
-                'image_id' => $banner->imageable->image_id,
-                'position' => $banner->imageable->position
+                'image_id' => $banner->imageable?->image_id,
+                'position' => $banner->imageable?->position
             ]
         );
     }
@@ -61,7 +64,12 @@ class BannerEdit extends Component
             $bannerUpdated
         );
 
-        $bannerUpdated->imageable()->update($this->only('image_id', 'position'));
+        $imageableData = $this->only('image_id', 'position');
+        if(!$bannerUpdated->imageable){
+            $bannerUpdated->imageable()->create($imageableData);
+        }else{
+            $bannerUpdated->imageable()->update($imageableData);
+        }
 
         return redirect()->route('admin.banners.index')->with('data-changed', ['Banner has been updated successfully.', now()->toISOString()]);
     }

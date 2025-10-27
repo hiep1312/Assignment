@@ -15,7 +15,8 @@ class ManagementHeader extends Component
         public string $title,
         public string $btnLink = '',
         public string $btnLabel = '',
-        public string $btnIcon = 'fas fa-user-plus',
+        public string $btnForInput = '',
+        public string $btnIcon = 'fas fa-plus',
         public string $btnClass = 'btn btn-primary'
     ){}
 

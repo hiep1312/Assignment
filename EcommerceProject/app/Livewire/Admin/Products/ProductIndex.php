@@ -3,9 +3,11 @@
 namespace App\Livewire\Admin\Products;
 
 use App\Repositories\Contracts\CategoryRepositoryInterface;
+use App\Repositories\Contracts\ImageableRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantInventoryRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -19,6 +21,7 @@ class ProductIndex extends Component
     public bool $isTrashed = false;
     protected ProductRepositoryInterface $repository;
     protected ProductVariantInventoryRepositoryInterface $variantInventoryRepository;
+    protected ImageableRepositoryInterface $imageableRepository;
     protected ProductReviewRepositoryInterface $reviewRepository;
     protected CategoryRepositoryInterface $categoryRepository;
 
@@ -28,9 +31,10 @@ class ProductIndex extends Component
     public array $selectedRecordIds = [];
     public ?int $recordDetail = null;
 
-    public function boot(ProductRepositoryInterface $repository, ProductVariantInventoryRepositoryInterface $variantInventoryRepository, ProductReviewRepositoryInterface $reviewRepository, CategoryRepositoryInterface $categoryRepository){
+    public function boot(ProductRepositoryInterface $repository, ProductVariantInventoryRepositoryInterface $variantInventoryRepository, ImageableRepositoryInterface $imageableRepository, ProductReviewRepositoryInterface $reviewRepository, CategoryRepositoryInterface $categoryRepository){
         $this->repository = $repository;
         $this->variantInventoryRepository = $variantInventoryRepository;
+        $this->imageableRepository = $imageableRepository;
         $this->reviewRepository = $reviewRepository;
         $this->categoryRepository = $categoryRepository;
     }
@@ -56,7 +60,17 @@ class ProductIndex extends Component
     public function restore(?int $id = null){
         $this->repository->restore(
             $id ??
-            (empty($this->selectedRecordIds) ? null : fn(&$query) => $query->whereIn('id', $this->selectedRecordIds))
+            (empty($this->selectedRecordIds) ? null : fn(&$query) => $query->whereIn('id', $this->selectedRecordIds)),
+            function ($products) {
+                if($products instanceof Collection){
+                    $this->imageableRepository->delete(function(&$query) use ($products){
+                        $query->whereIn('imageable_id', $products->pluck('id'))
+                            ->where('imageable_type', $this->repository->getModel());
+                    });
+                }else {
+                    $products->images()->detach();
+                }
+            }
         );
     }
 

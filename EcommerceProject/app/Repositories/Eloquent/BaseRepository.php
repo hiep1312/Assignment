@@ -80,14 +80,18 @@ abstract class BaseRepository implements RepositoryInterface
             : $query->update($attributes);
     }
 
-    public function delete($idOrCriteria)
+    public function delete($idOrCriteria, ?callable $beforeDelete = null)
     {
         $query = $this->model->query();
 
         if(is_int($idOrCriteria) || is_string($idOrCriteria)) {
-            return $query->find($idOrCriteria)->delete();
+            $targetModel = $query->find($idOrCriteria);
+            $beforeDelete && $beforeDelete($targetModel);
+
+            return $targetModel->delete();
         }else {
             $this->buildCriteria($query, $idOrCriteria);
+            $beforeDelete && $beforeDelete($query->get());
         }
 
         return $query->delete();
@@ -113,7 +117,7 @@ abstract class BaseRepository implements RepositoryInterface
         return $query->restore();
     }
 
-    public function forceDelete($idOrCriteria = null)
+    public function forceDelete($idOrCriteria = null, ?callable $beforeDelete = null)
     {
         $query = $this->model->query();
         if(!in_array(SoftDeletes::class, class_uses($this->getModel()) ?: [])) {
@@ -123,9 +127,13 @@ abstract class BaseRepository implements RepositoryInterface
         }
 
         if(is_int($idOrCriteria) || is_string($idOrCriteria)) {
-            return $query->find($idOrCriteria)->forceDelete();
+            $targetModel = $query->find($idOrCriteria);
+            $beforeDelete && $beforeDelete($targetModel);
+
+            return $targetModel->forceDelete();
         }else {
             is_null($idOrCriteria) ?: $this->buildCriteria($query, $idOrCriteria);
+            $beforeDelete && $beforeDelete($query->get());
         }
 
         return $query->forceDelete();

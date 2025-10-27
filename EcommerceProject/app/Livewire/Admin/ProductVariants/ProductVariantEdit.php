@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\ProductVariants;
 
 use App\Helpers\AutoValidatesRequest;
 use App\Http\Requests\ProductVariantRequest;
+use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -25,6 +26,7 @@ class ProductVariantEdit extends Component
     public $stock = 0;
 
     protected ProductVariantRepositoryInterface $repository;
+    protected ProductRepositoryInterface $productRepository;
     protected $request = ProductVariantRequest::class;
 
     public string $searchVariants = '';
@@ -34,12 +36,13 @@ class ProductVariantEdit extends Component
         return $this->baseRequestRules(isEdit: true, recordId: $this->id);
     }
 
-    public function boot(ProductVariantRepositoryInterface $repository){
+    public function boot(ProductVariantRepositoryInterface $repository, ProductRepositoryInterface $productRepository){
         $this->repository = $repository;
+        $this->productRepository = $productRepository;
     }
 
     public function mount(int $product, int $variant){
-        if(!$this->repository->exists(criteria: fn(&$query) => $query->where('id', $product))) abort(404, 'Product not found.');
+        if(!$this->productRepository->exists(criteria: fn(&$query) => $query->where('id', $product))) abort(404, 'Product not found.');
 
         $this->product_id = $product;
         $variant = $this->repository->first(criteria: function(&$query) use ($variant){

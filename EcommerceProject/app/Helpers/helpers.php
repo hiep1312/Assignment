@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\MailPlaceholders\CustomMailPlaceholder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 

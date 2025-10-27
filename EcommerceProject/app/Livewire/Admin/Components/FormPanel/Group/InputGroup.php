@@ -12,8 +12,8 @@ class InputGroup extends Component
      * Create a new component instance.
      */
     public function __construct(
-        public string $label,
         public string $icon,
+        public string $label = '',
         public string $column = 'col-md-6',
         public string $error = '',
     ){}

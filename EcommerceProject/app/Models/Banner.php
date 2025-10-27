@@ -28,14 +28,14 @@ class Banner extends Model
     public function position(): Attribute
     {
         return Attribute::make(
-            fn() => $this->loadMissing('imageable')->imageable->position
+            fn() => $this->loadMissing('imageable')->imageable?->position ?? 'N/A'
         );
     }
 
     public function imageUrl(): Attribute
     {
         return Attribute::make(
-            fn() => $this->loadMissing('imageable.image')->imageable->image?->image_url
+            fn() => $this->loadMissing('imageable.image')->imageable?->image?->image_url
         );
     }
 }

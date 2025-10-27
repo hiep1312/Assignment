@@ -8,7 +8,7 @@
         </x-livewire::toast-message>
     @endif
 
-    <x-livewire::management-header title="Banner List" btn-link="{{ route('admin.banners.create') }}" btn-label="Add New Banner" />
+    <x-livewire::management-header title="Banner List" btn-link="{{ route('admin.banners.create') }}" btn-label="Add New Banner" btn-icon="fas fa-image" />
 
     <x-livewire::filter-bar placeholderSearch="Search banners..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">

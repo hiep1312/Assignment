@@ -54,6 +54,7 @@ class ProductEdit extends Component
 
             $query->where('id', $product);
         }, throwNotFound: true);
+
         $this->fill($product->only([
             'id',
             'title',

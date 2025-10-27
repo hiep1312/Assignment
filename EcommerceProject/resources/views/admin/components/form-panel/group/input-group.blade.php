@@ -2,10 +2,12 @@
     {{ $content }}
 @else
     <div class="{{ $column }}">
-        <label for="{{ $attributes->get('for', Str::slug(strtolower($label))) }}" class="form-label bootstrap-style">
-            {{ $label }}
-            @if($attributes->has('required')) <span class="text-danger">*</span> @endif
-        </label>
+        @if($label)
+            <label for="{{ $attributes->get('for', Str::slug(strtolower($label))) }}" class="form-label bootstrap-style">
+                {{ $label }}
+                @if($attributes->has('required')) <span class="text-danger">*</span> @endif
+            </label>
+        @endif
         <div class="input-group">
             <span class="input-group-text bootstrap-color">
                 <i class="{{ $icon }}"></i>

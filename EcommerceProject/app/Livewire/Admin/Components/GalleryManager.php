@@ -4,7 +4,9 @@ namespace App\Livewire\Admin\Components;
 
 use App\Helpers\AutoValidatesRequest;
 use App\Http\Requests\UploadImageRequest;
+use App\Repositories\Contracts\ImageableRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -16,6 +18,7 @@ class GalleryManager extends Component
     use WithFileUploads, AutoValidatesRequest, WithPagination;
 
     protected ImageRepositoryInterface $repository;
+    protected ImageableRepositoryInterface $imageableRepository;
     protected $request = UploadImageRequest::class;
 
     public $id;
@@ -34,8 +37,9 @@ class GalleryManager extends Component
         $this->fill(compact('id', 'eventName'));
     }
 
-    public function boot(ImageRepositoryInterface $repository){
+    public function boot(ImageRepositoryInterface $repository, ImageableRepositoryInterface $imageableRepository){
         $this->repository = $repository;
+        $this->imageableRepository = $imageableRepository;
     }
 
     public function updatedPhotos(){
@@ -65,7 +69,14 @@ class GalleryManager extends Component
     public function deleteImages(?int $id = null){
         $this->repository->delete(
             $id ??
-            fn(&$query) => (empty($this->selectedImageIds) ? $query->whereNot('id', -1) : $query->whereIn('id', $this->selectedImageIds))
+            fn(&$query) => (empty($this->selectedImageIds) ? $query->whereNot('id', -1) : $query->whereIn('id', $this->selectedImageIds)),
+            function ($images){
+                $this->imageableRepository->delete(
+                    fn(&$query) => ($images instanceof Collection)
+                        ? $query->whereIn('image_id', $images->pluck('id'))
+                        : $query->where('image_id', $images->id)
+                );
+            }
         );
 
         $this->reset('selectedImageIds', 'modalConfirmInfo');

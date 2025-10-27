@@ -25,7 +25,7 @@
     </x-livewire::data-selector>
 
     <x-livewire::form-panel :isFormNormal="false" id="product-create-form" action="store">
-        <x-livewire::form-panel.image-uploader :isMultiple="true" :type="ImageUploader::TYPE_PRODUCT" label="Product Image" labelIcon="fas fa-box">
+        <x-livewire::form-panel.image-uploader :isMultiple="true" :type="ImageUploader::TYPE_PRODUCT" label="Product Image" labelIcon="fas fa-camera-retro">
             <x-slot:upload-button data-bs-toggle="modal" data-bs-target="#galleryPickerModal"></x-slot:upload-button>
 
             <x-slot:gallery-uploader wire:sc-sortable="images" wire:sc-model.live.debounce.300ms="image_ids" wire:ignore.self wire:key="gallery-uploader-{{ count($images) }}"></x-slot:gallery-uploader>
@@ -128,6 +128,14 @@
             </x-livewire::form-panel.group.input-group>
         </x-livewire::form-panel.group>
 
+        {{-- <hr class="my-4">
+
+        <x-livewire::form-panel.group title="Product Variants" icon="fas fa-cubes" :hasTitleAction="true">
+            <x-slot:button-action class="btn btn-success bootstrap" icon="fas fa-plus"
+                data-bs-toggle="modal" data-bs-target="#addVariantModal">Add Variant</x-slot:button-action>
+
+        </x-livewire::form-panel.group> --}}
+
         <x-slot:actions>
             <button type="button" class="btn btn-outline-secondary bootstrap-focus me-2" wire:click="resetForm">
                 <i class="fas fa-redo me-2"></i>
@@ -139,4 +147,22 @@
             </button>
         </x-slot:actions>
     </x-livewire::form-panel>
+
+    {{-- <div class="modal fade" id="addVariantModal" tabindex="-1" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Variant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">Create Variant</button>
+                </div>
+            </div>
+        </div>
+    </div> --}}
 </div>

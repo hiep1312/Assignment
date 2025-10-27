@@ -25,7 +25,7 @@
     </x-livewire::data-selector>
 
     <x-livewire::form-panel :isFormNormal="false" id="product-edit-form" action="update">
-        <x-livewire::form-panel.image-uploader :isMultiple="true" :type="ImageUploader::TYPE_PRODUCT" label="Product Image" labelIcon="fas fa-box">
+        <x-livewire::form-panel.image-uploader :isMultiple="true" :type="ImageUploader::TYPE_PRODUCT" label="Product Image" labelIcon="fas fa-camera-retro">
             <x-slot:upload-button data-bs-toggle="modal" data-bs-target="#galleryPickerModal"></x-slot:upload-button>
 
             <x-slot:gallery-uploader wire:sc-sortable="images" wire:sc-model.live.debounce.500ms="image_ids" wire:ignore.self wire:key="gallery-uploader-{{ count($images) }}"></x-slot:gallery-uploader>

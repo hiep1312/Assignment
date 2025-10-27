@@ -13,7 +13,8 @@ class Group extends Component
      */
     public function __construct(
         public string $title = '',
-        public string $icon = ''
+        public string $icon = '',
+        public bool $hasTitleAction = false
     ){}
 
     /**

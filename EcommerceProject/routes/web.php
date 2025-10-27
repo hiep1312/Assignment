@@ -4,6 +4,10 @@ use App\Livewire\Admin\Auth\Login;
 use App\Livewire\Admin\Banners\BannerCreate;
 use App\Livewire\Admin\Banners\BannerEdit;
 use App\Livewire\Admin\Banners\BannerIndex;
+use App\Livewire\Admin\Images\ImageIndex;
+use App\Livewire\Admin\Mails\MailCreate;
+use App\Livewire\Admin\Mails\MailEdit;
+use App\Livewire\Admin\Mails\MailIndex;
 use App\Livewire\Admin\Products\ProductCreate;
 use App\Livewire\Admin\Products\ProductEdit;
 use App\Livewire\Admin\Products\ProductIndex;
@@ -40,6 +44,18 @@ Route::prefix('admin')->name('admin.')->group(function() {
             Route::get('/create', ProductVariantCreate::class)->name('create');
             Route::get('/edit/{variant}', ProductVariantEdit::class)->name('edit');
         });
+    });
+
+    /* Images */
+    Route::prefix('images')->name('images.')->group(function(){
+        Route::get('/', ImageIndex::class)->name('index');
+    });
+
+    /* Mails */
+    Route::prefix('mails')->name('mails.')->group(function(){
+        Route::get('/', MailIndex::class)->name('index');
+        Route::get('/create', MailCreate::class)->name('create');
+        Route::get('/edit/{mail}', MailEdit::class)->name('edit');
     });
 });
 

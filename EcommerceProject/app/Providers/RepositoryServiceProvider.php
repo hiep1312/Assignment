@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Repositories\Contracts\BannerRepositoryInterface;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
+use App\Repositories\Contracts\ImageableRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
+use App\Repositories\Contracts\MailRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantInventoryRepositoryInterface;
@@ -12,7 +14,9 @@ use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\BannerRepository;
 use App\Repositories\Eloquent\CategoryRepository;
+use App\Repositories\Eloquent\ImageableRepository;
 use App\Repositories\Eloquent\ImageRepository;
+use App\Repositories\Eloquent\MailRepository;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\ProductReviewRepository;
 use App\Repositories\Eloquent\ProductVariantInventoryRepository;
@@ -30,7 +34,9 @@ class RepositoryServiceProvider extends ServiceProvider
         ProductRepositoryInterface::class => ProductRepository::class,
         CategoryRepositoryInterface::class => CategoryRepository::class,
         ProductVariantInventoryRepositoryInterface::class => ProductVariantInventoryRepository::class,
-        ProductReviewRepositoryInterface::class => ProductReviewRepository::class
+        ProductReviewRepositoryInterface::class => ProductReviewRepository::class,
+        ImageableRepositoryInterface::class => ImageableRepository::class,
+        MailRepositoryInterface::class => MailRepository::class
     ];
 
     /**

@@ -8,7 +8,7 @@
         </x-livewire::toast-message>
     @endif
 
-    <x-livewire::management-header title="Product List" btn-link="{{ route('admin.products.create') }}" btn-label="Add New Product" />
+    <x-livewire::management-header title="Product List" btn-link="{{ route('admin.products.create') }}" btn-label="Add New Product" btn-icon="fas fa-plus" />
 
     <x-livewire::stats-overview :data-stats="$statistic" />
 

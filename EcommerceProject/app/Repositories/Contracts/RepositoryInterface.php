@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Contracts;
 
+use ErrorException;
+
 interface RepositoryInterface
 {
     /**
@@ -87,12 +89,16 @@ interface RepositoryInterface
      *        - If int|string: treated as the ID of a single record to delete.
      *        - If array: treated as criteria to apply complex queries for multiple records.
      *        - If callable: a function that receives the query builder for custom, complex filtering.
+     * @param callable|null $beforeDelete
+     *        - Optional callback executed before deletion.
+     *        - For single record: receives the model instance.
+     *        - For multiple records: receives a collection of models to be deleted.
      *
      * @return bool|int
      *         - Returns true if a single record was successfully deleted.
      *         - Returns the number of affected rows if multiple records were deleted.
      */
-    public function delete($idOrCriteria);
+    public function delete($idOrCriteria, ?callable $beforeDelete = null);
 
     /**
      * Restore a soft-deleted record or multiple records in the repository.
@@ -108,6 +114,8 @@ interface RepositoryInterface
      *         - Returns false if the model does not use SoftDeletes trait.
      *         - Returns true if a single record was successfully restored.
      *         - Returns the number of affected rows if multiple records were restored.
+     * @throws ErrorException
+     *         - Triggers a warning (E_USER_WARNING) in non-production environments if the model does not use SoftDeletes trait.
      */
     public function restore($idOrCriteria = null);
 
@@ -119,12 +127,18 @@ interface RepositoryInterface
      *        - If int|string: treated as the ID of a single record to permanently delete.
      *        - If array: treated as criteria to apply complex queries for multiple records.
      *        - If callable: a function that receives the query builder for custom, complex filtering.
+     * @param callable|null $beforeDelete
+     *        - Optional callback executed before force deletion.
+     *        - For single record: receives the model instance.
+     *        - For multiple records: receives a collection of models to be force deleted.
      *
      * @return bool|int
      *         - Returns true if a single record was successfully deleted permanently.
      *         - Returns the number of affected rows if multiple records were deleted permanently.
+     * @throws ErrorException
+     *         - Triggers a warning (E_USER_WARNING) in non-production environments if the model does not use SoftDeletes trait.
      */
-    public function forceDelete($idOrCriteria = null);
+    public function forceDelete($idOrCriteria = null, ?callable $beforeDelete = null);
 
     /**
      * Count the number of records that match the given criteria.

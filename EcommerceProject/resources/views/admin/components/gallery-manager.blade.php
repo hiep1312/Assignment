@@ -202,65 +202,51 @@
                     $imageLastModifiedViewed = $imageExistsViewed ? Storage::disk('public')->lastModified($imagePathViewed) : 0;
                     $imageMimeTypeViewed = $imageExistsViewed ? Storage::disk('public')->mimeType($imagePathViewed) : 'N/A';
                 @endphp
-                <div :class="`image-detail-modal ${$wire.viewingImageId && 'show'}`" wire:key="image-detail-modal" id="imageDetailModal">
-                    <div class="image-modal-dialog">
-                        <div class="image-modal-content">
-                            <div class="image-modal-header">
-                                <h5 class="image-modal-title">
-                                    <i class="fas fa-info-circle"></i>
-                                    Image Details
-                                </h5>
-                                <button type="button" class="image-btn-close" x-on:click="$wire.viewingImageId = null" title="Close">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
+                <x-livewire::image-viewer title="Image Details" title-icon="fas fa-info-circle"
+                    ::class="`image-detail-modal ${$wire.viewingImageId && 'show'}`" wire:key="image-detail-modal" id="imageDetailModal">
+                    <x-slot:button-close x-on:click="$wire.viewingImageId = null"></x-slot:button-close>
 
-                            <div class="image-modal-body">
-                                <img id="detailImage" src="{{ $imageSrcViewed }}" alt="Image Details #{{ $viewingImageId }}" class="image-detail-image">
-                                <div class="image-detail-info">
-                                    <div class="image-detail-row gap-2">
-                                        <strong>
-                                            <i class="fas fa-file-signature"></i>
-                                            <span class="text-nowrap">File name:</span>
-                                        </strong>
-                                        <span class="text-end text-break" id="detailFileName">{{ Str::limit($imageNameViewed, 100) }}</span>
-                                    </div>
-                                    <div class="image-detail-row">
-                                        <strong>
-                                            <i class="fas fa-hdd"></i>
-                                            <span class="text-nowrap">File size:</span>
-                                        </strong>
-                                        <span id="detailFileSize">{{ formatFileSize($imageSizeBytesViewed) }}</span>
-                                    </div>
-                                    <div class="image-detail-row">
-                                        <strong>
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <span class="text-nowrap">Last modified:</span>
-                                        </strong>
-                                        <span id="detailFileSize">{{ date('M d, Y', $imageLastModifiedViewed) }}</span>
-                                    </div>
-                                    <div class="image-detail-row">
-                                        <strong>
-                                            <i class="fas fa-file-code"></i>
-                                            <span class="text-nowrap">Mime type:</span>
-                                        </strong>
-                                        <span id="detailFileSize">{{ $imageMimeTypeViewed }}</span>
-                                    </div>
-                                </div>
-                            </div>
+                    <x-slot:img id="detailImage" src="{{ $imageSrcViewed }}" alt="Image Details #{{ $viewingImageId }}"></x-slot:img>
 
-                            <div class="image-modal-footer">
-                                <a class="image-btn image-btn-success" href="{{ $imageSrcViewed }}" download="{{ $imageNameViewed }}" title="Download">
-                                    <i class="fas fa-download"></i>
-                                    Download
-                                </a>
-                                <button type="button" class="image-btn image-btn-secondary" x-on:click="$wire.viewingImageId = null" title="Close">
-                                    Close
-                                </button>
-                            </div>
-                        </div>
+                    <div class="image-detail-row gap-2">
+                        <strong>
+                            <i class="fas fa-file-signature"></i>
+                            <span class="text-nowrap">File name:</span>
+                        </strong>
+                        <span class="text-end text-break" id="detailFileName">{{ Str::limit($imageNameViewed, 100) }}</span>
                     </div>
-                </div>
+                    <div class="image-detail-row">
+                        <strong>
+                            <i class="fas fa-hdd"></i>
+                            <span class="text-nowrap">File size:</span>
+                        </strong>
+                        <span id="detailFileSize">{{ formatFileSize($imageSizeBytesViewed) }}</span>
+                    </div>
+                    <div class="image-detail-row">
+                        <strong>
+                            <i class="fas fa-calendar-alt"></i>
+                            <span class="text-nowrap">Last modified:</span>
+                        </strong>
+                        <span id="detailFileSize">{{ date('M d, Y', $imageLastModifiedViewed) }}</span>
+                    </div>
+                    <div class="image-detail-row">
+                        <strong>
+                            <i class="fas fa-file-code"></i>
+                            <span class="text-nowrap">Mime type:</span>
+                        </strong>
+                        <span id="detailFileSize">{{ $imageMimeTypeViewed }}</span>
+                    </div>
+
+                    <x-slot:actions>
+                        <a class="image-btn image-btn-success" href="{{ $imageSrcViewed }}" download="{{ $imageNameViewed }}" title="Download">
+                            <i class="fas fa-download"></i>
+                            Download
+                        </a>
+                        <button type="button" class="image-btn image-btn-secondary" x-on:click="$wire.viewingImageId = null" title="Close">
+                            Close
+                        </button>
+                    </x-slot:actions>
+                </x-livewire::image-viewer>
             @endif
 
             <div class="modal-footer">

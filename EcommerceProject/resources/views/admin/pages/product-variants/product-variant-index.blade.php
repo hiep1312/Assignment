@@ -24,7 +24,7 @@
     <x-livewire::data-table caption="Product Variant Records" class="mt-3" :isDetailFilter="true">
         <x-slot:actions>
             <a href="{{ route('admin.products.variants.create', $product_id) }}" class="btn btn-primary">
-                <i class="fas fa-user-plus me-1"></i>
+                <i class="fas fa-layer-group me-1"></i>
                 Add New Variant
             </a>
             @if($isTrashed)

@@ -9,7 +9,7 @@
         </x-livewire::toast-message>
     @endif
 
-    <x-livewire::management-header title="User List" btn-link="{{ route('admin.users.create') }}" btn-label="Add New User" />
+    <x-livewire::management-header title="User List" btn-link="{{ route('admin.users.create') }}" btn-label="Add New User" btn-icon="fas fa-user-plus" />
 
     <x-livewire::stats-overview :data-stats="$statistic" />
 
