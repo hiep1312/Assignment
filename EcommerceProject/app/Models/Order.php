@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -57,5 +58,33 @@ class Order extends Model
     public function payment()
     {
         return $this->hasOne(Payment::class, 'order_id');
+    }
+
+    public function getIsFinalAttribute()
+    {
+        return ($this->status === OrderStatus::DELIVERED->value) && !($this->completed_at || $this->cancelled_at);
+    }
+
+    public function getIsFinalizedAttribute()
+    {
+        return (
+            ($this->status === OrderStatus::COMPLETED->value && $this->completed_at) ||
+            ($this->status === OrderStatus::FAILED->value && $this->cancelled_at)
+        );
+    }
+
+    public function getIsCancelledAttribute()
+    {
+        return ($this->status === OrderStatus::BUYER_CANCEL->value || $this->status === OrderStatus::ADMIN_CANCEL->value);
+    }
+
+    public function allowCancel()
+    {
+        return in_array($this->status, [OrderStatus::NEW->value, OrderStatus::CONFIRMED->value, OrderStatus::PROCESSING->value]) && !$this->shipped_at;
+    }
+
+    public function allowAdminNote()
+    {
+        return $this->allowCancel();
     }
 }

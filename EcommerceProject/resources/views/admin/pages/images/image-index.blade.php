@@ -113,13 +113,13 @@
                                 <div class="d-flex justify-content-center">
                                     <div class="image-common">
                                         <img src="{{ asset('storage/' . ($image->image_url ?? DefaultImage::NOT_FOUND->value)) }}?v={{ $image->updated_at->timestamp }}"
-                                            alt="Website image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0;">
+                                            alt="Website Image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0;">
                                     </div>
                                 </div>
                             </td>
                             <td style="min-width: 200px;">
                                 <div class="text-start position-relative">
-                                    <code class="d-block fw-bold text-break">
+                                    <code class="d-block fw-bold text-break" style="color: inherit">
                                         {{ Str::limit(basename($image->image_url), 50, '...') }}
                                         @if($isTrashed)
                                             <span class="badge badge-center rounded-pill bg-label-danger ms-1" style="font-size: 0.7rem; vertical-align: middle;">
@@ -252,25 +252,3 @@
         </x-livewire::image-viewer>
     @endif
 </div>
-@script
-<script>
-    window.copyToClipboard = function(text, button) {
-        navigator.clipboard.writeText(text).then(() => {
-            const originalContent = button.innerHTML;
-
-            button.innerHTML = '<i class="fas fa-check"></i>';
-            button.classList.add('btn-success');
-            button.classList.remove('btn-outline-secondary');
-
-            setTimeout(() => {
-                button.innerHTML = originalContent;
-                button.classList.remove('btn-success');
-                button.classList.add('btn-outline-secondary');
-            }, 1500);
-        }).catch(error => {
-            console.error('Failed to copy: ', error);
-            window.alert('Oops! Something went wrong while copying the link.');
-        });
-    };
-</script>
-@endscript

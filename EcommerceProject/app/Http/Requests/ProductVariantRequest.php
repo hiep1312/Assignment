@@ -3,9 +3,14 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Arr;
 
 class ProductVariantRequest extends FormRequest
 {
+    public function __construct(
+        public string $targetPosition = "variant"
+    ){}
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -22,8 +27,7 @@ class ProductVariantRequest extends FormRequest
     public function rules(bool $isEdit = false, int|string|null $recordId = null): array
     {
         $uniqueSuffix = ($isEdit && $recordId) ? ",{$recordId}" : '';
-
-        return [
+        $rules = [
             'name' => 'required|string|max:255',
             'sku' => 'required|string|max:100|unique:product_variants,sku' . $uniqueSuffix,
             'price' => 'required|integer|min:0',
@@ -31,11 +35,13 @@ class ProductVariantRequest extends FormRequest
             'status' => 'required|integer|in:0,1',
             'stock' => 'required|integer|min:0',
         ];
+
+        return $this->targetPosition === "product" ? Arr::mapWithKeys($rules, fn($value, $key) => ["activeVariantData.{$key}" => $value]) : $rules;
     }
 
     public function messages()
     {
-        return [
+        $messages = [
             'name.required' => 'The variant name is required.',
             'name.string' => 'The variant name must be a valid text.',
             'name.max' => 'The variant name must not exceed 255 characters.',
@@ -56,5 +62,7 @@ class ProductVariantRequest extends FormRequest
             'stock.integer' => 'The stock quantity must be a valid number.',
             'stock.min' => 'The stock quantity must be at least 0.',
         ];
+
+        return $this->targetPosition === "product" ? Arr::mapWithKeys($messages, fn($value, $key) => ["activeVariantData.{$key}" => $value]) : $messages;
     }
 }

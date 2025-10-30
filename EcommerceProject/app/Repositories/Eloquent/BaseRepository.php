@@ -80,6 +80,11 @@ abstract class BaseRepository implements RepositoryInterface
             : $query->update($attributes);
     }
 
+    public function upsert($values, $uniqueBy, $update = null)
+    {
+        return $this->model->upsert($values, $uniqueBy, $update);
+    }
+
     public function delete($idOrCriteria, ?callable $beforeDelete = null)
     {
         $query = $this->model->query();

@@ -60,6 +60,14 @@ class ProductIndex extends Component
     public function restore(?int $id = null){
         $this->repository->restore(
             $id ??
+            (empty($this->selectedRecordIds) ? null : fn(&$query) => $query->whereIn('id', $this->selectedRecordIds))
+        );
+    }
+
+    #[On('product.forceDeleted')]
+    public function forceDelete(?int $id = null){
+        $this->repository->forceDelete(
+            $id ??
             (empty($this->selectedRecordIds) ? null : fn(&$query) => $query->whereIn('id', $this->selectedRecordIds)),
             function ($products) {
                 if($products instanceof Collection){
@@ -71,14 +79,6 @@ class ProductIndex extends Component
                     $products->images()->detach();
                 }
             }
-        );
-    }
-
-    #[On('product.forceDeleted')]
-    public function forceDelete(?int $id = null){
-        $this->repository->forceDelete(
-            $id ??
-            (empty($this->selectedRecordIds) ? null : fn(&$query) => $query->whereIn('id', $this->selectedRecordIds))
         );
     }
 

@@ -68,3 +68,22 @@ window.humanizeTimeDifference = function(baseTime, targetTime = new Date()){
         }
     }
 }
+
+window.copyToClipboard = function(text, button) {
+    navigator.clipboard.writeText(text).then(() => {
+        const originalContent = button.innerHTML;
+
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.classList.add('btn-success');
+        button.classList.remove('btn-outline-secondary');
+
+        setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 1500);
+    }).catch(error => {
+        console.error('Failed to copy: ', error);
+        window.alert('Oops! Something went wrong while copying the link.');
+    });
+};

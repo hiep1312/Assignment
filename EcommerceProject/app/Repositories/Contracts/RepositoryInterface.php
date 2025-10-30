@@ -83,6 +83,24 @@ interface RepositoryInterface
     public function update($idOrCriteria, $attributes, &$updatedModel = null);
 
     /**
+     * Insert or update multiple records in the database in a single query.
+     *
+     * @param array $values An array of values to insert or update.
+     *                         Each item should be an associative array representing a row.
+     * @param array|string $uniqueBy The column(s) that uniquely identify records.
+     *                                  Can be a single column name (string) or an array of column names.
+     * @param  array|null $update The columns to update if a matching record exists.
+     *                              If null or empty, all columns except those in $uniqueBy will be updated.
+     *
+     * @return int  The number of affected rows.
+     *
+     * @throws \Illuminate\Database\QueryException If the query fails.
+     *
+     * @see \Illuminate\Database\Eloquent\Builder::upsert()
+     */
+    public function upsert($values, $uniqueBy, $update = null);
+
+    /**
      * Delete a record or multiple records from the repository.
      *
      * @param int|string|array|callable(\Illuminate\Database\Eloquent\Builder $query) $idOrCriteria

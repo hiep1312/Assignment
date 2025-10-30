@@ -163,7 +163,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td style="width: 330px;">
+                            <td style="width: 301px;">
                                 <small class="text-muted d-block text-wrap lh-base">{{ Str::limit($product->description, 80, '...') }}</small>
                             </td>
                             <td>

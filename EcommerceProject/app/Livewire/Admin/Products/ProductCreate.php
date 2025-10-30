@@ -4,9 +4,12 @@ namespace App\Livewire\Admin\Products;
 
 use App\Helpers\AutoValidatesRequest;
 use App\Http\Requests\ProductRequest;
+use App\Http\Requests\ProductVariantRequest;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Contracts\ProductVariantInventoryRepositoryInterface;
+use Illuminate\Support\Arr;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -24,17 +27,21 @@ class ProductCreate extends Component
     public $category_ids = [];
     public $image_ids = [];
     public $mainImageId = null;
+    public $variants = [];
 
     public string $searchCategories = '';
     public array $selectedCategoryIds = [];
+    public array $activeVariantData = [];
 
     protected ProductRepositoryInterface $repository;
+    protected ProductVariantInventoryRepositoryInterface $variantInventoryRepository;
     protected ImageRepositoryInterface $imageRepository;
     protected CategoryRepositoryInterface $categoryRepository;
     protected $request = ProductRequest::class;
 
-    public function boot(ProductRepositoryInterface $repository, ImageRepositoryInterface $imageRepository, CategoryRepositoryInterface $categoryRepository){
+    public function boot(ProductRepositoryInterface $repository, ProductVariantInventoryRepositoryInterface $variantInventoryRepository, ImageRepositoryInterface $imageRepository, CategoryRepositoryInterface $categoryRepository){
         $this->repository = $repository;
+        $this->variantInventoryRepository = $variantInventoryRepository;
         $this->imageRepository = $imageRepository;
         $this->categoryRepository = $categoryRepository;
     }
@@ -68,6 +75,21 @@ class ProductCreate extends Component
 
         $productCreated->images()->attach($pivotImageData);
 
+        $variantsData = array_values($this->variants);
+        $variantsAttributes = array_map(fn($variant) => Arr::except($variant, ['stock']), $variantsData);
+        $variantsStock = array_column($variantsData, 'stock');
+
+        $variantsCreated = $productCreated->variants()->createMany($variantsAttributes);
+        $inventoriesData = [];
+        foreach($variantsCreated as $index => $variant){
+            $inventoriesData[] = [
+                'variant_id' => $variant->id,
+                'stock' => $variantsStock[$index]
+            ];
+        }
+
+        $this->variantInventoryRepository->upsert($inventoriesData, 'variant_id', ['stock']);
+
         return redirect()->route('admin.products.index')->with('data-changed', ['New product has been created successfully.', now()->toISOString()]);
     }
 
@@ -83,12 +105,52 @@ class ProductCreate extends Component
     }
 
     public function resetForm(){
-        $this->reset('title', 'slug', 'description', 'status', 'category_ids', 'image_ids', 'mainImageId');
+        $this->reset('title', 'slug', 'description', 'status', 'category_ids', 'image_ids', 'mainImageId', 'variants');
     }
 
     public function removeImage(int $imageId){
         $this->image_ids = array_filter($this->image_ids, fn($id) => $id != $imageId);
         $this->updateMainImage();
+    }
+
+    public function addVariant(){
+        $this->activeVariantData = [
+            'name' => '',
+            'sku' => '',
+            'price' => null,
+            'discount' => null,
+            'status' => 1,
+            'stock' => null
+        ];
+    }
+
+    public function editVariant(string $keyId){
+        $this->activeVariantData = $this->variants[$keyId];
+        $this->activeVariantData['keyId'] = $keyId;
+    }
+
+    #[On('variant.removed')]
+    public function removeVariant(string $keyId){
+        unset($this->variants[$keyId]);
+    }
+
+    public function handleVariantModal(bool $isEditing){
+        $requestValidate= new ProductVariantRequest("product");
+        $this->validate($requestValidate->rules(), $requestValidate->messages());
+
+        if($isEditing && isset($this->activeVariantData['keyId'])){
+            $keyId = $this->activeVariantData['keyId'];
+            unset($this->activeVariantData['keyId']);
+
+            $this->variants[$keyId] = $this->activeVariantData;
+        }else{
+            $this->variants[uniqid("variant")] = $this->activeVariantData;
+        }
+
+        $this->reset('activeVariantData');
+        $this->js(<<<JS
+            bootstrap.Modal.getOrCreateInstance("#variantModal").hide();
+        JS);
     }
 
     #[Title('Add New Product - Bookio Admin')]

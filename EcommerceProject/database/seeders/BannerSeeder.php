@@ -17,7 +17,7 @@ class BannerSeeder extends Seeder
         /* Create random banners with image */
         Banner::factory(7)->has(
             Imageable::factory(1)->banner(),
-            'image'
+            'imageable'
         )->create();
     }
 }

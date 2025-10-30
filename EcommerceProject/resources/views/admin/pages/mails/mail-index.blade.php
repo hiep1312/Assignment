@@ -71,7 +71,7 @@
                             </td>
                             <td>
                                 <div style="max-width: 330px;">
-                                    <small class="text-muted d-block text-wrap lh-base">
+                                    <small class="text-muted text-wrap lh-base">
                                         {{ Str::limit(strip_tags($mail->body), 100, '...') }}
                                     </small>
                                 </div>

@@ -7,6 +7,10 @@ use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ImageableRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use App\Repositories\Contracts\MailRepositoryInterface;
+use App\Repositories\Contracts\OrderItemRepositoryInterface;
+use App\Repositories\Contracts\OrderRepositoryInterface;
+use App\Repositories\Contracts\OrderShippingRepositoryInterface;
+use App\Repositories\Contracts\PaymentRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantInventoryRepositoryInterface;
@@ -17,6 +21,10 @@ use App\Repositories\Eloquent\CategoryRepository;
 use App\Repositories\Eloquent\ImageableRepository;
 use App\Repositories\Eloquent\ImageRepository;
 use App\Repositories\Eloquent\MailRepository;
+use App\Repositories\Eloquent\OrderItemRepository;
+use App\Repositories\Eloquent\OrderRepository;
+use App\Repositories\Eloquent\OrderShippingRepository;
+use App\Repositories\Eloquent\PaymentRepository;
 use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\ProductReviewRepository;
 use App\Repositories\Eloquent\ProductVariantInventoryRepository;
@@ -36,7 +44,11 @@ class RepositoryServiceProvider extends ServiceProvider
         ProductVariantInventoryRepositoryInterface::class => ProductVariantInventoryRepository::class,
         ProductReviewRepositoryInterface::class => ProductReviewRepository::class,
         ImageableRepositoryInterface::class => ImageableRepository::class,
-        MailRepositoryInterface::class => MailRepository::class
+        MailRepositoryInterface::class => MailRepository::class,
+        OrderRepositoryInterface::class => OrderRepository::class,
+        OrderItemRepositoryInterface::class => OrderItemRepository::class,
+        OrderShippingRepositoryInterface::class => OrderShippingRepository::class,
+        PaymentRepositoryInterface::class => PaymentRepository::class
     ];
 
     /**

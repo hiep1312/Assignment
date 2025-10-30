@@ -1,6 +1,10 @@
 @use('App\Livewire\Admin\Components\FormPanel\ImageUploader')
 @use('App\Enums\DefaultImage')
-<div class="container-xxl flex-grow-1 container-p-y" id="main-component">
+<div class="container-xxl flex-grow-1 container-p-y" id="main-component" x-data="{ isEditing: false, resetVariantModal: () => {
+        $wire.$set('activeVariantData', [], true);
+    } }">
+    <livewire:admin.components.confirm-modal>
+
     <x-livewire::management-header title="Add New Product" btn-link="{{ route('admin.products.index') }}" btn-label="Back to List"
         btn-icon="fas fa-arrow-left" btn-class="btn btn-outline-secondary bootstrap-focus" />
 
@@ -128,13 +132,94 @@
             </x-livewire::form-panel.group.input-group>
         </x-livewire::form-panel.group>
 
-        {{-- <hr class="my-4">
+        <hr class="mt-4 mb-3">
 
         <x-livewire::form-panel.group title="Product Variants" icon="fas fa-cubes" :hasTitleAction="true">
-            <x-slot:button-action class="btn btn-success bootstrap" icon="fas fa-plus"
-                data-bs-toggle="modal" data-bs-target="#addVariantModal">Add Variant</x-slot:button-action>
+            <x-slot:button-action type="button" class="btn btn-success bootstrap" icon="fas fa-plus"
+                data-bs-toggle="modal" data-bs-target="#variantModal" wire:click="addVariant" x-on:click="isEditing = false">Add Variant</x-slot:button-action>
 
-        </x-livewire::form-panel.group> --}}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover mb-0">
+                    <thead class="table-light text-center">
+                        <tr>
+                            <th>Variant Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($variants as $keyId => $variant)
+                            @php $variant = (object) $variant @endphp
+                            <tr class="text-center" wire:key="variant-{{ $keyId }}">
+                                <td>
+                                    <div class="fw-bold">
+                                        {{ Str::limit($variant->name, 30, '...') }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ number_format($variant->discount ?? $variant->price, 0, '.', '.') }}đ</div>
+                                    @if($variant->discount)
+                                        <small class="text-muted d-block mt-1">
+                                            Original: {{ number_format($variant->price, 0, ',', '.') }}đ
+                                        </small>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($variant->stock > 0)
+                                        <span class="text-success">
+                                            <i class="fas fa-box"></i>
+                                            {{ number_format($variant->stock, 0, '.', '.') }}
+                                        </span>
+                                    @else
+                                        <span class="text-danger">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            Sold out
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill bootstrap-color
+                                        @switch($variant->status)
+                                            @case(1) bg-success @break
+                                            @case(0) bg-secondary @break
+                                        @endswitch
+                                    ">
+                                        @switch($variant->status)
+                                            @case(1) active @break
+                                            @case(0) inactive @break
+                                        @endswitch
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-warning btn-action bootstrap-focus" title="Edit"
+                                            data-bs-toggle="modal" data-bs-target="#variantModal" wire:click="editVariant('{{ $keyId }}')" x-on:click="isEditing = true">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                            data-title="Delete Variant" data-type="warning" data-message="Are you sure you want to delete this variant #{{ $keyId }}?"
+                                            data-confirm-label="Confirm Delete" data-event-name="variant.removed" data-event-data='@json($keyId)'>
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr class="empty-state-row">
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="empty-state" style="padding: 0">
+                                        <i class="fas fa-boxes fa-2x text-muted mb-3"></i>
+                                        <h5 class="text-muted">No variants found</h5>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </x-livewire::form-panel.group>
 
         <x-slot:actions>
             <button type="button" class="btn btn-outline-secondary bootstrap-focus me-2" wire:click="resetForm">
@@ -148,21 +233,109 @@
         </x-slot:actions>
     </x-livewire::form-panel>
 
-    {{-- <div class="modal fade" id="addVariantModal" tabindex="-1" aria-hidden="true" wire:ignore.self>
-        <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal fade" id="variantModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" wire:ignore.self>
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Variant</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" x-text="isEditing ? 'Edit Variant' : 'Add New Variant'"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" x-on:click="resetVariantModal"></button>
                 </div>
                 <div class="modal-body">
+                    @if($activeVariantData)
+                        <div class="row g-3" wire:key="variant-{{ $activeVariantData['keyId'] ?? count($variants) }}">
+                            <x-livewire::form-panel.group.input-group label="Variant Name" icon="fas fa-tag" for="name" column="col-lg-6" required>
+                                <input type="text" class="form-control custom-radius-end @error("activeVariantData.name") is-invalid @enderror" id="name"
+                                    wire:model="activeVariantData.name" placeholder="Enter variant name">
+                                <x-slot:feedback>
+                                    @error("activeVariantData.name")
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </x-slot:feedback>
+                            </x-livewire::form-panel.group.input-group>
 
+                            <x-livewire::form-panel.group.input-group label="SKU" icon="fas fa-barcode" for="sku" column="col-lg-6" required>
+                                <input type="text" class="form-control @error("activeVariantData.sku") is-invalid @enderror" id="sku"
+                                    wire:model="activeVariantData.sku" placeholder="Enter unique SKU code">
+                                <button type="button" class="btn btn-outline-warning custom-radius-end bootstrap-hover bootstrap-focus"
+                                    style="padding: 0.4375rem 0.6rem" wire:click="$set('activeVariantData.sku', '{{ strtoupper(Str::random(12)) }}')">Generate SKU</button>
+                                <x-slot:feedback>
+                                    @error("activeVariantData.sku")
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </x-slot:feedback>
+                            </x-livewire::form-panel.group.input-group>
+
+                            <x-livewire::form-panel.group.input-group label="Price" icon="fas fa-dollar-sign" for="price" column="col-lg-6" required>
+                                <input type="number" class="form-control custom-radius-end @error("activeVariantData.price") is-invalid @enderror" id="price"
+                                    wire:model="activeVariantData.price" placeholder="Enter price" min="0" step="1">
+                                <x-slot:feedback>
+                                    @error("activeVariantData.price")
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </x-slot:feedback>
+                            </x-livewire::form-panel.group.input-group>
+
+                            <x-livewire::form-panel.group.input-group label="Discounted Price" icon="fas fa-percent" for="discount" column="col-lg-6">
+                                <input type="number" class="form-control custom-radius-end @error("activeVariantData.discount") is-invalid @enderror" id="discount"
+                                    wire:model="activeVariantData.discount" placeholder="Enter discounted price" min="0" step="1">
+                                <x-slot:feedback>
+                                    @error("activeVariantData.discount")
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </x-slot:feedback>
+                            </x-livewire::form-panel.group.input-group>
+
+                            <x-livewire::form-panel.group.input-group label="Stock Quantity" icon="fas fa-boxes" for="stock" column="col-lg-6" required>
+                                <input type="number" class="form-control custom-radius-end @error("activeVariantData.stock") is-invalid @enderror" id="stock"
+                                    wire:model="activeVariantData.stock" placeholder="Enter stock quantity" min="0" step="1">
+                                <x-slot:feedback>
+                                    @error("activeVariantData.stock")
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </x-slot:feedback>
+                            </x-livewire::form-panel.group.input-group>
+
+                            <x-livewire::form-panel.group.input-group label="Status" :icon="$activeVariantData['status'] == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
+                                <select class="form-select custom-radius-end @error("activeVariantData.status") is-invalid @enderror" id="status"
+                                    wire:model.change="activeVariantData.status" wire:key="status">
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                                <x-slot:feedback>
+                                    @error("activeVariantData.status")
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </x-slot:feedback>
+                            </x-livewire::form-panel.group.input-group>
+                        </div>
+                    @else
+                        <div class="text-center">
+                            <div class="dots">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                            <span class="loading-text-dots">Loading</span>
+                        </div>
+                    @endif
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Create Variant</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" x-on:click="resetVariantModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" x-on:click="$wire.handleVariantModal(isEditing)" x-text="isEditing ? 'Update Variant' : 'Create Variant'"></button>
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 </div>

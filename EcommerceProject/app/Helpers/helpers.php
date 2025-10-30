@@ -96,3 +96,93 @@ if(!function_exists('formatFileSize')){
         return $bytes . ' B';
     }
 }
+
+if(!function_exists('formatJsonToHtml')){
+    /**
+     * Converts JSON data into formatted, syntax-highlighted HTML.
+     *
+     * Takes JSON input (either as a string or array/object) and transforms it into
+     * an HTML representation with CSS classes for syntax highlighting. Each JSON
+     * element type (string, number, boolean, null) receives a specific CSS class
+     * for styling purposes.
+     *
+     * @param mixed $json The JSON data to format. Can be:
+     *                    - A JSON string to be decoded
+     *                    - An array or object (already decoded JSON)
+     *                    - null or empty string (returns null)
+     * @param int $indentCount The number of spaces to use for each indentation level. Defaults to 4 spaces.
+     * @return string|null Returns the formatted HTML string with the following CSS classes:
+     *                     - 'json-key': for object keys
+     *                     - 'json-string': for string values
+     *                     - 'json-number': for numeric values
+     *                     - 'json-boolean': for boolean values
+     *                     - 'json-null': for null values
+     *                     - 'json-error': for invalid JSON input
+     *                     Returns null if input is null or empty string.
+     */
+    function formatJsonToHtml(mixed $json, int $indentCount = 4): string|null
+    {
+        if(is_null($json) || $json === '') return null;
+
+        $data = is_string($json) ? json_decode($json, true, 512, JSON_OBJECT_AS_ARRAY) : $json;
+
+        if(json_last_error() !== JSON_ERROR_NONE) {
+            return '<span class="json-error">Invalid JSON</span>';
+        }
+
+        $tagName = 'span';
+        $keyClassName = 'json-key';
+
+        $getClassName = function($value){
+            return match(true){
+                is_string($value) => 'json-string',
+                is_numeric($value) => 'json-number',
+                is_bool($value) => 'json-boolean',
+                is_null($value) => 'json-null',
+                default => 'json-error',
+            };
+        };
+
+        $getDisplayValue = function($value){
+            return match(true){
+                is_string($value) => '"'. htmlspecialchars($value) .'"',
+                is_numeric($value) => htmlspecialchars($value),
+                is_bool($value) => $value ? 'true' : 'false',
+                is_null($value) => 'null',
+            };
+        };
+
+        $formatValue = function (mixed $value, int $level = 0, int $indentCount = 4) use (&$formatValue, $tagName, $keyClassName, $getClassName, $getDisplayValue){
+            $currentIndent = str_repeat("&nbsp;", $indentCount * $level);
+            $nextIndent = str_repeat("&nbsp;", $indentCount * ($level + 1));
+
+            if(is_string($value) || is_numeric($value) || is_bool($value) || is_null($value)){
+                return "<{$tagName} class=\"{$getClassName($value)}\">{$getDisplayValue($value)}</{$tagName}>";
+            }elseif(is_array($value) || is_object($value)){
+                $value = (array) $value;
+                $isAssociative = !array_is_list($value);
+
+                $html = $isAssociative ? "{\n" : "[\n";
+                $elements = [];
+
+                foreach($value as $key => $item){
+                    $formattedValue = $formatValue($item, $level + 1, $indentCount);
+
+                    if($isAssociative){
+                        $elements[] = "{$nextIndent}<{$tagName} class=\"{$keyClassName}\">\"{$key}\"</{$tagName}>: {$formattedValue}";
+                    }else{
+                        $elements[] = "{$nextIndent}{$formattedValue}";
+                    }
+                }
+
+                $html .= implode(",\n", $elements) . "\n";
+                $html .= $currentIndent . ($isAssociative ? "}" : "]");
+                return $html;
+            }
+
+            return htmlspecialchars((string)$value);
+        };
+
+        return $formatValue($data, 0, $indentCount);
+    }
+}
