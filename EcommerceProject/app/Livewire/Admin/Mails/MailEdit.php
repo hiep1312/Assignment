@@ -5,8 +5,10 @@ namespace App\Livewire\Admin\Mails;
 use App\Helpers\AutoValidatesRequest;
 use App\Helpers\MailTemplateHelper;
 use App\Http\Requests\MailRequest;
+use App\Repositories\Contracts\ImageRepositoryInterface;
 use App\Repositories\Contracts\MailRepositoryInterface;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -20,10 +22,12 @@ class MailEdit extends Component
     public int $type = 0;
 
     protected MailRepositoryInterface $repository;
+    protected ImageRepositoryInterface $imageRepository;
     protected $request = MailRequest::class;
 
-    public function boot(MailRepositoryInterface $repository){
+    public function boot(MailRepositoryInterface $repository, ImageRepositoryInterface $imageRepository){
         $this->repository = $repository;
+        $this->imageRepository = $imageRepository;
     }
 
     public function mount(int $mail){
@@ -38,7 +42,8 @@ class MailEdit extends Component
     }
 
     public function updatedBody(){
-        $this->body = preg_replace('/\{\{\s*([^\}\s]*)\s*\}\}/', '{{${1}}}', $this->body);
+        $this->body = preg_replace('/\{\{(?:\s|&nbsp;)*([^\}\s]*)(?:\s|&nbsp;)*\}\}/', '{{${1}}}', $this->body);
+        $this->dispatch('editor.update', $this->body);
     }
 
     public function update(){
@@ -58,9 +63,19 @@ class MailEdit extends Component
         return redirect()->route('admin.mails.index')->with('data-changed', ['Mail has been updated successfully.', now()->toISOString()]);
     }
 
+    #[On('images.attached')]
+    public function onImageSelected(array $imageIds){
+        $imageUrl = $this->imageRepository->find(idOrCriteria: function($query) use ($imageIds){
+            $query->whereIn('id', $imageIds);
+        }, columns: ['image_url'])->map(fn($image) => asset("storage/{$image->image_url}"))->toArray();
+
+        if($imageUrl) $this->js("window.editorAPI.insertImage", $imageUrl);
+    }
+
     public function resetForm(){
         $this->reset('subject', 'body', 'type');
         $this->mount($this->id);
+        $this->dispatch('editor.update', $this->body);
     }
 
     #[Title('Edit Mail - Bookio Admin')]

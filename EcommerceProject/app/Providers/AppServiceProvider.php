@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Faker\Generator;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use Smknstd\FakerPicsumImages\FakerPicsumImagesProvider;
 
@@ -28,5 +29,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Blade::componentNamespace("App\\Livewire\\Admin\\Components", 'livewire');
+
+        // Configure global mail behavior
+        if(config('mail.always_to.address') && config('app.env') !== "production"){
+            Mail::alwaysTo(config('mail.always_to.address'), config('mail.always_to.name'));
+        }
+
+        if(config('mail.return_path')){
+            Mail::alwaysReturnPath(config('mail.return_path'));
+        }
     }
 }

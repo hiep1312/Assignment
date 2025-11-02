@@ -1,8 +1,12 @@
 @use('App\Helpers\MailTemplateHelper')
-@use('App\Services\MarkdownService')
+@assets
+    @vite('resources/js/editor-handler.js')
+@endassets
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
     <x-livewire::management-header title="Add New Mail" btn-link="{{ route('admin.mails.index') }}" btn-label="Back to List"
         btn-icon="fas fa-arrow-left" btn-class="btn btn-outline-secondary bootstrap-focus" />
+
+    <livewire:admin.components.gallery-manager wire:key="gallery-picker" id="galleryPickerModal" />
 
     <x-livewire::form-panel :isFormNormal="false" id="mail-create-form" action="store">
         <x-livewire::form-panel.group title="Mail Information" icon="fas fa-envelope">
@@ -38,24 +42,22 @@
             </x-livewire::form-panel.group.input-group>
         </x-livewire::form-panel.group>
 
-        <hr class="mt-4 mb-3">
+        <hr class="my-4">
 
-        <x-livewire::form-panel.group title="Email Body" icon="fas fa-file-alt" :hasTitleAction="true">
-            <x-slot:button-action type="button" class="btn btn-success bootstrap" icon="fas fa-envelope-open-text"
-                data-bs-toggle="modal" data-bs-target="#mailPreviewModal">Preview</x-slot:button-action>
+        <div class="mb-4 @error('body') is-invalid @enderror">
+            <h5 class="mb-3"><i class="fas fa-file-alt text-primary me-2"></i>Email Body</h5>
 
-            <x-livewire::form-panel.group.input-group icon="fas fa-align-left" for="body" column="col-12" required>
-                <textarea class="form-control custom-radius-end @error('body') is-invalid @enderror" id="body"
-                    wire:model.live.debounce.500ms="body" placeholder="Enter email body" rows="5"></textarea>
-                <x-slot:feedback>
-                    @error('body')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
-                </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
-        </x-livewire::form-panel.group>
+            <div wire:ignore wire:key="mail-body">
+                <textarea class="form-control" id="ckeditor" data-model="body" data-label="Content Editor"
+                    data-placeholder="Enter email body" rows="5"></textarea>
+            </div>
+
+            @error('body')
+                <div class="invalid-feedback d-block text-center" style="margin-top: 0.5rem;">
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
 
         <div class="alert alert-info border-2 border-info text-dark mt-4" role="alert"
             style="font-family: var(--bs-font-sans-serif-origin);">
@@ -68,7 +70,7 @@
                     <p class="mb-2">Use the following variables in your email content to automatically insert the corresponding information:</p>
 
                     <ul class="ps-3 m-0" style="color: #566a7f;">
-                        @foreach (MailTemplateHelper::getMailPlaceholdersWithDescription($type) as ['placeholder' => $placeholder, 'description' => $description])
+                        @foreach (MailTemplateHelper::getPlaceholdersWithDescription($type) as ['placeholder' => $placeholder, 'description' => $description])
                             <li class="mb-2"><kbd>{{ $placeholder }}</kbd> - {{ $description }}</li>
                         @endforeach
                     </ul>
@@ -87,15 +89,4 @@
             </button>
         </x-slot:actions>
     </x-livewire::form-panel>
-
-    <x-livewire::content-preview title="Mail Preview" icon="fas fa-envelope" id="mailPreviewModal" wire:ignore.self>
-        @if($body)
-            {!! MarkdownService::instance()->text($body) !!}
-        @else
-            <div class="alert alert-info text-center">
-                <i class="fas fa-exclamation-triangle me-1"></i>
-                No email body content available.
-            </div>
-        @endif
-    </x-livewire::content-preview>
 </div>

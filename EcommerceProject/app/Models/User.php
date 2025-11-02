@@ -105,4 +105,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(BlogComment::class, 'user_id');
     }
+
+    public function getNameAttribute(): string
+    {
+        return trim("{$this->first_name} {$this->last_name}");
+    }
 }

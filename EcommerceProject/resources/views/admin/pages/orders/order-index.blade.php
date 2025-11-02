@@ -188,7 +188,7 @@
                                         class="rounded-circle me-2" width="40" height="40" alt="User Avatar">
                                     <div class="text-start">
                                         <div class="fw-bold">
-                                            {{ Str::limit(trim("{$user->first_name} {$user->last_name}"), 20, '...') }}
+                                            {{ Str::limit($user->name, 20, '...') }}
                                             @if($isTrashed)
                                                 <span class="badge badge-center rounded-pill bg-label-danger ms-1" style="font-size: 0.7rem; vertical-align: middle;">
                                                     <i class="fas fa-trash-alt"></i>

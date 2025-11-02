@@ -8,9 +8,10 @@ use App\Livewire\Admin\Images\ImageIndex;
 use App\Livewire\Admin\Mails\MailCreate;
 use App\Livewire\Admin\Mails\MailEdit;
 use App\Livewire\Admin\Mails\MailIndex;
+use App\Livewire\Admin\Notifications\NotificationCreate;
+use App\Livewire\Admin\Notifications\NotificationEdit;
+use App\Livewire\Admin\Notifications\NotificationIndex;
 use App\Livewire\Admin\Orders\OrderIndex;
-use App\Livewire\Admin\Orders\OrderNotes;
-use App\Livewire\Admin\Orders\OrderTimeline;
 use App\Livewire\Admin\Products\ProductCreate;
 use App\Livewire\Admin\Products\ProductEdit;
 use App\Livewire\Admin\Products\ProductIndex;
@@ -19,6 +20,8 @@ use App\Livewire\Admin\ProductVariants\ProductVariantEdit;
 use App\Livewire\Admin\Users\UserCreate;
 use App\Livewire\Admin\Users\UserEdit;
 use App\Livewire\Admin\Users\UserIndex;
+use Illuminate\Mail\Message;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function() {
@@ -61,6 +64,13 @@ Route::prefix('admin')->name('admin.')->group(function() {
         Route::get('/edit/{mail}', MailEdit::class)->name('edit');
     });
 
+    /* Notifications */
+    Route::prefix('notifications')->name('notifications.')->group(function(){
+        Route::get('/', NotificationIndex::class)->name('index');
+        Route::get('/create', NotificationCreate::class)->name('create');
+        Route::get('/edit/{notification}', NotificationEdit::class)->name('edit');
+    });
+
     /* Orders */
     Route::prefix('orders')->name('orders.')->group(function(){
         Route::get('/', OrderIndex::class)->name('index');
@@ -73,8 +83,6 @@ Route::name('auth.')->group(function() {
     });
 
 });
-
-Route::get('/test', OrderTimeline::class);
 
 Route::prefix('template')->name('template.')->group(function() {
     Route::match(['get', 'post'], '/', fn() => view('admin.template.index'))->name('index');

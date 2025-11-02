@@ -43,6 +43,7 @@ return [
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
             'port' => env('MAIL_PORT', 2525),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
@@ -115,4 +116,10 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'always_to' => [
+        'address' => env('MAIL_ALWAYS_TO_ADDRESS'),
+        'name' => env('MAIL_ALWAYS_TO_NAME'),
+    ],
+
+    'return_path' => env('MAIL_RETURN_PATH_ADDRESS'),
 ];

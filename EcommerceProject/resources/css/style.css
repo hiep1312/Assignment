@@ -7,6 +7,18 @@
     transform: none !important;
 }
 
+.ck-body-wrapper .ck-powered-by {
+    display: none;
+}
+
+.ck.ck-editor__main > .ck-editor__editable {
+    min-height: 300px;
+}
+
+.is-invalid .ck.ck-editor__main > .ck-editor__editable {
+    border-color: #ff3e1d !important;
+}
+
 /* Original bootstrap variable */
 :root {
     --bs-primary-rgb-origin: 13, 110, 253;
@@ -2232,7 +2244,7 @@ h6.bootstrap-style, h5.bootstrap-style, h4.bootstrap-style, h3.bootstrap-style, 
     height: 8px;
     background: #667eea;
     border-radius: 50%;
-    animation: bounce 1.4s infinite;
+    animation: bounceDot 1.4s infinite;
 }
 
 .dot:nth-child(1) {
@@ -2247,7 +2259,7 @@ h6.bootstrap-style, h5.bootstrap-style, h4.bootstrap-style, h3.bootstrap-style, 
     animation-delay: 0.4s;
 }
 
-@keyframes bounce {
+@keyframes bounceDot {
     0%, 80%, 100% {
         transform: translateY(0);
         opacity: 0.5;

@@ -2,9 +2,9 @@
 
 namespace App\Helpers;
 
-use App\Enums\MailPlaceholders\{CustomMailPlaceholder, OrderSuccessPlaceholder, OrderFailedPlaceholder, ShippingUpdatePlaceholder, ForgotPasswordPlaceholder, RegisterSuccessPlaceholder};
+use App\Enums\NotificationPlaceholders\{AccountUpdatePlaceholder, CustomPlaceholder, OrderUpdatePlaceholder, PaymentUpdatePlaceholder, PromotionPlaceholder, SystemPlaceholder};
 
-class MailTemplateHelper
+class NotificationTemplateHelper
 {
     public static function getPlaceholdersWithDescription(int $type): array
     {
@@ -36,12 +36,12 @@ class MailTemplateHelper
     protected static function getEnumClass(int $type): string
     {
         return match($type){
-            0 => CustomMailPlaceholder::class,
-            1 => OrderSuccessPlaceholder::class,
-            2 => OrderFailedPlaceholder::class,
-            3 => ShippingUpdatePlaceholder::class,
-            4 => ForgotPasswordPlaceholder::class,
-            5 => RegisterSuccessPlaceholder::class,
+            0 => CustomPlaceholder::class,
+            1 => OrderUpdatePlaceholder::class,
+            2 => PaymentUpdatePlaceholder::class,
+            3 => PromotionPlaceholder::class,
+            4 => AccountUpdatePlaceholder::class,
+            5 => SystemPlaceholder::class,
         };
     }
 }
