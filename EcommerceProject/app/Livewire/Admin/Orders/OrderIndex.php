@@ -2,6 +2,9 @@
 
 namespace App\Livewire\Admin\Orders;
 
+use App\Enums\OrderStatus;
+use App\Events\MailSentEvent;
+use App\Models\Order;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -61,8 +64,17 @@ class OrderIndex extends Component
     }
 
     #[On('order-updated')]
-    public function reloadDetail(){
+    public function reloadDetail(?Order $order = null){
         $this->lockReloadDetail = time();
+        if($order){
+            event(new MailSentEvent(
+                $order->isFinalized
+                    ? ($order->status === OrderStatus::COMPLETED->value ? 1 : 2)
+                    : ($order->isCancelled ? 2 : 3),
+                $order->user_id,
+                $order
+            ));
+        }
     }
 
     #[Title('Order List - Bookio Admin')]
@@ -105,6 +117,38 @@ class OrderIndex extends Component
             $query->latest();
         }, perPage: 20, columns: ['*'], pageName: 'page');
 
-        return view('admin.pages.orders.order-index', compact('orders'));
+        $statistic = [
+            [
+                'title' => 'New Orders',
+                'value' => $this->repository->count(fn($query) => $query->where('status', 1)),
+                'icon' => 'fas fa-bell',
+            ],
+            [
+                'title' => 'Revenue (30 days)',
+                'value' => number_format($this->repository->sum('total_amount', function($query){
+                    $query->where('status', 6)
+                        ->where('completed_at', '>=', now()->subDays(30));
+                }), 0, '.', '.') . 'đ',
+                'icon' => 'fas fa-dollar-sign',
+            ],
+            [
+                'title' => 'Completed (30 days)',
+                'value' => $this->repository->count(function($query){
+                    $query->where('status', 6)
+                        ->where('completed_at', '>=', now()->subDays(30));
+                }),
+                'icon' => 'fas fa-check-circle',
+            ],
+            [
+                'title' => 'Cancelled (30 days)',
+                'value' => $this->repository->count(function($query){
+                    $query->whereIn('status', [7, 8, 9])
+                        ->where('cancelled_at', '>=', now()->subDays(30));
+                }),
+                'icon' => 'fas fa-times-circle',
+            ],
+        ];
+
+        return view('admin.pages.orders.order-index', compact('orders', 'statistic'));
     }
 }

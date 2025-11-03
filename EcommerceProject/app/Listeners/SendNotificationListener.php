@@ -3,11 +3,14 @@
 namespace App\Listeners;
 
 use App\Events\NotificationSentEvent;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Queue\InteractsWithQueue;
 
-class SendNotificationListener
+class SendNotificationListener implements ShouldQueueAfterCommit
 {
+    public $tries = 2;
+    public $delay = 5;
+
     /**
      * Create the event listener.
      */
@@ -21,6 +24,6 @@ class SendNotificationListener
      */
     public function handle(NotificationSentEvent $event): void
     {
-        //
+
     }
 }

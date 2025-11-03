@@ -6,6 +6,7 @@ use App\Models\Mail;
 use App\Models\MailUser;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class MailSeeder extends Seeder
 {
@@ -15,7 +16,7 @@ class MailSeeder extends Seeder
     public function run(): void
     {
         /* Create default mails */
-        Mail::factory(3)->sequence(
+        Mail::factory(5)->sequence(
             ['type' => 1],
             ['type' => 2],
             ['type' => 3],
@@ -28,8 +29,10 @@ class MailSeeder extends Seeder
 
         /* Create random mail users */
         foreach ($mails->pluck('id') as $mailId) {
+            $batchKey = (string) Str::uuid();
             MailUser::factory(rand(2, 10))->resetFaker()->create([
-                'mail_id' => $mailId
+                'mail_id' => $mailId,
+                'batch_key' => $batchKey
             ]);
         }
     }

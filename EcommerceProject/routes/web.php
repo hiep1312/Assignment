@@ -4,6 +4,9 @@ use App\Livewire\Admin\Auth\Login;
 use App\Livewire\Admin\Banners\BannerCreate;
 use App\Livewire\Admin\Banners\BannerEdit;
 use App\Livewire\Admin\Banners\BannerIndex;
+use App\Livewire\Admin\Categories\CategoryCreate;
+use App\Livewire\Admin\Categories\CategoryEdit;
+use App\Livewire\Admin\Categories\CategoryIndex;
 use App\Livewire\Admin\Images\ImageIndex;
 use App\Livewire\Admin\Mails\MailCreate;
 use App\Livewire\Admin\Mails\MailEdit;
@@ -20,8 +23,6 @@ use App\Livewire\Admin\ProductVariants\ProductVariantEdit;
 use App\Livewire\Admin\Users\UserCreate;
 use App\Livewire\Admin\Users\UserEdit;
 use App\Livewire\Admin\Users\UserIndex;
-use Illuminate\Mail\Message;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function() {
@@ -74,6 +75,13 @@ Route::prefix('admin')->name('admin.')->group(function() {
     /* Orders */
     Route::prefix('orders')->name('orders.')->group(function(){
         Route::get('/', OrderIndex::class)->name('index');
+    });
+
+    /* Categories */
+    Route::prefix('categories')->name('categories.')->group(function(){
+        Route::get('/', CategoryIndex::class)->name('index');
+        Route::get('/create', CategoryCreate::class)->name('create');
+        Route::get('/edit/{category}', CategoryEdit::class)->name('edit');
     });
 });
 

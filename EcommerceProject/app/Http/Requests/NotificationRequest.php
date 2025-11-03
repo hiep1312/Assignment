@@ -24,7 +24,7 @@ class NotificationRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'message' => 'required|string',
-            'type' => 'required|integer|in:0,1,2,3,4,5',
+            'type' => 'required|integer|in:0,1,2,3,4,5,6',
         ];
     }
 
@@ -38,7 +38,7 @@ class NotificationRequest extends FormRequest
             'message.string' => 'The notification message must be a valid text string.',
             'type.required' => 'The notification type is required.',
             'type.integer' => 'The notification type must be a valid integer.',
-            'type.in' => 'The notification type must be one of the following: 0 (Custom), 1 (Order Update), 2 (Payment Update), 3 (Promotion), 4 (Account Update), 5 (System).',
+            'type.in' => 'The notification type must be one of the following: 0 (Custom), 1 (Order Update), 2 (Payment Update), 3 (Promotion), 4 (Account Update), 5 (Maintenance), 6 (Internal System).',
         ];
     }
 }

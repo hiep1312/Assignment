@@ -18,7 +18,8 @@
                 <option value="2">Payment Update</option>
                 <option value="3">Promotion</option>
                 <option value="4">Account Update</option>
-                <option value="5">System</option>
+                <option value="5">Maintenance</option>
+                <option value="6">Internal System</option>
             </select>
         </div>
     </x-livewire::filter-bar>
@@ -77,7 +78,8 @@
                                         @case(2) bg-warning @break
                                         @case(3) bg-info @break
                                         @case(4) bg-primary @break
-                                        @case(5) bg-danger @break
+                                        @case(5) bg-dark @break
+                                        @case(6) bg-danger @break
                                     @endswitch
                                 ">
                                     @switch($notification->type)
@@ -86,7 +88,8 @@
                                         @case(2) Payment Update @break
                                         @case(3) Promotion @break
                                         @case(4) Account Update @break
-                                        @case(5) System @break
+                                        @case(5) Maintenance @break
+                                        @case(6) Internal System @break
                                     @endswitch
                                 </span>
                             </td>

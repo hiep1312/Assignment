@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
             $table->tinyInteger('type')->default(0)->index()
-                ->comment('Type rules: 0 -> custom | 1 -> order_update | 2 -> payment_update | 3 -> promotion | 4 -> account_update | 5 -> system');
+                ->comment('Type rules: 0 -> custom | 1 -> order_update | 2 -> payment_update | 3 -> promotion | 4 -> account_update | 5 -> maintenance | 6 -> internal_system');
             $table->string('title', 255);
             $table->text('message');
             $table->json('variable')->nullable();

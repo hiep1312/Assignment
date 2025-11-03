@@ -26,7 +26,7 @@ class ProductVariantFactory extends Factory
             'name' => $name,
             'sku' => strtoupper(Str::random(8)),
             'price' => $priceOriginal,
-            'discount' => $this->faker->optional(0.3)->numberBetween(60000, $priceOriginal),
+            'discount' => $this->faker->optional(0.7)->numberBetween(60000, $priceOriginal),
             'status' => $this->faker->randomElement([0, 1]),
         ];
     }

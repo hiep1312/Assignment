@@ -4,8 +4,8 @@
 @endphp
 <div class="row mb-2">
     @foreach($dataStats as $index => $statistic)
-        <div class="col-md-{{ $colSpan ?? 3 }} mb-3">
-            <div class="card {{ $background[$index] }} bootstrap-color text-white">
+        <div class="col-md-{{ $colSpan === 12 ? $colSpan : 6 }} col-lg-{{ $colSpan }} mb-3">
+            <div class="card {{ $background[$index] }} bootstrap-color text-white overflow-x-auto">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>

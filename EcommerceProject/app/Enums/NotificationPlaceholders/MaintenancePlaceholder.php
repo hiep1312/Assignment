@@ -2,7 +2,7 @@
 
 namespace App\Enums\NotificationPlaceholders;
 
-enum SystemPlaceholder: string
+enum MaintenancePlaceholder: string
 {
     case FIRST_NAME = '{{first_name}}';
     case LAST_NAME = '{{last_name}}';
@@ -23,7 +23,6 @@ enum SystemPlaceholder: string
             self::MAINTENANCE_START => 'Start time of the scheduled maintenance period',
             self::MAINTENANCE_END => 'End time of the scheduled maintenance period',
             self::VERSION => 'System or application version number',
-            self::FEATURE_NAME => 'Name of the updated or new system feature',
         };
     }
 }

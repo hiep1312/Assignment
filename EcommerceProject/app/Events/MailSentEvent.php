@@ -19,11 +19,12 @@ class MailSentEvent
      * Create a new event instance.
      */
     public function __construct(
-        public Mail $mail,
-        public int|string|array $userIds,
-        public array $payload = []
+        public Mail|int $mailSource,
+        public mixed $users,
+        public mixed $payload
     ){
-        $this->userIds = is_array($this->userIds) ? $this->userIds : [$this->userIds];
+        $this->users = is_array($this->users) ? $this->users : [$this->users];
+        $this->payload = is_array($this->payload) ? $this->payload : [$this->payload];
     }
 
     /**

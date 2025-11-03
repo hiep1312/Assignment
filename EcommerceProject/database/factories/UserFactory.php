@@ -37,7 +37,7 @@ class UserFactory extends Factory
             'birthday' => $this->faker->optional()->date('Y-m-d', '-5 years'),
             'avatar' => basename($pathAvatars) . "/" . $this->faker->image(dir: $pathAvatars, width: 300, height: 300, isFullPath: false, randomize: true, imageExtension: FakerPicsumImagesProvider::WEBP_IMAGE),
             'role' => $this->faker->boolean(80) ? UserRole::USER->value : UserRole::ADMIN->value,
-            'email_verified_at' => $this->faker->optional(0.3)->dateTime(),
+            'email_verified_at' => $this->faker->optional(0.7)->dateTime(),
             'remember_token' => Str::random(10),
         ];
     }

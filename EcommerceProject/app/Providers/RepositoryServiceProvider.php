@@ -7,6 +7,7 @@ use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ImageableRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use App\Repositories\Contracts\MailRepositoryInterface;
+use App\Repositories\Contracts\MailUserRepositoryInterface;
 use App\Repositories\Contracts\NotificationRepositoryInterface;
 use App\Repositories\Contracts\OrderItemRepositoryInterface;
 use App\Repositories\Contracts\OrderRepositoryInterface;
@@ -22,6 +23,7 @@ use App\Repositories\Eloquent\CategoryRepository;
 use App\Repositories\Eloquent\ImageableRepository;
 use App\Repositories\Eloquent\ImageRepository;
 use App\Repositories\Eloquent\MailRepository;
+use App\Repositories\Eloquent\MailUserRepository;
 use App\Repositories\Eloquent\NotificationRepository;
 use App\Repositories\Eloquent\OrderItemRepository;
 use App\Repositories\Eloquent\OrderRepository;
@@ -51,7 +53,8 @@ class RepositoryServiceProvider extends ServiceProvider
         OrderItemRepositoryInterface::class => OrderItemRepository::class,
         OrderShippingRepositoryInterface::class => OrderShippingRepository::class,
         PaymentRepositoryInterface::class => PaymentRepository::class,
-        NotificationRepositoryInterface::class => NotificationRepository::class
+        NotificationRepositoryInterface::class => NotificationRepository::class,
+        MailUserRepositoryInterface::class => MailUserRepository::class
     ];
 
     /**

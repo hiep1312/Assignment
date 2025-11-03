@@ -25,4 +25,9 @@ class OrderShipping extends Model
     {
         return $this->belongsTo(Order::class, 'order_id');
     }
+
+    public function getAddressAttribute(): string
+    {
+        return trim(($this->street ? "{$this->street}, " : '') . "{$this->ward}, {$this->district}, {$this->province}");
+    }
 }

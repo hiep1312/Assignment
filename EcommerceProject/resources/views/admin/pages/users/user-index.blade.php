@@ -54,8 +54,7 @@
                     <span x-text="$wire.selectedRecordIds.length ? `Permanently Delete Users` : `Permanently Delete All Users`"></span>
                 </button>
                 <button type="button" class="btn btn-outline-primary bootstrap-focus" style="padding: 0.4rem 1.25rem;"
-                    title="View Active Users"
-                    wire:click="$toggle('isTrashed', true)">
+                    title="View Active Users" wire:click="$toggle('isTrashed', true)">
                     <i class="fas fa-user-check me-1"></i>
                     Active Users
                 </button>

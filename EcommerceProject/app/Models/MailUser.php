@@ -12,6 +12,7 @@ class MailUser extends Model
     protected $fillable = [
         'mail_id',
         'user_id',
+        'batch_key',
         'status',
         'sent_at',
         'error_message',

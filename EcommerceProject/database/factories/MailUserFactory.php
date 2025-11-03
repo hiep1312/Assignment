@@ -29,6 +29,7 @@ class MailUserFactory extends Factory
         return [
             'mail_id' => Mail::factory(),
             'user_id' => $this->faker->unique()->randomElement($userIds ??= User::pluck('id')->toArray()),
+            'batch_key' => $this->faker->uuid(),
             'status' => $status,
             'sent_at' => $status === 1 ? $this->faker->dateTimeBetween('-2 month', 'now') : null,
             'error_message' => $status === 2 ? $this->faker->sentence(rand(8, 50)) : null,

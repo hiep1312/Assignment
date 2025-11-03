@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Orders;
 
 use App\Enums\OrderStatus;
+use App\Events\MailSentEvent;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use Carbon\Carbon;
 use Livewire\Attributes\Computed;
@@ -65,7 +66,8 @@ class OrderTimeline extends Component
             idOrCriteria: $this->order_id,
             attributes: [
                 'status' => $currentStatus?->value,
-                $currentStatus?->timestampColumn() => now()
+                $currentStatus?->timestampColumn() => now(),
+                'cancel_reason' => $currentStatus === OrderStatus::FAILED ? 'Customer refused to receive the order' : null
             ]
         );
 
@@ -74,10 +76,12 @@ class OrderTimeline extends Component
 
     public function notifyOrderStatusUpdated(OrderStatus $currentStatus){
         $this->order->refresh();
-        $this->dispatch('order-updated');
+        $this->dispatch('order-updated', $this->order);
 
-        $statusName = ucwords(str_replace("_", " ", $currentStatus->name));
-        session()->flash('timeline-updated', ['Status Updated', "The order status has been updated to: {$statusName}", now()->toIsoString()]);
+        $statusName = ucwords(strtolower(str_replace("_", " ", $currentStatus->name)));
+        session([
+            'timeline-updated' => ['Status Updated', "The order status has been updated to: {$statusName}", now()->toIsoString()]
+        ]);
     }
 
     public function getOrderTimelineStatus(?Carbon $doneAt){

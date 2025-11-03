@@ -2,7 +2,10 @@
 
 namespace App\Helpers;
 
-use App\Enums\NotificationPlaceholders\{AccountUpdatePlaceholder, CustomPlaceholder, OrderUpdatePlaceholder, PaymentUpdatePlaceholder, PromotionPlaceholder, SystemPlaceholder};
+use App\Enums\DefaultImage;
+use App\Enums\NotificationPlaceholders\{AccountUpdatePlaceholder, CustomPlaceholder, InternalSystemPlaceholder, MaintenancePlaceholder, OrderUpdatePlaceholder, PaymentUpdatePlaceholder, PromotionPlaceholder};
+use App\Models\Notification;
+use Illuminate\Mail\Message;
 
 class NotificationTemplateHelper
 {
@@ -19,8 +22,9 @@ class NotificationTemplateHelper
         );
     }
 
-    public static function getUsedPlaceholders(string $content, int $type): array
+    public static function getUsedPlaceholders(string $content, int $type): ?array
     {
+        $content = mb_strtolower($content, 'UTF-8');
         $enumClass = self::getEnumClass($type);
         $usedPlaceholders = [];
 
@@ -30,7 +34,30 @@ class NotificationTemplateHelper
             }
         }
 
-        return $usedPlaceholders;
+        return $usedPlaceholders ?: null;
+    }
+
+    public static function fillPlaceholders(Notification $notification, object $source, Message $message): string
+    {
+        $enumClass = self::getEnumClass($notification->type);
+
+        return $enumClass::replacePlaceholders(self::convertImagesToEmbedded($notification->message, $message), $source, $message, $notification->variable);
+    }
+
+    protected static function convertImagesToEmbedded(string $body, Message $message): string
+    {
+        $baseUrl = preg_quote(config('app.url'), '/');
+
+        return preg_replace_callback(
+            pattern: "/<img([^>]+)src\s*=\s*[\'\"]{$baseUrl}\/?([^\'\"]*)[\'\"]([^>]*)\/?>/i",
+            callback: function(array $matches) use ($message){
+                $imageCid = $message->embed(public_path($matches[2] ?? DefaultImage::NOT_FOUND->value));
+
+                return "<img{$matches[1]}src=\"{$imageCid}\"{$matches[3]}>";
+            },
+            subject: $body,
+            flags: PREG_UNMATCHED_AS_NULL
+        );
     }
 
     protected static function getEnumClass(int $type): string
@@ -41,7 +68,8 @@ class NotificationTemplateHelper
             2 => PaymentUpdatePlaceholder::class,
             3 => PromotionPlaceholder::class,
             4 => AccountUpdatePlaceholder::class,
-            5 => SystemPlaceholder::class,
+            5 => MaintenancePlaceholder::class,
+            6 => InternalSystemPlaceholder::class
         };
     }
 }

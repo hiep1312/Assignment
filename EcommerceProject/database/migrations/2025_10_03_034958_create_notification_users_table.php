@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('notification_id')->constrained('notifications')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('batch_key', 64)->index();
             $table->boolean('is_read')->default(false);
             $table->timestamp('read_at')->nullable();
             $table->timestamps();

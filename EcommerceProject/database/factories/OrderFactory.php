@@ -31,8 +31,11 @@ class OrderFactory extends Factory
             case 8;
             case 7:
                 $cancelledAt = now()->subDays(rand(0, 20));
-                $processingAt = $this->faker->optional(0.7)->dateTimeBetween($cancelledAt->clone()->subDay(), $cancelledAt);
-                $confirmedAt = $this->faker->optional($processingAt ? 0 : 0.5)->dateTimeBetween($processingAt ? (clone $processingAt)->modify('-' . rand(1, 2) . ' day') : $cancelledAt->clone()->subDays(rand(2, 3)), $processingAt ?? $cancelledAt);
+                $processingAt = $this->faker->optional(0.4)->dateTimeBetween($cancelledAt->clone()->subDay(), $cancelledAt);
+                $confirmedAt = $this->faker->optional($processingAt ? 1 : 0.5)->dateTimeBetween(
+                    $processingAt ? (clone $processingAt)->modify('-' . rand(1, 2) . ' day') : $cancelledAt->clone()->subDays(rand(2, 3)),
+                    $processingAt ?? $cancelledAt
+                );
                 break;
             case 6: $completedAt = now()->subDays(rand(0, 14));
             case 5: $deliveredAt = $completedAt?->clone()->subDay() ?? now();

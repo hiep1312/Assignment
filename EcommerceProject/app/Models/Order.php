@@ -60,12 +60,12 @@ class Order extends Model
         return $this->hasOne(Payment::class, 'order_id');
     }
 
-    public function getIsFinalAttribute()
+    public function getIsFinalAttribute(): bool
     {
         return ($this->status === OrderStatus::DELIVERED->value) && !($this->completed_at || $this->cancelled_at);
     }
 
-    public function getIsFinalizedAttribute()
+    public function getIsFinalizedAttribute(): bool
     {
         return (
             ($this->status === OrderStatus::COMPLETED->value && $this->completed_at) ||
@@ -73,17 +73,17 @@ class Order extends Model
         );
     }
 
-    public function getIsCancelledAttribute()
+    public function getIsCancelledAttribute(): bool
     {
         return ($this->status === OrderStatus::BUYER_CANCEL->value || $this->status === OrderStatus::ADMIN_CANCEL->value);
     }
 
-    public function allowCancel()
+    public function allowCancel(): bool
     {
         return in_array($this->status, [OrderStatus::NEW->value, OrderStatus::CONFIRMED->value, OrderStatus::PROCESSING->value]) && !$this->shipped_at;
     }
 
-    public function allowAdminNote()
+    public function allowAdminNote(): bool
     {
         return $this->allowCancel();
     }

@@ -30,7 +30,8 @@
                     <option value="2">Payment Update</option>
                     <option value="3">Promotion</option>
                     <option value="4">Account Update</option>
-                    <option value="5">System</option>
+                    <option value="5">Maintenance</option>
+                    <option value="6">Internal System</option>
                 </select>
                 <x-slot:feedback>
                     @error('type')

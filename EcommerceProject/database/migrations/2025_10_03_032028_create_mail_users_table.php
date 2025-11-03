@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('mail_id')->nullable()->constrained('mails')->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->string('batch_key', 64)->index();
             $table->tinyInteger('status')->default(0)
                 ->comment('Status rules: 0 -> pending | 1 -> sent | 2 -> failed');
             $table->timestamp('sent_at')->nullable();

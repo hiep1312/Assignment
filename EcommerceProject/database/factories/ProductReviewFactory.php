@@ -25,7 +25,7 @@ class ProductReviewFactory extends Factory
             'product_id' => Product::factory(),
             'user_id' => $this->faker->randomElement($userIds ??= User::pluck('id')->toArray()),
             'rating' => $this->faker->numberBetween(1, 5),
-            'content' => $this->faker->optional(0.3)->realTextBetween(50, 400),
+            'content' => $this->faker->optional(0.7)->realTextBetween(50, 400),
         ];
     }
 

@@ -44,8 +44,13 @@ class NotificationFactory extends Factory
         return $this->state(fn (array $attributes) => ['type' => 4]);
     }
 
-    public function system()
+    public function maintenance()
     {
         return $this->state(fn (array $attributes) => ['type' => 5]);
+    }
+
+    public function system()
+    {
+        return $this->state(fn (array $attributes) => ['type' => 6]);
     }
 }

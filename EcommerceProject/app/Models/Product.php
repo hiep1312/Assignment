@@ -50,7 +50,7 @@ class Product extends Model
                 ->orderBy('position');
     }
 
-    public function getMainImageAttribute()
+    public function getMainImageAttribute(): ?Image
     {
         return $this->mainImages->first();
     }

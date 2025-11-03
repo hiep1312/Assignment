@@ -24,7 +24,7 @@ class OrderShippingFactory extends Factory
             'province' => $this->faker->city(),
             'district' => $this->faker->citySuffix(),
             'ward' => $this->faker->streetSuffix(),
-            'street' => $this->faker->optional(0.3)->streetAddress(),
+            'street' => $this->faker->optional(0.7)->streetAddress(),
             'postal_code' => $this->faker->optional()->postcode(),
             'note' => $this->faker->optional()->realTextBetween(50, 300)
         ];

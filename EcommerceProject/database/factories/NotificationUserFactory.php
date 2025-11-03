@@ -29,6 +29,7 @@ class NotificationUserFactory extends Factory
         return [
             'notification_id' => Notification::factory(),
             'user_id' => $this->faker->unique()->randomElement($userIds ??= User::pluck('id')->toArray()),
+            'batch_key' => $this->faker->uuid(),
             'is_read' => $isRead,
             'read_at' => $isRead ? $this->faker->dateTimeBetween('-2 month', 'now') : null,
         ];

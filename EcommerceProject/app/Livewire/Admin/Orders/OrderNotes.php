@@ -81,7 +81,7 @@ class OrderNotes extends Component
             );
 
             $this->order->refresh();
-            $this->dispatch('order-updated');
+            $this->dispatch('order-updated', $this->order);
             session()->flash('cancel-success');
         }
     }

@@ -9,14 +9,15 @@
             {{ session('data-changed')[0] }}
         </x-livewire::toast-message>
     @elseif(session()->has('timeline-updated'))
-        <x-livewire::toast-message title="{{ session('timeline-updated')[0] }}" type="primary" time="{{ session('timeline-updated')[2] }}" :show="true" :duration="8">
+        <x-livewire::toast-message title="{{ session('timeline-updated')[0] }}" type="primary" time="{{ session('timeline-updated')[2] }}" :show="true" :duration="8" id="timeline-updated-container">
             {{ session('timeline-updated')[1] }}
         </x-livewire::toast-message>
+        @php session()->forget('timeline-updated'); @endphp
     @endif
 
     <x-livewire::management-header title="Order List" />
 
-    {{-- <x-livewire::stats-overview :data-stats="$statistic" /> --}}
+    <x-livewire::stats-overview :data-stats="$statistic" />
 
     <x-livewire::detail-modal activeRecordVariable="recordDetail" title="Order Details" icon="fas fa-shopping-cart" id="orderDetailModal" wire:key="order-detail">
         <x-slot:tabs>
@@ -31,7 +32,7 @@
                 <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-content"
                     type="button" role="tab" aria-controls="notes-content" aria-selected="false"
                     wire:key="tab-order-notes-detail-{{ $recordDetail }}" wire:ignore.self>
-                    {{-- <i class="fas fa-sticky-note"></i> --}}<i class="fas fa-comments"></i> Notes & Cancellation
+                    <i class="fas fa-comments"></i> Notes & Cancellation
                 </button>
             </li>
             <li class="nav-item" role="presentation">
