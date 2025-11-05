@@ -29,6 +29,7 @@ class GalleryManager extends Component
     public array $selectedImageIds = [];
     public ?int $viewingImageId = null;
     public ?array $modalConfirmInfo = null;
+    public mixed $extraData = null;
 
     public function mount(
         string $id = 'imagePickerModal',
@@ -83,7 +84,7 @@ class GalleryManager extends Component
     }
 
     public function dispatchSelectedImages(){
-        $this->dispatch($this->eventName, $this->selectedImageIds);
+        $this->dispatch($this->eventName, $this->selectedImageIds, $this->extraData);
         $this->reset('searchImage', 'photos', 'selectedImageIds', 'viewingImageId', 'modalConfirmInfo');
     }
 

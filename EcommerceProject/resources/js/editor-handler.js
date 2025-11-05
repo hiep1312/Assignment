@@ -9,7 +9,7 @@ import {
     BlockQuote, CodeBlock,
 
     //Special Content
-    Emoji, Mention,
+    Emoji, Mention, HtmlEmbed, MediaEmbed,
 
     //Core
     Essentials,
@@ -142,11 +142,11 @@ class EditorController {
                 AutoLink, Link, LinkImage,
                 Image, ImageInsert, ImageLibraryPlugin, ImageCaption, ImageResize, ImageStyle, ImageToolbar,
                 Table, TableCaption, TableToolbar,
-                Emoji, Mention
+                Emoji, Mention, MediaEmbed
             ],
 
             removePlugins: [
-                Fullscreen, Title, Highlight, Indent, IndentBlock,
+                Fullscreen, Title, Highlight, Indent, IndentBlock, HtmlEmbed
             ],
 
             toolbar: {
@@ -157,7 +157,7 @@ class EditorController {
                     'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
                     'alignment', '|',
                     'bulletedList', 'numberedList', 'todoList', '|',
-                    'link', 'imageInsert', 'insertTable', 'blockQuote', 'codeBlock', 'horizontalLine', '|',
+                    'link', 'imageInsert', 'mediaEmbed', 'insertTable', 'blockQuote', 'codeBlock', 'horizontalLine', '|',
                     'emoji', '|',
                     'code', 'subscript', 'superscript', '|',
                     'removeFormat'

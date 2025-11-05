@@ -16,9 +16,9 @@ class NotificationCreate extends Component
 {
     use AutoValidatesRequest;
 
-    public string $title = '';
-    public string $message = '';
-    public int $type = 0;
+    public $title = '';
+    public $message = '';
+    public $type = 0;
 
     protected NotificationRepositoryInterface $repository;
     protected ImageRepositoryInterface $imageRepository;

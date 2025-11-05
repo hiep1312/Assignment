@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Livewire\Admin\Categories;
+namespace App\Livewire\Admin\Blogs;
 
-use App\Repositories\Contracts\CategoryRepositoryInterface;
+use App\Repositories\Contracts\BlogRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -10,20 +10,21 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class CategoryIndex extends Component
+class BlogIndex extends Component
 {
     use WithPagination;
 
     public bool $isTrashed = false;
-    protected CategoryRepositoryInterface $repository;
+    protected BlogRepositoryInterface $repository;
     protected UserRepositoryInterface $userRepository;
 
     public string $search = '';
-    public ?int $createdBy = null;
-    public string $categoryGroup = '';
+    public ?int $status = null;
+    public ?int $authorId = null;
     public array $selectedRecordIds = [];
+    public ?int $selectedBlogId = null;
 
-    public function boot(CategoryRepositoryInterface $repository, UserRepositoryInterface $userRepository){
+    public function boot(BlogRepositoryInterface $repository, UserRepositoryInterface $userRepository){
         $this->repository = $repository;
         $this->userRepository = $userRepository;
     }
@@ -36,16 +37,16 @@ class CategoryIndex extends Component
     }
 
     public function resetFilters(){
-        $this->reset('search', 'createdBy', 'categoryGroup');
+        $this->reset('search', 'status', 'authorId');
         $this->resetPage();
     }
 
-    #[On('category.deleted')]
+    #[On('blog.deleted')]
     public function softDelete(?int $id = null){
         $this->repository->delete($id ?? fn(&$query) => $query->whereIn('id', $this->selectedRecordIds));
     }
 
-    #[On('category.restored')]
+    #[On('blog.restored')]
     public function restore(?int $id = null){
         $this->repository->restore(
             $id ??
@@ -53,7 +54,7 @@ class CategoryIndex extends Component
         );
     }
 
-    #[On('category.forceDeleted')]
+    #[On('blog.forceDeleted')]
     public function forceDelete(?int $id = null){
         $this->repository->forceDelete(
             $id ??
@@ -61,34 +62,38 @@ class CategoryIndex extends Component
         );
     }
 
-    #[Title('Category List - Bookio Admin')]
+    #[Title('Blog List - Bookio Admin')]
     #[Layout('layouts.admin')]
     public function render()
     {
-        $categories = $this->repository->getAll(criteria: function(&$query) {
+        $blogs = $this->repository->getAll(criteria: function(&$query) {
             if($this->isTrashed) $query->onlyTrashed();
-            $query->withCount('blogs', 'products', 'creator');
+            $query->with('author', 'categories', 'thumbnail')->withCount('comments');
 
             $query->when($this->search, function($innerQuery){
-                $innerQuery->whereLike('name', '%'. trim($this->search) .'%');
+                $innerQuery->where(function($subQuery){
+                    $subQuery->whereLike('title', '%'. trim($this->search) .'%')
+                        ->orWhereLike('content', '%'. trim($this->search) .'%');
+                });
             })
             ->when(
-                $this->createdBy !== null,
-                fn($innerQuery) => $innerQuery->where('created_by', $this->createdBy)
-            )->when(
-                $this->categoryGroup,
-                fn($innerQuery) => $innerQuery->whereHas("{$this->categoryGroup}s")
+                $this->status !== null,
+                fn($innerQuery) => $innerQuery->where('status', $this->status)
+            )
+            ->when(
+                $this->authorId !== null,
+                fn($innerQuery) => $innerQuery->where('author_id', $this->authorId)
             );
 
             $query->latest();
         }, perPage: 20, columns: ['*'], pageName: 'page');
 
-        $creators = $this->userRepository->getAll(
+        $authors = $this->userRepository->getAll(
             criteria: fn(&$query) => $query->whereHas('categories'),
             perPage: false,
             columns: ['id', 'first_name', 'last_name']
         );
 
-        return view('admin.pages.categories.category-index', compact('categories', 'creators'));
+        return view('admin.pages.blogs.blog-index', compact('blogs', 'authors'));
     }
 }

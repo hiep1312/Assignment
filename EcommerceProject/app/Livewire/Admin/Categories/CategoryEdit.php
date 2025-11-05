@@ -17,8 +17,8 @@ class CategoryEdit extends Component
     }
 
     public $id;
-    public string $name = '';
-    public string $slug = '';
+    public $name = '';
+    public $slug = '';
 
     protected CategoryRepositoryInterface $repository;
     protected $request = CategoryRequest::class;

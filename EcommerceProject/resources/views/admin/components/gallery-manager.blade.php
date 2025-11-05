@@ -256,3 +256,20 @@
         </div>
     </div>
 </div>
+@script
+<script>
+    const imagePickerEl = document.querySelector("#{{ $id }}");
+    imagePickerEl.addEventListener('show.bs.modal', (event) => {
+        const extraData = event.relatedTarget.dataset.extraData;
+        extraData && $wire.$set(
+            'extraData',
+            JSON.parse(/^\d+|true|false|null$/.test(extraData) ? extraData : `"${extraData}"`),
+            true
+        );
+    });
+
+    imagePickerEl.addEventListener('hidden.bs.modal', function() {
+        $wire.extraData !== null && $wire.$set('extraData', null, true);
+    });
+</script>
+@endscript

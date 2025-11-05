@@ -16,9 +16,9 @@ class MailCreate extends Component
 {
     use AutoValidatesRequest;
 
-    public ?string $subject = null;
-    public string $body = '';
-    public int $type = 0;
+    public $subject = null;
+    public $body = '';
+    public $type = 0;
 
     protected MailRepositoryInterface $repository;
     protected ImageRepositoryInterface $imageRepository;
@@ -40,9 +40,9 @@ class MailCreate extends Component
         $this->repository->create(
             $this->only([
                 'subject',
-                'body',
                 'type',
             ]) + [
+                'body' => MailTemplateHelper::applyInlineCss($this->body),
                 'variable' => MailTemplateHelper::getUsedPlaceholders($this->body, $this->type),
             ]
         );

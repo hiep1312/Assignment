@@ -25,7 +25,8 @@
     @php
         $typeClass = match($type){
             ImageUploader::TYPE_AVATAR => 'avatar-user',
-            ImageUploader::TYPE_BANNER => 'banner'
+            ImageUploader::TYPE_BANNER => 'banner',
+            ImageUploader::TYPE_BLOG => 'blog',
         };
         $idImage = $attributes->get('id-image', "{$type}Preview");
         $idInput = $attributes->get('id-input', "{$type}Input");

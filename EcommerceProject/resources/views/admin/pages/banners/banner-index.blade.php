@@ -105,8 +105,8 @@
                                     @endswitch
                                 ">
                                     @switch($banner->status)
-                                        @case(1) active @break
-                                        @case(2) inactive @break
+                                        @case(1) Active @break
+                                        @case(2) Inactive @break
                                     @endswitch
                                 </span>
                             </td>
@@ -132,7 +132,6 @@
                                 </div>
                             </td>
                         </tr>
-
                     @empty
                         <tr class="empty-state-row">
                             <td colspan="8" class="text-center py-5">
@@ -156,7 +155,7 @@
         </x-slot:pagination>
     </x-livewire::data-table>
 
-    <x-livewire::banner-preview title="Banner Preview" icon="fas fa-images" id="bannerPreview">
+    <x-livewire::content-preview title="Banner Preview" icon="fas fa-images" id="bannerPreview">
         <div id="slideshowBanner" class="carousel slide">
             <div class="carousel-inner">
                 @foreach($banners as $banner)
@@ -200,5 +199,5 @@
                 });
             </script>
         </x-slot:script>
-    </x-livewire::banner-preview>
+    </x-livewire::content-preview>
 </div>

@@ -17,9 +17,9 @@ class MailEdit extends Component
     use AutoValidatesRequest;
 
     public $id;
-    public ?string $subject = null;
-    public string $body = '';
-    public int $type = 0;
+    public $subject = null;
+    public $body = '';
+    public $type = 0;
 
     protected MailRepositoryInterface $repository;
     protected ImageRepositoryInterface $imageRepository;
@@ -33,12 +33,15 @@ class MailEdit extends Component
     public function mount(int $mail){
         $mail = $this->repository->find(idOrCriteria: $mail, throwNotFound: true);
 
-        $this->fill($mail->only([
-            'id',
-            'subject',
-            'body',
-            'type',
-        ]));
+        $this->fill(
+            $mail->only([
+                'id',
+                'subject',
+                'type',
+            ]) + [
+                'body' => preg_replace("/(<img[^>]+style=[\"\'])[^\"\']*(aspect-ratio\s*:\s*[0-9\/]+)[^\"\']*([\"\'][^>]*\/?>)/i", "$1$2$3", $mail->body),
+            ]
+        );
     }
 
     public function updatedBody(){
@@ -53,9 +56,9 @@ class MailEdit extends Component
             $this->id,
             $this->only([
                 'subject',
-                'body',
                 'type',
             ]) + [
+                'body' => MailTemplateHelper::applyInlineCss($this->body),
                 'variable' => MailTemplateHelper::getUsedPlaceholders($this->body, $this->type),
             ]
         );

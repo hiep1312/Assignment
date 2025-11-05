@@ -17,9 +17,9 @@ class NotificationEdit extends Component
     use AutoValidatesRequest;
 
     public $id;
-    public string $title = '';
-    public string $message = '';
-    public int $type = 0;
+    public $title = '';
+    public $message = '';
+    public $type = 0;
 
     protected NotificationRepositoryInterface $repository;
     protected ImageRepositoryInterface $imageRepository;

@@ -20,7 +20,7 @@ class BlogSeeder extends Seeder
         $blogs = Blog::factory(20)->hasAttached(
             Image::factory(1)->blog(),
             ['is_main' => true],
-            'images'
+            'thumbnail'
         )->has(
             Category::factory(4),
             'categories'

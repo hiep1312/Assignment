@@ -15,8 +15,8 @@ class CategoryCreate extends Component
 {
     use AutoValidatesRequest;
 
-    public string $name = '';
-    public string $slug = '';
+    public $name = '';
+    public $slug = '';
 
     protected CategoryRepositoryInterface $repository;
     protected $request = CategoryRequest::class;
@@ -47,7 +47,6 @@ class CategoryCreate extends Component
     public function resetForm(){
         $this->reset('name', 'slug');
     }
-
 
     #[Title('Add New Category - Bookio Admin')]
     #[Layout('layouts.admin')]

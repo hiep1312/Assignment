@@ -63,11 +63,11 @@ class ProductEdit extends Component
         }, throwNotFound: true);
 
         $this->fill($product->only([
-            'id',
-            'title',
-            'slug',
-            'description',
-            'status'
+                'id',
+                'title',
+                'slug',
+                'description',
+                'status'
             ]) + [
                 'category_ids' => $product->categories->pluck('id')->toArray(),
                 'image_ids' => $product->images->pluck('id')->toArray(),

@@ -8,6 +8,7 @@ enum DefaultImage: string
     case AVATAR = 'avatar-default.webp';
     case BANNER = 'banner-default.webp';
     case PRODUCT = 'product-default.webp';
+    case BLOG = 'blog-default.webp';
 
     public static function values(): array
     {

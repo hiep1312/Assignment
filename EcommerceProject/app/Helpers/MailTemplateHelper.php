@@ -6,6 +6,9 @@ use App\Enums\DefaultImage;
 use App\Enums\MailPlaceholders\{CustomMailPlaceholder, OrderSuccessPlaceholder, OrderFailedPlaceholder, ShippingUpdatePlaceholder, ForgotPasswordPlaceholder, RegisterSuccessPlaceholder};
 use App\Models\Mail;
 use Illuminate\Mail\Message;
+use Illuminate\Support\Facades\Cache;
+use Pelago\Emogrifier\CssInliner;
+use Pelago\Emogrifier\HtmlProcessor\CssVariableEvaluator;
 
 class MailTemplateHelper
 {
@@ -35,6 +38,20 @@ class MailTemplateHelper
         }
 
         return $usedPlaceholders ?: null;
+    }
+
+    public static function applyInlineCss(string $content): string
+    {
+        Cache::remember('ckeditor5_content_css', 60 * 60 * 3, function(){
+            return file_get_contents(
+                filename: base_path("node_modules\ckeditor5\dist\ckeditor5-content.css"),
+                use_include_path: false,
+                offset: 184
+            );
+        });
+
+        $inlinedHtml = CssInliner::fromHtml("<div class=\"ck-content\">{$content}</div>")->inlineCss(Cache::get('ckeditor5_content_css'))->render();
+        return CssVariableEvaluator::fromHtml($inlinedHtml)->evaluateVariables()->renderBodyContent();
     }
 
     public static function fillPlaceholders(Mail $mail, object $source, Message $message): string

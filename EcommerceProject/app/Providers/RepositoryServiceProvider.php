@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Repositories\Contracts\BannerRepositoryInterface;
+use App\Repositories\Contracts\BlogRepositoryInterface;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ImageableRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
@@ -19,6 +20,7 @@ use App\Repositories\Contracts\ProductVariantInventoryRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\BannerRepository;
+use App\Repositories\Eloquent\BlogRepository;
 use App\Repositories\Eloquent\CategoryRepository;
 use App\Repositories\Eloquent\ImageableRepository;
 use App\Repositories\Eloquent\ImageRepository;
@@ -54,7 +56,8 @@ class RepositoryServiceProvider extends ServiceProvider
         OrderShippingRepositoryInterface::class => OrderShippingRepository::class,
         PaymentRepositoryInterface::class => PaymentRepository::class,
         NotificationRepositoryInterface::class => NotificationRepository::class,
-        MailUserRepositoryInterface::class => MailUserRepository::class
+        MailUserRepositoryInterface::class => MailUserRepository::class,
+        BlogRepositoryInterface::class => BlogRepository::class
     ];
 
     /**

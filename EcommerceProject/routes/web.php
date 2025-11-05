@@ -4,6 +4,9 @@ use App\Livewire\Admin\Auth\Login;
 use App\Livewire\Admin\Banners\BannerCreate;
 use App\Livewire\Admin\Banners\BannerEdit;
 use App\Livewire\Admin\Banners\BannerIndex;
+use App\Livewire\Admin\Blogs\BlogCreate;
+use App\Livewire\Admin\Blogs\BlogEdit;
+use App\Livewire\Admin\Blogs\BlogIndex;
 use App\Livewire\Admin\Categories\CategoryCreate;
 use App\Livewire\Admin\Categories\CategoryEdit;
 use App\Livewire\Admin\Categories\CategoryIndex;
@@ -20,6 +23,7 @@ use App\Livewire\Admin\Products\ProductEdit;
 use App\Livewire\Admin\Products\ProductIndex;
 use App\Livewire\Admin\ProductVariants\ProductVariantCreate;
 use App\Livewire\Admin\ProductVariants\ProductVariantEdit;
+use App\Livewire\Admin\Reviews\ReviewIndex;
 use App\Livewire\Admin\Users\UserCreate;
 use App\Livewire\Admin\Users\UserEdit;
 use App\Livewire\Admin\Users\UserIndex;
@@ -82,6 +86,18 @@ Route::prefix('admin')->name('admin.')->group(function() {
         Route::get('/', CategoryIndex::class)->name('index');
         Route::get('/create', CategoryCreate::class)->name('create');
         Route::get('/edit/{category}', CategoryEdit::class)->name('edit');
+    });
+
+    /* Blogs */
+    Route::prefix('blogs')->name('blogs.')->group(function(){
+        Route::get('/', BlogIndex::class)->name('index');
+        Route::get('/create', BlogCreate::class)->name('create');
+        Route::get('/edit/{blog}', BlogEdit::class)->name('edit');
+    });
+
+    /* Reviews */
+    Route::prefix('reviews')->name('reviews.')->group(function(){
+        Route::get('/', ReviewIndex::class)->name('index');
     });
 });
 
