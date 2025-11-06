@@ -1,6 +1,6 @@
 @php $currentPage = basename($_SERVER['PATH_INFO'] ?? request()->path()); @endphp
 <!DOCTYPE html>
-<html lang="en" class="light-style @unless(in_array($currentPage, ['auth-forgot-password-basic', 'auth-login-basic', 'auth-register-basic', 'login'], true)) layout-menu-fixed @endunless" dir="ltr">
+<html lang="en" class="light-style @unless(in_array($currentPage, ['auth-forgot-password-basic', 'auth-login-basic', 'auth-register-basic', 'login'], true)) layout-menu-fixed @endunless" dir="ltr" wire:ignore.self>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport"

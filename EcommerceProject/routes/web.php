@@ -33,6 +33,9 @@ use App\Livewire\Admin\Users\UserIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function() {
+    /* Dashboard */
+    Route::get('/dashboard', fn() => view('admin.template.index'))->name('dashboard');
+
     /* Users */
     Route::prefix('users')->name('users.')->group(function(){
         Route::get('/', UserIndex::class)->name('index');

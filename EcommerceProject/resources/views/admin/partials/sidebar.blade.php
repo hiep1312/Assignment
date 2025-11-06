@@ -1,79 +1,6 @@
-@php
-    $activeRoutes = (object)[
-        'dashboard' => $currentRoute === 'template',
-        'layouts' => in_array($currentRoute, ['layouts-without-menu', 'layouts-without-navbar', 'layouts-container', 'layouts-fluid', 'layouts-blank'], true),
-        'account_settings' => in_array($currentRoute, ['pages-account-settings-account', 'pages-account-settings-notifications', 'pages-account-settings-connections'], true),
-        'authentications' => in_array($currentRoute, ['auth-login-basic', 'auth-register-basic', 'auth-forgot-password-basic'], true),
-        'misc' => in_array($currentRoute, ['pages-misc-error', 'pages-misc-under-maintenance'], true),
-        'cards' => $currentRoute === 'cards-basic',
-        'user_interface' => in_array($currentRoute, ['ui-accordion', 'ui-alerts', 'ui-badges', 'ui-buttons', 'ui-carousel', 'ui-collapse', 'ui-dropdowns', 'ui-footer', 'ui-list-groups', 'ui-modals', 'ui-navbar', 'ui-offcanvas', 'ui-pagination-breadcrumbs', 'ui-progress', 'ui-spinners', 'ui-tabs-pills', 'ui-toasts', 'ui-tooltips-popovers', 'ui-typography'], true),
-        'extended_ui' => in_array($currentRoute, ['extended-ui-perfect-scrollbar', 'extended-ui-text-divider'], true),
-        'boxicons' => $currentRoute === 'icons-boxicons',
-        'form_elements' => in_array($currentRoute, ['forms-basic-inputs', 'forms-input-groups'], true),
-        'form_layouts' => in_array($currentRoute, ['form-layouts-vertical', 'form-layouts-horizontal'], true),
-        'tables' => $currentRoute === 'tables-basic',
-    ];
-
-    $activeSubMenu = (object)[
-        'layouts' => (object)[
-            'without_menu' => $currentRoute === 'layouts-without-menu',
-            'without_navbar' => $currentRoute === 'layouts-without-navbar',
-            'container' => $currentRoute === 'layouts-container',
-            'fluid' => $currentRoute === 'layouts-fluid',
-            'blank' => $currentRoute === 'layouts-blank',
-        ],
-        'account_settings' => (object)[
-            'account' => $currentRoute === 'pages-account-settings-account',
-            'notifications' => $currentRoute === 'pages-account-settings-notifications',
-            'connections' => $currentRoute === 'pages-account-settings-connections',
-        ],
-        'authentications' => (object)[
-            'login' => $currentRoute === 'auth-login-basic',
-            'register' => $currentRoute === 'auth-register-basic',
-            'forgot_password' => $currentRoute === 'auth-forgot-password-basic',
-        ],
-        'misc' => (object)[
-            'error' => $currentRoute === 'pages-misc-error',
-            'under_maintenance' => $currentRoute === 'pages-misc-under-maintenance',
-        ],
-        'user_interface' => (object)[
-            'accordion' => $currentRoute === 'ui-accordion',
-            'alerts' => $currentRoute === 'ui-alerts',
-            'badges' => $currentRoute === 'ui-badges',
-            'buttons' => $currentRoute === 'ui-buttons',
-            'carousel' => $currentRoute === 'ui-carousel',
-            'collapse' => $currentRoute === 'ui-collapse',
-            'dropdowns' => $currentRoute === 'ui-dropdowns',
-            'footer' => $currentRoute === 'ui-footer',
-            'list_groups' => $currentRoute === 'ui-list-groups',
-            'modals' => $currentRoute === 'ui-modals',
-            'navbar' => $currentRoute === 'ui-navbar',
-            'offcanvas' => $currentRoute === 'ui-offcanvas',
-            'pagination_breadcrumbs' => $currentRoute === 'ui-pagination-breadcrumbs',
-            'progress' => $currentRoute === 'ui-progress',
-            'spinners' => $currentRoute === 'ui-spinners',
-            'tabs_pills' => $currentRoute === 'ui-tabs-pills',
-            'toasts' => $currentRoute === 'ui-toasts',
-            'tooltips_popovers' => $currentRoute === 'ui-tooltips-popovers',
-            'typography' => $currentRoute === 'ui-typography',
-        ],
-        'extended_ui' => (object)[
-            'perfect_scrollbar' => $currentRoute === 'extended-ui-perfect-scrollbar',
-            'text_divider' => $currentRoute === 'extended-ui-text-divider',
-        ],
-        'form_elements' => (object)[
-            'basic_inputs' => $currentRoute === 'forms-basic-inputs',
-            'input_groups' => $currentRoute === 'forms-input-groups',
-        ],
-        'form_layouts' => (object)[
-            'vertical_form' => $currentRoute === 'form-layouts-vertical',
-            'horizontal_form' => $currentRoute === 'form-layouts-horizontal',
-        ],
-    ];
-@endphp
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
-        <a href="{{ route('template.index') }}" class="app-brand-link">
+        <a href="{{ route('admin.dashboard') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
                 <svg width="25" viewBox="0 0 25 42" version="1.1" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -118,7 +45,7 @@
                     </g>
                 </svg>
             </span>
-            <span class="app-brand-text demo menu-text fw-bolder ms-2">Sneat</span>
+            <span class="app-brand-text demo menu-text fw-bolder ms-2">Bookio</span>
         </a>
 
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
@@ -128,320 +55,250 @@
 
     <div class="menu-inner-shadow"></div>
 
-    <ul class="menu-inner py-1">
-        <!-- Dashboard -->
-        <li class="menu-item @if($activeRoutes->dashboard) active @endif">
-            <a href="{{ route('template.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                <div data-i18n="Analytics">Dashboard</div>
-            </a>
-        </li>
+    <ul class="menu-inner py-1" wire:ignore>
+        @if(request()->routeIs('template.*'))
+            @include('admin.template.sidebar', compact('currentRoute'))
+        @else
+            <li class="menu-item @if(request()->routeIs('admin.dashboard')) active @endif">
+                <a href="{{ route('admin.dashboard') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                    <div data-i18n="Analytics">Dashboard</div>
+                </a>
+            </li>
+            <li class="menu-item @if(request()->routeIs('admin.banners.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-image-alt"></i>
+                    <div data-i18n="Banner management">Banner Management</div>
+                </a>
 
-        <!-- Layouts -->
-        <li class="menu-item @if($activeRoutes->layouts) active open @endif">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-layout"></i>
-                <div data-i18n="Layouts">Layouts</div>
-            </a>
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.banners.create')) active @endif">
+                        <a href="{{ route('admin.banners.create') }}" class="menu-link">
+                            <div data-i18n="Add new banner">Add New Banner</div>
+                        </a>
+                    </li>
+                </ul>
 
-            <ul class="menu-sub">
-                <li class="menu-item @if($activeSubMenu->layouts->without_menu) active @endif">
-                    <a href="{{ route('template.layouts-without-menu') }}" class="menu-link">
-                        <div data-i18n="Without menu">Without menu</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->layouts->without_navbar) active @endif">
-                    <a href="{{ route('template.layouts-without-navbar') }}" class="menu-link">
-                        <div data-i18n="Without navbar">Without navbar</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->layouts->container) active @endif">
-                    <a href="{{ route('template.layouts-container') }}" class="menu-link">
-                        <div data-i18n="Container">Container</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->layouts->fluid) active @endif">
-                    <a href="{{ route('template.layouts-fluid') }}" class="menu-link">
-                        <div data-i18n="Fluid">Fluid</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->layouts->blank) active @endif">
-                    <a href="{{ route('template.layouts-blank') }}" class="menu-link">
-                        <div data-i18n="Blank">Blank</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.banners.index')) active @endif">
+                        <a href="{{ route('admin.banners.index') }}" class="menu-link">
+                            <div data-i18n="List banners">List Banners</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Pages</span>
-        </li>
-        <li class="menu-item @if($activeRoutes->account_settings) active open @endif">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Account Settings</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item @if($activeSubMenu->account_settings->account) active @endif">
-                    <a href="{{ route('template.pages-account-settings-account') }}" class="menu-link">
-                        <div data-i18n="Account">Account</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->account_settings->notifications) active @endif">
-                    <a href="{{ route('template.pages-account-settings-notifications') }}" class="menu-link">
-                        <div data-i18n="Notifications">Notifications</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->account_settings->connections) active @endif">
-                    <a href="{{ route('template.pages-account-settings-connections') }}" class="menu-link">
-                        <div data-i18n="Connections">Connections</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="menu-item @if($activeRoutes->authentications) active open @endif">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
-                <div data-i18n="Authentications">Authentications</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item @if($activeSubMenu->authentications->login) active @endif">
-                    <a href="{{ route('template.auth-login-basic') }}" class="menu-link" target="_blank">
-                        <div data-i18n="Basic">Login</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->authentications->register) active @endif">
-                    <a href="{{ route('template.auth-register-basic') }}" class="menu-link" target="_blank">
-                        <div data-i18n="Basic">Register</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->authentications->forgot_password) active @endif">
-                    <a href="{{ route('template.auth-forgot-password-basic') }}" class="menu-link" target="_blank">
-                        <div data-i18n="Basic">Forgot Password</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="menu-item @if($activeRoutes->misc) active open @endif">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-cube-alt"></i>
-                <div data-i18n="Misc">Misc</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item @if($activeSubMenu->misc->error) active @endif">
-                    <a href="{{ route('template.pages-misc-error') }}" class="menu-link">
-                        <div data-i18n="Error">Error</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->misc->under_maintenance) active @endif">
-                    <a href="{{ route('template.pages-misc-under-maintenance') }}" class="menu-link">
-                        <div data-i18n="Under Maintenance">Under Maintenance</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <!-- Components -->
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Components</span></li>
-        <!-- Cards -->
-        <li class="menu-item @if($activeRoutes->cards) active @endif">
-            <a href="{{ route('template.cards-basic') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-collection"></i>
-                <div data-i18n="Basic">Cards</div>
-            </a>
-        </li>
-        <!-- User interface -->
-        <li class="menu-item @if($activeRoutes->user_interface) active open @endif">
-            <a href="javascript:void(0)" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-box"></i>
-                <div data-i18n="User interface">User interface</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item @if($activeSubMenu->user_interface->accordion) active @endif">
-                    <a href="{{ route('template.ui-accordion') }}" class="menu-link">
-                        <div data-i18n="Accordion">Accordion</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->alerts) active @endif">
-                    <a href="{{ route('template.ui-alerts') }}" class="menu-link">
-                        <div data-i18n="Alerts">Alerts</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->badges) active @endif">
-                    <a href="{{ route('template.ui-badges') }}" class="menu-link">
-                        <div data-i18n="Badges">Badges</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->buttons) active @endif">
-                    <a href="{{ route('template.ui-buttons') }}" class="menu-link">
-                        <div data-i18n="Buttons">Buttons</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->carousel) active @endif">
-                    <a href="{{ route('template.ui-carousel') }}" class="menu-link">
-                        <div data-i18n="Carousel">Carousel</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->collapse) active @endif">
-                    <a href="{{ route('template.ui-collapse') }}" class="menu-link">
-                        <div data-i18n="Collapse">Collapse</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->dropdowns) active @endif">
-                    <a href="{{ route('template.ui-dropdowns') }}" class="menu-link">
-                        <div data-i18n="Dropdowns">Dropdowns</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->footer) active @endif">
-                    <a href="{{ route('template.ui-footer') }}" class="menu-link">
-                        <div data-i18n="Footer">Footer</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->list_groups) active @endif">
-                    <a href="{{ route('template.ui-list-groups') }}" class="menu-link">
-                        <div data-i18n="List Groups">List groups</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->modals) active @endif">
-                    <a href="{{ route('template.ui-modals') }}" class="menu-link">
-                        <div data-i18n="Modals">Modals</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->navbar) active @endif">
-                    <a href="{{ route('template.ui-navbar') }}" class="menu-link">
-                        <div data-i18n="Navbar">Navbar</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->offcanvas) active @endif">
-                    <a href="{{ route('template.ui-offcanvas') }}" class="menu-link">
-                        <div data-i18n="Offcanvas">Offcanvas</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->pagination_breadcrumbs) active @endif">
-                    <a href="{{ route('template.ui-pagination-breadcrumbs') }}" class="menu-link">
-                        <div data-i18n="Pagination &amp; Breadcrumbs">Pagination &amp; Breadcrumbs</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->progress) active @endif">
-                    <a href="{{ route('template.ui-progress') }}" class="menu-link">
-                        <div data-i18n="Progress">Progress</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->spinners) active @endif">
-                    <a href="{{ route('template.ui-spinners') }}" class="menu-link">
-                        <div data-i18n="Spinners">Spinners</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->tabs_pills) active @endif">
-                    <a href="{{ route('template.ui-tabs-pills') }}" class="menu-link">
-                        <div data-i18n="Tabs &amp; Pills">Tabs &amp; Pills</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->toasts) active @endif">
-                    <a href="{{ route('template.ui-toasts') }}" class="menu-link">
-                        <div data-i18n="Toasts">Toasts</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->tooltips_popovers) active @endif">
-                    <a href="{{ route('template.ui-tooltips-popovers') }}" class="menu-link">
-                        <div data-i18n="Tooltips & Popovers">Tooltips &amp; popovers</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->user_interface->typography) active @endif">
-                    <a href="{{ route('template.ui-typography') }}" class="menu-link">
-                        <div data-i18n="Typography">Typography</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
+            <li class="menu-item @if(request()->routeIs('admin.blogs.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-book-content"></i>
+                    <div data-i18n="Blog management">Blog Management</div>
+                </a>
 
-        <!-- Extended components -->
-        <li class="menu-item @if($activeRoutes->extended_ui) active open @endif">
-            <a href="javascript:void(0)" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-copy"></i>
-                <div data-i18n="Extended UI">Extended UI</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item @if($activeSubMenu->extended_ui->perfect_scrollbar) active @endif">
-                    <a href="{{ route('template.extended-ui-perfect-scrollbar') }}" class="menu-link">
-                        <div data-i18n="Perfect Scrollbar">Perfect scrollbar</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->extended_ui->text_divider) active @endif">
-                    <a href="{{ route('template.extended-ui-text-divider') }}" class="menu-link">
-                        <div data-i18n="Text Divider">Text Divider</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.blogs.create')) active @endif">
+                        <a href="{{ route('admin.blogs.create') }}" class="menu-link">
+                            <div data-i18n="Add new blog">Add New Blog</div>
+                        </a>
+                    </li>
+                </ul>
 
-        <li class="menu-item @if($activeRoutes->boxicons) active @endif">
-            <a href="{{ route('template.icons-boxicons') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-crown"></i>
-                <div data-i18n="Boxicons">Boxicons</div>
-            </a>
-        </li>
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.blogs.index')) active @endif">
+                        <a href="{{ route('admin.blogs.index') }}" class="menu-link">
+                            <div data-i18n="List blogs">List Blogs</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-        <!-- Forms & Tables -->
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Forms &amp; Tables</span></li>
-        <!-- Forms -->
-        <li class="menu-item @if($activeRoutes->form_elements) active open @endif">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-detail"></i>
-                <div data-i18n="Form Elements">Form Elements</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item @if($activeSubMenu->form_elements->basic_inputs) active @endif">
-                    <a href="{{ route('template.forms-basic-inputs') }}" class="menu-link">
-                        <div data-i18n="Basic Inputs">Basic Inputs</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->form_elements->input_groups) active @endif">
-                    <a href="{{ route('template.forms-input-groups') }}" class="menu-link">
-                        <div data-i18n="Input groups">Input groups</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="menu-item @if($activeRoutes->form_layouts) active open @endif">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-detail"></i>
-                <div data-i18n="Form Layouts">Form Layouts</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item @if($activeSubMenu->form_layouts->vertical_form) active @endif">
-                    <a href="{{ route('template.form-layouts-vertical') }}" class="menu-link">
-                        <div data-i18n="Vertical Form">Vertical Form</div>
-                    </a>
-                </li>
-                <li class="menu-item @if($activeSubMenu->form_layouts->horizontal_form) active @endif">
-                    <a href="{{ route('template.form-layouts-horizontal') }}" class="menu-link">
-                        <div data-i18n="Horizontal Form">Horizontal Form</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <!-- Tables -->
-        <li class="menu-item @if($activeRoutes->tables) active @endif">
-            <a href="{{ route('template.tables-basic') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-table"></i>
-                <div data-i18n="Tables">Tables</div>
-            </a>
-        </li>
-        <!-- Misc -->
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Misc</span></li>
-        <li class="menu-item">
-            <a href="https://github.com/themeselection/sneat-html-admin-template-free/issues" target="_blank"
-                class="menu-link">
-                <i class="menu-icon tf-icons bx bx-support"></i>
-                <div data-i18n="Support">Support</div>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="https://themeselection.com/demo/sneat-bootstrap-html-admin-template/documentation/"
-                target="_blank" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-file"></i>
-                <div data-i18n="Documentation">Documentation</div>
-            </a>
-        </li>
+            <li class="menu-item @if(request()->routeIs('admin.categories.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-category"></i>
+                    <div data-i18n="Category management">Category Management</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.categories.create')) active @endif">
+                        <a href="{{ route('admin.categories.create') }}" class="menu-link">
+                            <div data-i18n="Add new category">Add New Category</div>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.categories.index')) active @endif">
+                        <a href="{{ route('admin.categories.index') }}" class="menu-link">
+                            <div data-i18n="List categories">List Categories</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item @if(request()->routeIs('admin.comments.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-comment"></i>
+                    <div data-i18n="Comment management">Comment Management</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.comments.create')) active @endif">
+                        <a href="{{ route('admin.comments.create') }}" class="menu-link">
+                            <div data-i18n="Add new comment">Add New Comment</div>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.comments.index')) active @endif">
+                        <a href="{{ route('admin.comments.index') }}" class="menu-link">
+                            <div data-i18n="List comments">List Comments</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item @if(request()->routeIs('admin.images.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-image"></i>
+                    <div data-i18n="Image management">Image Management</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.images.index')) active @endif">
+                        <a href="{{ route('admin.images.index') }}" class="menu-link">
+                            <div data-i18n="List images">List Images</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item @if(request()->routeIs('admin.mails.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-envelope"></i>
+                    <div data-i18n="Mail management">Mail Management</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.mails.create')) active @endif">
+                        <a href="{{ route('admin.mails.create') }}" class="menu-link">
+                            <div data-i18n="Add new mail">Add New Mail</div>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.mails.index')) active @endif">
+                        <a href="{{ route('admin.mails.index') }}" class="menu-link">
+                            <div data-i18n="List mails">List Mails</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item @if(request()->routeIs('admin.notifications.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-bell"></i>
+                    <div data-i18n="Notification management">Notification Management</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.notifications.create')) active @endif">
+                        <a href="{{ route('admin.notifications.create') }}" class="menu-link">
+                            <div data-i18n="Add new notification">Add New Notification</div>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.notifications.index')) active @endif">
+                        <a href="{{ route('admin.notifications.index') }}" class="menu-link">
+                            <div data-i18n="List notifications">List Notifications</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item @if(request()->routeIs('admin.orders.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-cart"></i>
+                    <div data-i18n="Order management">Order Management</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.orders.index')) active @endif">
+                        <a href="{{ route('admin.orders.index') }}" class="menu-link">
+                            <div data-i18n="List orders">List Orders</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item @if(request()->routeIs('admin.products.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-package"></i>
+                    <div data-i18n="Product management">Product Management</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.products.create')) active @endif">
+                        <a href="{{ route('admin.products.create') }}" class="menu-link">
+                            <div data-i18n="Add new product">Add New Product</div>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.products.index')) active @endif">
+                        <a href="{{ route('admin.products.index') }}" class="menu-link">
+                            <div data-i18n="List products">List Products</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item @if(request()->routeIs('admin.reviews.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-star"></i>
+                    <div data-i18n="Review management">Review Management</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.reviews.index')) active @endif">
+                        <a href="{{ route('admin.reviews.index') }}" class="menu-link">
+                            <div data-i18n="List reviews">List Reviews</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="menu-item @if(request()->routeIs('admin.users.*')) active open @endif">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bx-user"></i>
+                    <div data-i18n="User management">User Management</div>
+                </a>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.users.create')) active @endif">
+                        <a href="{{ route('admin.users.create') }}" class="menu-link">
+                            <div data-i18n="Add new user">Add New User</div>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="menu-sub">
+                    <li class="menu-item @if(request()->routeIs('admin.users.index')) active @endif">
+                        <a href="{{ route('admin.users.index') }}" class="menu-link">
+                            <div data-i18n="List users">List Users</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item">
+                <a href="{{ route('template.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-layout"></i>
+                    <div data-i18n="Template">Template</div>
+                </a>
+            </li>
+        @endif
     </ul>
 </aside>
