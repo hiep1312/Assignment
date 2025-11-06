@@ -116,7 +116,7 @@ Route::prefix('admin')->name('admin.')->group(function() {
 
 Route::name('auth.')->group(function() {
     Route::prefix('admin')->name('admin.')->group(function() {
-        Route::get('/login', Login::class);
+        Route::get('/login', Login::class)->name('login');
     });
 
 });

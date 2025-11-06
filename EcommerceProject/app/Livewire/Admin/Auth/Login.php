@@ -18,6 +18,10 @@ class Login extends Component
 
     protected string $request = LoginRequest::class;
 
+    public function mount(){
+        if(Auth::check()) return redirect()->route('admin.dashboard');
+    }
+
     public function handleLogin(){
         $this->validate();
 
