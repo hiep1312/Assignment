@@ -121,7 +121,7 @@
                                 @php $user = $blog->author; @endphp
                                 <div class="d-flex align-items-center">
                                     <img src="{{ asset('storage/' . ($user?->avatar ?? DefaultImage::AVATAR->value)) }}"
-                                        class="rounded-circle me-2" width="40" height="40" alt="User Avatar">
+                                        class="rounded-circle me-2" width="40" height="40" alt="Author Avatar">
                                     <div class="text-start">
                                         <div class="fw-bold">{{ Str::limit($user?->name ?? 'Unknown User', 30, '...') }}</div>
                                         @if($user)

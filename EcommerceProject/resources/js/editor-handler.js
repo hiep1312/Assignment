@@ -9,7 +9,7 @@ import {
     BlockQuote, CodeBlock,
 
     //Special Content
-    Emoji, Mention, HtmlEmbed, MediaEmbed,
+    Emoji, Mention, HtmlEmbed, MediaEmbed, MediaEmbedToolbar,
 
     //Core
     Essentials,
@@ -119,6 +119,17 @@ class EditorController {
                 ]
             },
 
+            mediaEmbed: {
+                toolbar: [
+                    'mediaEmbed', '|',
+                    'alignment:left', 'alignment:center', 'alignment:right', '|',
+                    'highlight', 'link', '|',
+                    'removeFormat'
+                ],
+
+                previewsInData: true
+            },
+
             table: {
                 contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', '|', 'toggleTableCaption'],
                 defaultHeadings: {
@@ -142,7 +153,7 @@ class EditorController {
                 AutoLink, Link, LinkImage,
                 Image, ImageInsert, ImageLibraryPlugin, ImageCaption, ImageResize, ImageStyle, ImageToolbar,
                 Table, TableCaption, TableToolbar,
-                Emoji, Mention, MediaEmbed
+                Emoji, Mention, MediaEmbed, MediaEmbedToolbar
             ],
 
             removePlugins: [

@@ -77,8 +77,19 @@ class OrderNotes extends Component
                     'status' => OrderStatus::ADMIN_CANCEL->value,
                     'cancelled_at' => now(),
                     'cancel_reason' => $this->cancel_reason ?: null
-                ]
+                ],
+                updatedModel: $updatedOrder
             );
+
+            if ($updatedOrder) {
+                $updatedOrder->payment()
+                    ->where('method', 'cash')
+                    ->where('status', 0)
+                    ->update([
+                        'status' => 2,
+                        'paid_at' => null,
+                    ]);
+            }
 
             $this->order->refresh();
             $this->dispatch('order-updated', $this->order);

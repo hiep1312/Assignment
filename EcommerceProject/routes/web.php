@@ -10,6 +10,9 @@ use App\Livewire\Admin\Blogs\BlogIndex;
 use App\Livewire\Admin\Categories\CategoryCreate;
 use App\Livewire\Admin\Categories\CategoryEdit;
 use App\Livewire\Admin\Categories\CategoryIndex;
+use App\Livewire\Admin\Comments\CommentCreate;
+use App\Livewire\Admin\Comments\CommentEdit;
+use App\Livewire\Admin\Comments\CommentIndex;
 use App\Livewire\Admin\Images\ImageIndex;
 use App\Livewire\Admin\Mails\MailCreate;
 use App\Livewire\Admin\Mails\MailEdit;
@@ -98,6 +101,13 @@ Route::prefix('admin')->name('admin.')->group(function() {
     /* Reviews */
     Route::prefix('reviews')->name('reviews.')->group(function(){
         Route::get('/', ReviewIndex::class)->name('index');
+    });
+
+    /* Comments */
+    Route::prefix('comments')->name('comments.')->group(function(){
+        Route::get('/', CommentIndex::class)->name('index');
+        Route::get('/create', CommentCreate::class)->name('create');
+        Route::get('/edit/{comment}', CommentEdit::class)->name('edit');
     });
 });
 

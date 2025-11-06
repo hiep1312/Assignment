@@ -159,9 +159,7 @@ class ProductCreate extends Component
     {
         $categories = $this->categoryRepository->getAll(criteria: function(&$query){
             $query->when($this->searchCategories, function($innerQuery){
-                $innerQuery->where(function($subQuery){
-                    $subQuery->whereLike('name', '%'. trim($this->searchCategories) .'%');
-                });
+                $innerQuery->whereLike('name', '%'. trim($this->searchCategories) .'%');
             });
         }, perPage: false, columns: ['id', 'name']);
 

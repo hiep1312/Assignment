@@ -147,113 +147,108 @@
                                 </span>
                             </td>
                         </tr>
-                        <tr class="collapse fade" id="collapseReviews{{ $product->id }}" style="background-color: #f8f8f8" wire:key="collapse-reviews-{{ $product->id }}" wire:ignore.self>
-                            <td colspan="6" class="p-0">
-                                <div class="review-section">
-                                    <h5><i class="fas fa-comments me-1"></i> Product Reviews</h5>
-                                    <div class="card-body p-0 table-responsive shadow-sm" style="border-radius: 0.5rem 0.5rem 0 0;">
-                                        <table class="table table-hover mb-0">
-                                            <thead class="table-light text-center">
-                                                <tr>
-                                                    <th>Select</th>
-                                                    <th>User</th>
-                                                    <th>Rating</th>
-                                                    <th>Review Content</th>
-                                                    <th class="text-nowrap">Created Date</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="table-light">
-                                                @php
-                                                    $reviewPageName = 'reviewsPage';
-                                                    $currentReviewPage = LengthAwarePaginator::resolveCurrentPage($reviewPageName);
-                                                    $paginatedReviews = new LengthAwarePaginator(
-                                                        items: $product->reviews->forPage($currentReviewPage, 5),
-                                                        total: $product->reviews->count(),
-                                                        perPage: 5,
-                                                        currentPage: $currentReviewPage,
-                                                        options: [
-                                                            'pageName' => $reviewPageName
-                                                        ]
-                                                    );
-                                                @endphp
-                                                @foreach($paginatedReviews as $review)
-                                                    <tr class="text-center" wire:key="review-{{ $review->id }}">
-                                                        <td>
-                                                            <input type="checkbox" class="form-check-input record-checkbox" wire:model="selectedRecordIds"
-                                                                value="{{ $review->id }}" onclick="updateSelectAllState()">
-                                                        </td>
-                                                        <td style="min-width: 230px;">
-                                                            @php $user = $review->user; @endphp
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="{{ asset('storage/' . ($user->avatar ?? DefaultImage::AVATAR->value)) }}"
-                                                                    class="rounded-circle me-2" width="40" height="40" alt="User Avatar">
-                                                                <div class="text-start">
-                                                                    <div class="fw-bold">
-                                                                        {{ Str::limit($user->name, 20, '...') }}
-                                                                        @if($isTrashed)
-                                                                            <span class="badge badge-center rounded-pill bg-label-danger ms-1" style="font-size: 0.7rem; vertical-align: middle;">
-                                                                                <i class="fas fa-trash-alt"></i>
-                                                                            </span>
-                                                                        @endif
-                                                                    </div>
-                                                                    <small class="text-muted">ID: #{{ $review->id }}</small>
-                                                                    <small class="text-muted d-block">User ID: #{{ $user->id }}</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div class="rating-stars text-nowrap">
-                                                                {!! str_repeat('<i class="fas fa-star"></i>', $review->rating) . str_repeat('<i class="far fa-star"></i>', 5 - $review->rating) !!}
-                                                            </div>
-                                                            <span class="text-muted">Score: {{ $review->rating }}</span>
-                                                        </td>
-                                                        <td style="min-width: 250px;">
-                                                            <small class="text-muted d-block text-wrap lh-base">{{ Str::limit($review->content ?? 'No review content provided', 90, '...') }}</small>
-                                                        </td>
-                                                        <td>
-                                                            <span>{{ $review->created_at->format('m/d/Y') }}</span>
-                                                            <small class="text-muted d-block">{{ $review->created_at->format('H:i A') }}</small>
-                                                        </td>
-                                                        <td>
-                                                            <div class="btn-group btn-group-sm">
+                        <x-livewire::expandable-row id="collapseReviews{{ $product->id }}" title="Product Reviews" icon="fas fa-comments" wire:key="collapse-reviews-{{ $product->id }}">
+                            <div class="card-body p-0 table-responsive shadow-sm" style="border-radius: 0.5rem 0.5rem 0 0;">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light text-center">
+                                        <tr>
+                                            <th>Select</th>
+                                            <th>User</th>
+                                            <th>Rating</th>
+                                            <th>Review Content</th>
+                                            <th class="text-nowrap">Created Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table-light">
+                                        @php
+                                            $reviewPageName = 'reviewsPage';
+                                            $currentReviewPage = LengthAwarePaginator::resolveCurrentPage($reviewPageName);
+                                            $paginatedReviews = new LengthAwarePaginator(
+                                                items: $product->reviews->forPage($currentReviewPage, 5),
+                                                total: $product->reviews->count(),
+                                                perPage: 5,
+                                                currentPage: $currentReviewPage,
+                                                options: [
+                                                    'pageName' => $reviewPageName
+                                                ]
+                                            );
+                                        @endphp
+                                        @foreach($paginatedReviews as $review)
+                                            <tr class="text-center" wire:key="review-{{ $review->id }}">
+                                                <td>
+                                                    <input type="checkbox" class="form-check-input record-checkbox" wire:model="selectedRecordIds"
+                                                        value="{{ $review->id }}" onclick="updateSelectAllState()">
+                                                </td>
+                                                <td style="min-width: 230px;">
+                                                    @php $user = $review->user; @endphp
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="{{ asset('storage/' . ($user->avatar ?? DefaultImage::AVATAR->value)) }}"
+                                                            class="rounded-circle me-2" width="40" height="40" alt="User Avatar">
+                                                        <div class="text-start">
+                                                            <div class="fw-bold">
+                                                                {{ Str::limit($user->name, 20, '...') }}
                                                                 @if($isTrashed)
-                                                                    <button class="btn btn-outline-warning btn-action" title="Restore" onclick="confirmModalAction(this)"
-                                                                        data-title="Restore Review" data-type="question" data-message="Are you sure you want to restore this review #{{ $review->id }}? The review will be moved back to the active reviews list."
-                                                                        data-confirm-label="Confirm Restore" data-event-name="review.restored" data-event-data="{{ $review->id }}">
-                                                                        <i class="fas fa-undo"></i>
-                                                                    </button>
-                                                                    <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="confirmModalAction(this)"
-                                                                        data-title="Permanently Delete Review" data-type="warning" data-message="Are you sure you want to permanently delete this review #{{ $review->id }}? This action cannot be undone."
-                                                                        data-confirm-label="Confirm Delete" data-event-name="review.forceDeleted" data-event-data="{{ $review->id }}">
+                                                                    <span class="badge badge-center rounded-pill bg-label-danger ms-1" style="font-size: 0.7rem; vertical-align: middle;">
                                                                         <i class="fas fa-trash-alt"></i>
-                                                                    </button>
-                                                                @else
-                                                                    <button type="button" class="btn btn-outline-info btn-action bootstrap-focus" title="View"
-                                                                        data-bs-toggle="modal" data-bs-target="#reviewPreview" wire:click="$set('selectedReviewId', {{ $review->id }})">
-                                                                        <i class="fas fa-eye"></i>
-                                                                    </button>
-                                                                    <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
-                                                                        data-title="Remove Review" data-type="warning" data-message="Are you sure you want to remove this review #{{ $review->id }}? The review can be restored later."
-                                                                        data-confirm-label="Confirm Delete" data-event-name="review.deleted" data-event-data="{{ $review->id }}">
-                                                                        <i class="fas fa-trash"></i>
-                                                                    </button>
+                                                                    </span>
                                                                 @endif
                                                             </div>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    @if($paginatedReviews->hasPages())
-                                        <div class="card-footer bg-white custom-pagination shadow-sm" style="padding: 1.2rem 1.5rem;">
-                                            {{ $paginatedReviews->links(data: ['scrollTo' => "collapseReviews{$product->id}"]) }}
-                                        </div>
-                                    @endif
+                                                            <small class="text-muted">ID: #{{ $review->id }}</small>
+                                                            <small class="text-muted d-block">User ID: #{{ $user->id }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="rating-stars text-nowrap">
+                                                        {!! str_repeat('<i class="fas fa-star"></i>', $review->rating) . str_repeat('<i class="far fa-star"></i>', 5 - $review->rating) !!}
+                                                    </div>
+                                                    <span class="text-muted">Score: {{ $review->rating }}</span>
+                                                </td>
+                                                <td style="min-width: 250px;">
+                                                    <small class="text-muted d-block text-wrap lh-base">{{ Str::limit($review->content ?? 'No review content provided', 90, '...') }}</small>
+                                                </td>
+                                                <td>
+                                                    <span>{{ $review->created_at->format('m/d/Y') }}</span>
+                                                    <small class="text-muted d-block">{{ $review->created_at->format('H:i A') }}</small>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        @if($isTrashed)
+                                                            <button class="btn btn-outline-warning btn-action" title="Restore" onclick="confirmModalAction(this)"
+                                                                data-title="Restore Review" data-type="question" data-message="Are you sure you want to restore this review #{{ $review->id }}? The review will be moved back to the active reviews list."
+                                                                data-confirm-label="Confirm Restore" data-event-name="review.restored" data-event-data="{{ $review->id }}">
+                                                                <i class="fas fa-undo"></i>
+                                                            </button>
+                                                            <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="confirmModalAction(this)"
+                                                                data-title="Permanently Delete Review" data-type="warning" data-message="Are you sure you want to permanently delete this review #{{ $review->id }}? This action cannot be undone."
+                                                                data-confirm-label="Confirm Delete" data-event-name="review.forceDeleted" data-event-data="{{ $review->id }}">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        @else
+                                                            <button type="button" class="btn btn-outline-info btn-action bootstrap-focus" title="View"
+                                                                data-bs-toggle="modal" data-bs-target="#reviewPreview" wire:click="$set('selectedReviewId', {{ $review->id }})">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                            <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                                                data-title="Remove Review" data-type="warning" data-message="Are you sure you want to remove this review #{{ $review->id }}? The review can be restored later."
+                                                                data-confirm-label="Confirm Delete" data-event-name="review.deleted" data-event-data="{{ $review->id }}">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @if($paginatedReviews->hasPages())
+                                <div class="card-footer bg-white custom-pagination shadow-sm" style="padding: 1.2rem 1.5rem;">
+                                    {{ $paginatedReviews->onEachSide(1)->links(data: ['scrollTo' => "collapseReviews{$product->id}"]) }}
                                 </div>
-                            </td>
-                        </tr>
+                            @endif
+                        </x-livewire::expandable-row>
                     @empty
                         <tr class="empty-state-row">
                             <td colspan="6" class="text-center py-5">

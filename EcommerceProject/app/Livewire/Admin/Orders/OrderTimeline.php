@@ -68,8 +68,19 @@ class OrderTimeline extends Component
                 'status' => $currentStatus?->value,
                 $currentStatus?->timestampColumn() => now(),
                 'cancel_reason' => $currentStatus === OrderStatus::FAILED ? 'Customer refused to receive the order' : null
-            ]
+            ],
+            updatedModel: $updatedOrder
         );
+
+        if ($updatedOrder) {
+            $updatedOrder->payment()
+                ->where('method', 'cash')
+                ->where('status', 0)
+                ->update([
+                    'status' => $currentStatus === OrderStatus::FAILED ? 2 : 1,
+                    'paid_at' => $currentStatus === OrderStatus::FAILED ? null : now(),
+                ]);
+        }
 
         $this->notifyOrderStatusUpdated($currentStatus);
     }
