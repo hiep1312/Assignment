@@ -14,6 +14,7 @@ use App\Livewire\Admin\Comments\CommentCreate;
 use App\Livewire\Admin\Comments\CommentEdit;
 use App\Livewire\Admin\Comments\CommentIndex;
 use App\Livewire\Admin\Images\ImageIndex;
+use App\Livewire\Admin\Mails\MailCenter;
 use App\Livewire\Admin\Mails\MailCreate;
 use App\Livewire\Admin\Mails\MailEdit;
 use App\Livewire\Admin\Mails\MailIndex;
@@ -32,7 +33,7 @@ use App\Livewire\Admin\Users\UserEdit;
 use App\Livewire\Admin\Users\UserIndex;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->name('admin.')->group(function() {
+Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function() {
     /* Dashboard */
     Route::get('/dashboard', fn() => view('admin.template.index'))->name('dashboard');
 
@@ -73,6 +74,7 @@ Route::prefix('admin')->name('admin.')->group(function() {
         Route::get('/', MailIndex::class)->name('index');
         Route::get('/create', MailCreate::class)->name('create');
         Route::get('/edit/{mail}', MailEdit::class)->name('edit');
+        Route::get('/center', MailCenter::class)->name('center');
     });
 
     /* Notifications */
@@ -118,11 +120,11 @@ Route::name('auth.')->group(function() {
     Route::prefix('admin')->name('admin.')->group(function() {
         Route::get('/login', Login::class)->name('login');
     });
-
 });
 
 Route::prefix('template')->name('template.')->group(function() {
-    Route::match(['get', 'post'], '/', fn() => view('admin.template.index'))->name('index');
+    /* Admin */
+    Route::match(['get', 'post'], '/admin', fn() => view('admin.template.index'))->name('admin.index');
     Route::view('/auth-forgot-password-basic', 'admin.template.forgot-password')->name('auth-forgot-password-basic');
     Route::view('/auth-login-basic', 'admin.template.login')->name('auth-login-basic');
     Route::view('/auth-register-basic', 'admin.template.register')->name('auth-register-basic');
@@ -164,4 +166,14 @@ Route::prefix('template')->name('template.')->group(function() {
     Route::view('/ui-toasts', 'admin.template.ui-toasts')->name('ui-toasts');
     Route::view('/ui-tooltips-popovers', 'admin.template.ui-tooltips-popovers')->name('ui-tooltips-popovers');
     Route::view('/ui-typography', 'admin.template.ui-typography')->name('ui-typography');
+
+    /* User */
+    Route::match(['get', 'post'], '/user', fn() => view('client.template.index'))->name('client.index');
+    Route::view('/about', 'client.template.about')->name('about');
+    Route::view('/booking', 'client.template.booking')->name('booking');
+    Route::view('/contact', 'client.template.contact')->name('contact');
+    Route::view('/menu', 'client.template.menu')->name('menu');
+    Route::view('/service', 'client.template.service')->name('service');
+    Route::view('/team', 'client.template.team')->name('team');
+    Route::view('/testimonial', 'client.template.testimonial')->name('testimonial');
 });

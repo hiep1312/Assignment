@@ -15,14 +15,14 @@
     <x-livewire::detail-modal activeRecordVariable="recordDetail" title="Product Details" icon="fas fa-layer-group" id="productDetailModal" wire:key="product-detail">
         <x-slot:tabs>
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="variants-tab" data-bs-toggle="tab" data-bs-target="#variants-content"
+                <button class="nav-link active bootstrap-style" id="variants-tab" data-bs-toggle="tab" data-bs-target="#variants-content"
                     type="button" role="tab" aria-controls="variants-content" aria-selected="true"
                     wire:key="tab-product-variant-detail-{{ $recordDetail }}" wire:ignore.self>
                     <i class="fas fa-list"></i> Variants
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="images-tab" data-bs-toggle="tab" data-bs-target="#images-content"
+                <button class="nav-link bootstrap-style" id="images-tab" data-bs-toggle="tab" data-bs-target="#images-content"
                     type="button" role="tab" aria-controls="images-content" aria-selected="false"\
                     wire:key="tab-product-image-detail-{{ $recordDetail }}" wire:ignore.self>
                     <i class="fas fa-images"></i> Images

@@ -17,11 +17,19 @@
         </div>
 
         <ul class="navbar-nav flex-row align-items-center ms-auto">
+            <li class="nav-item navbar-dropdown dropdown me-3 me-xl-0 theme">
+                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <span class="position-relative">
+                        <i class="icon-base bx bx-bell icon-md theme"></i>
+                        <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+                    </span>
+                </a>
+            </li>
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 @php $authUser = auth()->user(); @endphp
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                        <img src="{{ asset('storage/' . ($authUser?->avatar ?? DefaultImage::AVATAR->value)) }}" alt class="w-px-40 h-auto rounded-circle" />
+                        <img src="{{ asset('storage/' . ($authUser?->avatar ?? DefaultImage::AVATAR->value)) }}" alt="User Avatar" class="w-px-40 h-auto rounded-circle" />
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -30,7 +38,7 @@
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar avatar-online">
-                                        <img src="{{ asset('admin/assets/img/avatars/1.png') }}" alt
+                                        <img src="{{ asset('storage/' . ($authUser?->avatar ?? DefaultImage::AVATAR->value)) }}" alt="User Avatar"
                                             class="w-px-40 h-auto rounded-circle" />
                                     </div>
                                 </div>

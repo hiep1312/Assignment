@@ -3,8 +3,7 @@
 <html lang="en" class="light-style @unless(in_array($currentPage, ['auth-forgot-password-basic', 'auth-login-basic', 'auth-register-basic', 'login'], true)) layout-menu-fixed @endunless" dir="ltr" wire:ignore.self>
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
     <title>
         @hasSection('title')
@@ -15,7 +14,7 @@
     </title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset("admin/assets/img/favicon/favicon.ico") }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset("storage/logo-bookio.ico") }}" />
 
     <!-- Fonts Google -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -86,8 +85,5 @@
 
     <!-- Page JS -->
     @stack('scripts')
-
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </body>
 </html>

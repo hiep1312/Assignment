@@ -19,7 +19,7 @@
     border-color: #ff3e1d !important;
 }
 
-.table tr.collapse {
+.table tr.collapse.expandable-row {
     --bs-table-hover-bg: initial;
 }
 
@@ -48,6 +48,28 @@
     --primary-color-custom-deep: #0d6efd;
     --text-muted-custom: #666666;
     --primary-color-custom-bland: #4a9eff;
+    --bs-info-text-emphasis-origin: #055160;
+    --bs-info-bg-subtle-origin: #cff4fc;
+    --bs-info-border-subtle-origin: #9eeaf9;
+}
+
+/* Alerts */
+.bootstrap-style.alert-info {
+    --bs-alert-color: var(--bs-info-text-emphasis-origin);
+    --bs-alert-bg: var(--bs-info-bg-subtle-origin);
+    --bs-alert-border-color: var(--bs-info-border-subtle-origin);
+}
+
+.bootstrap-style.alert {
+    --bs-alert-border: var(--bs-border-width-origin) solid var(--bs-alert-border-color);
+    color: var(--bs-alert-color);
+    background-color: var(--bs-alert-bg);
+    border: var(--bs-alert-border);
+}
+
+.bg-label-success.bootstrap-color {
+    background-color: #d4f4dd !important;
+    color: #28a745 !important;
 }
 
 /* Background */
@@ -2306,7 +2328,7 @@ h6.bootstrap-style, h5.bootstrap-style, h4.bootstrap-style, h3.bootstrap-style, 
     border-left-color: var(--primary-color);
 }
 
-.section-title {
+.detail-color .section-title {
     font-size: 16px;
     font-weight: 600;
     color: #212529;
@@ -2316,7 +2338,7 @@ h6.bootstrap-style, h5.bootstrap-style, h4.bootstrap-style, h3.bootstrap-style, 
     gap: 8px;
 }
 
-.section-title i {
+.detail-color .section-title i {
     color: var(--primary-color);
     font-size: 18px;
 }
@@ -2940,14 +2962,14 @@ h6.bootstrap-style, h5.bootstrap-style, h4.bootstrap-style, h3.bootstrap-style, 
 }
 
 /* Smooth Collapse Animation */
-.collapse {
+.collapse.expandable-row {
     visibility: hidden;
     height: 0;
     opacity: 0;
     overflow: hidden;
 }
 
-.collapse.show {
+.collapse.expandable-row.show {
     visibility: visible;
     opacity: 1;
     height: auto;
@@ -2967,7 +2989,7 @@ h6.bootstrap-style, h5.bootstrap-style, h4.bootstrap-style, h3.bootstrap-style, 
     }
 }
 
-.collapse:not(.show) {
+.collapse.expandable-row:not(.show) {
     animation: slideUpCollapse 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
 }
 
@@ -3193,4 +3215,64 @@ h6.bootstrap-style, h5.bootstrap-style, h4.bootstrap-style, h3.bootstrap-style, 
     .comment-header {
         gap: 10px;
     }
+}
+
+.batches-status-box {
+    background: #f8f9ff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.batches-status-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.batches-status-item:last-child {
+    margin-bottom: 0;
+}
+
+.batches-status-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.batches-status-pending {
+    background-color: #ffc107;
+}
+
+.batches-status-sent {
+    background-color: #28a745;
+}
+
+.batches-status-failed {
+    background-color: #dc3545;
+}
+
+.batches-status-text {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.batches-status-label {
+    font-size: 12px;
+    color: #999;
+}
+
+.batches-status-count {
+    font-weight: 600;
+    color: #333;
 }

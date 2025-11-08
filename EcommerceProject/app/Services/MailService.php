@@ -65,7 +65,7 @@ class MailService
                     [], [],
                     function(Message $message) use ($recipient, $userId){
                         $message->to($recipient->user->email, $recipient->user->name, true)
-                            ->subject($this->mail->subject)
+                            ->subject($this->mail->subject ?? 'No Subject')
                             ->priority(match($this->mail->type){
                                 4 => Email::PRIORITY_HIGHEST,
                                 1, 2 => Email::PRIORITY_HIGH,

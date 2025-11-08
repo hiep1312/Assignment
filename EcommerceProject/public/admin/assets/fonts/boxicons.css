@@ -19,6 +19,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.bx.theme {
+    color: #384551;
+}
+
 .bx-ul {
   margin-left: 2em;
   padding-left: 0;

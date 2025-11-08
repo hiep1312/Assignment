@@ -22,35 +22,35 @@
     <x-livewire::detail-modal activeRecordVariable="recordDetail" title="Order Details" icon="fas fa-shopping-cart" id="orderDetailModal" wire:key="order-detail">
         <x-slot:tabs>
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-content"
+                <button class="nav-link active bootstrap-style" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-content"
                     type="button" role="tab" aria-controls="timeline-content" aria-selected="true"
                     wire:key="tab-order-timeline-detail-{{ $recordDetail }}" wire:ignore.self>
                     <i class="fas fa-clock"></i> Timeline
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-content"
+                <button class="nav-link bootstrap-style" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes-content"
                     type="button" role="tab" aria-controls="notes-content" aria-selected="false"
                     wire:key="tab-order-notes-detail-{{ $recordDetail }}" wire:ignore.self>
                     <i class="fas fa-comments"></i> Notes & Cancellation
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="items-tab" data-bs-toggle="tab" data-bs-target="#items-content"
+                <button class="nav-link bootstrap-style" id="items-tab" data-bs-toggle="tab" data-bs-target="#items-content"
                     type="button" role="tab" aria-controls="items-content" aria-selected="false"
                     wire:key="tab-order-items-detail-{{ $recordDetail }}" wire:ignore.self>
                     <i class="fas fa-list"></i> Items
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping-content"
+                <button class="nav-link bootstrap-style" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping-content"
                     type="button" role="tab" aria-controls="shipping-content" aria-selected="false"
                     wire:key="tab-order-shipping-detail-{{ $recordDetail }}" wire:ignore.self>
                     <i class="fas fa-truck"></i> Shipping Address
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment-content"
+                <button class="nav-link bootstrap-style" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment-content"
                     type="button" role="tab" aria-controls="payment-content" aria-selected="false"
                     wire:key="tab-payment-detail-{{ $recordDetail }}" wire:ignore.self>
                     <i class="fas fa-credit-card"></i> Payment
@@ -201,7 +201,7 @@
                                         </small>
                                         <small class="text-muted">Code: {{ Str::limit($order->order_code, 25, '...') }}</small>
                                         <button class="btn btn-sm btn-outline-secondary bootstrap-focus ms-1" style="padding: 0.15rem 0.25rem; font-size: 0.75rem;"
-                                            title="Copy Link" onclick="copyToClipboard('{{ $order->order_code }}', this)">
+                                            title="Copy Code" onclick="copyToClipboard('{{ $order->order_code }}', this)">
                                             <i class="fas fa-copy"></i>
                                         </button>
                                     </div>

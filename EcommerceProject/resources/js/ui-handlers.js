@@ -4,7 +4,7 @@ document.addEventListener('livewire:initialized', (e) => {
     $wire = Livewire.find(document.getElementById('main-component')?.getAttribute('wire:id') ?? null) ?? Livewire.first();
 });
 
-window.toggleSelectAll = function(checkboxElement){
+window.toggleSelectAll = function(checkboxElement, isComponentScoped = false){
     const reverseState = !Boolean(+checkboxElement.dataset.state);
     const dataIds = Array.from(document.querySelectorAll('.record-checkbox'), (checkbox) => {
         checkbox.checked = reverseState;
@@ -12,7 +12,12 @@ window.toggleSelectAll = function(checkboxElement){
     });
 
     checkboxElement.dataset.state = checkboxElement.checked = +reverseState;
-    $wire && ($wire.selectedRecordIds = reverseState ? dataIds : []);
+    if(isComponentScoped) {
+        const livewireComponent = Livewire.find(checkboxElement.closest('[wire\\:id]')?.getAttribute('wire:id'));
+        livewireComponent && (livewireComponent.selectedRecordIds = reverseState ? dataIds : []);
+    }else {
+        $wire && ($wire.selectedRecordIds = reverseState ? dataIds : []);
+    }
 }
 
 window.updateSelectAllState = function(){

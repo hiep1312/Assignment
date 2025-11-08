@@ -15,7 +15,7 @@
                     <div class="card-body">
                         <!-- Logo -->
                         <div class="app-brand justify-content-center">
-                            <a href="{{ route('template.index') }}" class="app-brand-link gap-2">
+                            <a href="{{ route('template.admin.index') }}" class="app-brand-link gap-2">
                                 <span class="app-brand-logo demo">
                                     <svg width="25" viewBox="0 0 25 42" version="1.1"
                                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -69,7 +69,7 @@
                         <!-- /Logo -->
                         <h4 class="mb-2">Forgot Password? 🔒</h4>
                         <p class="mb-4">Enter your email and we'll send you instructions to reset your password</p>
-                        <form id="formAuthentication" class="mb-3" action="{{ route('template.index') }}" method="POST">
+                        <form id="formAuthentication" class="mb-3" action="{{ route('template.admin.index') }}" method="POST">
                             @csrf
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>

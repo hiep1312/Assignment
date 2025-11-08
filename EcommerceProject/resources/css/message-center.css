@@ -1,0 +1,361 @@
+:root {
+    --primary-color-message-center: #4f46e5;
+    --secondary-color-message-center: #10b981;
+    --danger-color-message-center: #ef4444;
+    --warning-color-message-center: #f59e0b;
+    --bg-light-message-center: #f8fafc;
+    --border-color-message-center: #e2e8f0;
+    --text-primary-message-center: #1e293b;
+    --text-secondary-message-center: #64748b;
+}
+
+.card-container {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* Tab Navigation */
+.nav-tabs {
+    border-bottom: 2px solid var(--border-color-message-center);
+    background: var(--bg-light-message-center);
+    padding: 0;
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-secondary-message-center);
+    border: none;
+    padding: 16px 30px;
+    font-weight: 600;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary-color-message-center);
+    background: rgba(79, 70, 229, 0.05);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color-message-center);
+    background: white;
+    border-bottom: 3px solid var(--primary-color-message-center);
+    margin-bottom: -2px;
+}
+
+.tab-content {
+    padding: 25px;
+}
+
+/* Form Sections */
+.form-section {
+    margin-bottom: 30px;
+}
+
+.form-section:nth-child(4) {
+    margin-bottom: 21px;
+}
+
+.form-section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary-message-center);
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color-message-center);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-section-title i {
+    color: var(--primary-color-message-center);
+}
+
+/* Radio Group */
+.radio-group {
+    display: flex;
+    gap: 22px;
+    margin-bottom: 25px;
+}
+
+.radio-option {
+    flex: 1;
+    padding: 20px;
+    border: 2px solid var(--border-color-message-center);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.radio-option:hover {
+    border-color: var(--primary-color-message-center);
+    background: rgba(79, 70, 229, 0.02);
+}
+
+.radio-option input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color-message-center);
+    border-radius: 50%;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    position: relative;
+}
+
+.radio-option input[type="radio"]:hover {
+    border-color: var(--primary-color-message-center);
+}
+
+.radio-option.active input[type="radio"], .radio-option input[type="radio"]:checked {
+    border-color: var(--primary-color-message-center);
+    background: var(--primary-color-message-center);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.radio-option.active input[type="radio"]::after, .radio-option input[type="radio"]:checked::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.radio-option.active {
+    border-color: var(--primary-color-message-center);
+    background: rgba(79, 70, 229, 0.08);
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-primary-message-center);
+}
+
+.radio-label i {
+    color: var(--primary-color-message-center);
+    margin-right: 3px;
+}
+
+/* Form Controls */
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    font-weight: 600;
+    color: var(--text-primary-message-center);
+    margin-bottom: 8px;
+    display: block;
+}
+
+#send-content .form-control,
+#send-content .form-select {
+    border: 1.5px solid var(--border-color-message-center);
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+#send-content .form-control:focus,
+#send-content .form-select:focus {
+    border-color: var(--primary-color-message-center);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    outline: none;
+}
+
+/* User Selection Frame */
+.user-selection-frame {
+    border: 2px solid var(--border-color-message-center);
+    border-radius: 12px;
+    padding: 7px 20px;
+    background: var(--bg-light-message-center);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.user-selection-frame.is-invalid {
+    border-color: #ff3e1d;
+    border-width: 1px;
+}
+
+.user-selection-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 17px;
+}
+
+.user-search-input {
+    flex: 1;
+}
+
+.user-search-input:focus {
+    border-color: var(--primary-color-message-center);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    outline: none;
+}
+
+.btn-select-all, .btn-unselect-all {
+    background: white;
+    border: 1.5px solid var(--primary-color-message-center);
+    color: var(--primary-color-message-center);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.btn-select-all:hover, .btn-unselect-all {
+    background: var(--primary-color-message-center);
+    color: white;
+}
+
+.btn-unselect-all:hover {
+    background: white;
+    color: var(--primary-color-message-center);
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.user-item:last-child {
+    margin-bottom: 0;
+}
+
+.user-item:hover {
+    background: white;
+}
+
+.user-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    margin-right: 12px;
+    accent-color: var(--primary-color-message-center);
+}
+
+.user-info-messsage-center {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-primary-message-center);
+}
+
+.user-email {
+    font-size: 0.85rem;
+    color: var(--text-secondary-message-center);
+}
+
+.btn-group-action {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* Buttons */
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary-color-message-center) 0%, #6366f1 100%);
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    line-height: initial;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    text-decoration: none;
+}
+
+.btn-secondary-custom {
+    background: white;
+    border: 2px solid var(--border-color-message-center);
+    color: var(--text-primary-message-center);
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    line-height: initial;
+}
+
+.btn-secondary-custom:hover {
+    border-color: var(--primary-color-message-center);
+    color: var(--primary-color-message-center);
+}
+
+/* Scrollbar */
+.user-selection-frame::-webkit-scrollbar {
+    width: 8px;
+}
+
+.user-selection-frame::-webkit-scrollbar-track {
+    background: var(--bg-light-message-center);
+}
+
+.user-selection-frame::-webkit-scrollbar-thumb {
+    background: var(--border-color-message-center);
+    border-radius: 4px;
+}
+
+.user-selection-frame::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color-message-center);
+}
+
+/* Counter */
+.user-counter {
+    background: var(--primary-color-message-center);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-left: 5px;
+}
+
+@media (max-width: 768px) {
+    .radio-group {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 500px) {
+    .user-selection-controls > .user-search-input {
+        flex-basis: 500px;
+    }
+}

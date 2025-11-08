@@ -1,6 +1,6 @@
 @php
     $activeRoutes = (object)[
-        'dashboard' => $currentRoute === 'template',
+        'dashboard' => $currentRoute === 'admin',
         'layouts' => in_array($currentRoute, ['layouts-without-menu', 'layouts-without-navbar', 'layouts-container', 'layouts-fluid', 'layouts-blank'], true),
         'account_settings' => in_array($currentRoute, ['pages-account-settings-account', 'pages-account-settings-notifications', 'pages-account-settings-connections'], true),
         'authentications' => in_array($currentRoute, ['auth-login-basic', 'auth-register-basic', 'auth-forgot-password-basic'], true),
@@ -73,7 +73,7 @@
 @endphp
 <!-- Dashboard -->
 <li class="menu-item @if($activeRoutes->dashboard) active @endif">
-    <a href="{{ route('template.index') }}" class="menu-link">
+    <a href="{{ route('template.admin.index') }}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-home-circle"></i>
         <div data-i18n="Analytics">Dashboard</div>
     </a>
@@ -118,6 +118,7 @@
 <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Pages</span>
 </li>
+
 <li class="menu-item @if($activeRoutes->account_settings) active open @endif">
     <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons bx bx-dock-top"></i>

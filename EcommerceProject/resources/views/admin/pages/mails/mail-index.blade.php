@@ -39,6 +39,10 @@
                 <i class="fas fa-times-circle me-1"></i>
                 Delete Mails
             </button>
+            <a href="{{ route('admin.mails.center') }}" class="btn btn-primary bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Open Mail Center">
+                <i class="fas fa-paper-plane me-1"></i>
+                Mail Center
+            </a>
         </x-slot:actions>
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -64,7 +68,7 @@
                             <td>
                                 <div class="text-start">
                                     <div class="@if($mail->subject) fw-bold @else text-muted fst-italic @endif">
-                                        {{ Str::limit($mail->subject ?? 'No subject', 30, '...') }}
+                                        {{ Str::limit($mail->subject ?? "No subject #{$mail->id}", 30, '...') }}
                                     </div>
                                     <small class="text-muted">ID: #{{ $mail->id }}</small>
                                 </div>

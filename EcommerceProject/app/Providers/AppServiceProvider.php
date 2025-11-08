@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Faker\Generator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
@@ -38,5 +39,10 @@ class AppServiceProvider extends ServiceProvider
         if(config('mail.return_path')){
             Mail::alwaysReturnPath(config('mail.return_path'));
         }
+
+        // Check role middleware
+        Blade::if('role', function (string ...$roles) {
+            return Auth::check() && in_array(Auth::user()->role->value, $roles);
+        });
     }
 }
