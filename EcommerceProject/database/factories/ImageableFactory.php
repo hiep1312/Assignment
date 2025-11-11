@@ -45,6 +45,7 @@ class ImageableFactory extends Factory
     public function banner(): static
     {
         return $this->state(fn (array $attributes) => [
+            'image_id' => Image::factory()->banner(),
             'imageable_id' => Banner::inRandomOrder()->value('id') ?? Banner::factory()->create()->id,
             'imageable_type' => Banner::class,
             'position' => $this->faker->unique()->numberBetween(1, 30),
@@ -54,6 +55,7 @@ class ImageableFactory extends Factory
     public function blog(): static
     {
         return $this->state(fn (array $attributes) => [
+            'image_id' => Image::factory()->blog(),
             'imageable_id' => Blog::inRandomOrder()->value('id') ?? Blog::factory()->create()->id,
             'imageable_type' => Blog::class,
         ]);

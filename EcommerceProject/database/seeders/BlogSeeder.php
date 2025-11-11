@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Blog;
 use App\Models\BlogComment;
 use App\Models\Category;
-use App\Models\Image;
+use App\Models\Imageable;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,9 +17,8 @@ class BlogSeeder extends Seeder
     public function run(): void
     {
         /* Create random 20 blogs with images and categories */
-        $blogs = Blog::factory(20)->hasAttached(
-            Image::factory(1)->blog(),
-            ['is_main' => true],
+        $blogs = Blog::factory(20)->has(
+            Imageable::factory(1)->blog(),
             'thumbnail'
         )->has(
             Category::factory(4),
