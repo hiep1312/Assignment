@@ -49,6 +49,32 @@
     transition: .5s;
 }
 
+.btn:not(.btn-link, .back-to-top) {
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+}
+
+.btn:not(.btn-link, .back-to-top)::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    padding: 50%;
+    border-radius: 50%;
+    margin: auto;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: -1;
+    transition: all .4s linear;
+    transform: translate3d(-50%, -50%, 0) scale(0);
+}
+
+.btn:not(.btn-link, .back-to-top):hover::before {
+    transform: translate3d(-50%, -50%, 0) scale(1.5);
+}
+
 .btn.btn-primary,
 .btn.btn-secondary {
     color: #FFFFFF;

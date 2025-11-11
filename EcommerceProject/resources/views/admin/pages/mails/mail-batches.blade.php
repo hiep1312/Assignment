@@ -224,7 +224,7 @@
                                                 </td>
                                                 <td style="min-width: 270px;">
                                                     @if($recipient->error_message)
-                                                        <small class="text-danger text-wrap lh-base">{{ Str::limit($recipient->error_message, 80, '...') }}</small>
+                                                        <small class="text-danger text-wrap lh-base">{{ Str::limit($recipient->error_message, 85, '...') }}</small>
                                                         <button class="btn btn-sm btn-outline-secondary bootstrap-focus ms-1" style="padding: 0.15rem 0.25rem; font-size: 0.75rem;"
                                                             title="Copy Error Message" onclick="copyToClipboard('{{ $recipient->error_message }}', this)">
                                                             <i class="fas fa-copy"></i>

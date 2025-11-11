@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/css/loading.css',
                 'resources/css/message-center.css',
+                'resources/css/products.css',
                 'resources/js/app.js',
                 'resources/js/image-picker.js',
                 'resources/js/editor-handler.js'

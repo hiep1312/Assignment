@@ -18,9 +18,9 @@ class Repository
         return (object)[
             'get' => (object)[
                 'value' => $hasMultipleParams ? ($arguments ?? []) : ($arguments[0] ?? null),
-                '__has_multi_params__' => $hasMultipleParams,
+                self::HAS_MULTI_PARAMS => $hasMultipleParams,
             ],
-            '__is_repository_value__' => true
+            self::IS_REPOSITORY_VALUE => true
         ];
     }
 

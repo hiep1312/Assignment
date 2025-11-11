@@ -15,7 +15,7 @@ class Logout extends Component
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
-        return redirect()->route('auth.admin.login');
+        return redirect()->route('admin.login');
     }
 
     #[Title('Logout - Bookio Admin')]

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Auth;
 
+use App\Enums\UserRole;
 use App\Helpers\AutoValidatesRequest;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,8 @@ class Login extends Component
 
         if(Auth::attempt([
             fn($query) => $query->where('email', $this->username)->orWhere('username', $this->username),
-            'password' => $this->password
+            'password' => $this->password,
+            fn($query) => $query->where('role', UserRole::ADMIN)
         ], $this->remember)){
             request()->session()->regenerate();
             return redirect()->intended('admin/dashboard');
