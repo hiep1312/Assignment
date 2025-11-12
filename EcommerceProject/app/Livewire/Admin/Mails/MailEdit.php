@@ -4,7 +4,7 @@ namespace App\Livewire\Admin\Mails;
 
 use App\Helpers\AutoValidatesRequest;
 use App\Helpers\MailTemplateHelper;
-use App\Http\Requests\MailRequest;
+use App\Http\Requests\Admin\MailRequest;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use App\Repositories\Contracts\MailRepositoryInterface;
 use Livewire\Attributes\Layout;

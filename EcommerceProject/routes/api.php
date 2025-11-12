@@ -17,5 +17,7 @@ Route::name('api.')->group(function() {
         Route::apiResources([
             'products' => ProductController::class
         ]);
+
+
     });
 });

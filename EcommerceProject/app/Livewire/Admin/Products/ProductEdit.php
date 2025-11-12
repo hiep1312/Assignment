@@ -3,8 +3,8 @@
 namespace App\Livewire\Admin\Products;
 
 use App\Helpers\AutoValidatesRequest;
-use App\Http\Requests\ProductRequest;
-use App\Http\Requests\ProductVariantRequest;
+use App\Http\Requests\Admin\ProductRequest;
+use App\Http\Requests\Admin\ProductVariantRequest;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;

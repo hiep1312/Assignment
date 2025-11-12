@@ -4,7 +4,7 @@ namespace App\Livewire\Admin\Notifications;
 
 use App\Helpers\AutoValidatesRequest;
 use App\Helpers\NotificationTemplateHelper;
-use App\Http\Requests\NotificationRequest;
+use App\Http\Requests\Admin\NotificationRequest;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use App\Repositories\Contracts\NotificationRepositoryInterface;
 use Livewire\Attributes\Layout;

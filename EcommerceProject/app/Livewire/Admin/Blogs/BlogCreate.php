@@ -3,7 +3,7 @@
 namespace App\Livewire\Admin\Blogs;
 
 use App\Helpers\AutoValidatesRequest;
-use App\Http\Requests\BlogRequest;
+use App\Http\Requests\Admin\BlogRequest;
 use App\Repositories\Contracts\BlogRepositoryInterface;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;

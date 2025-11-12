@@ -3,7 +3,7 @@
 namespace App\Livewire\Admin\Users;
 
 use App\Helpers\AutoValidatesRequest;
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\Admin\UserRequest;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;

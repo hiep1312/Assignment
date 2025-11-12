@@ -5,7 +5,7 @@ namespace App\Livewire\Admin\Mails;
 use App\Events\MailSentEvent;
 use App\Helpers\AutoValidatesRequest;
 use App\Helpers\MailTemplateHelper;
-use App\Http\Requests\MailCenterRequest;
+use App\Http\Requests\Admin\MailCenterRequest;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use App\Repositories\Contracts\MailRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;

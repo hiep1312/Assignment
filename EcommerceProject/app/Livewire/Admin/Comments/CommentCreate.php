@@ -3,7 +3,7 @@
 namespace App\Livewire\Admin\Comments;
 
 use App\Helpers\AutoValidatesRequest;
-use App\Http\Requests\BlogCommentRequest;
+use App\Http\Requests\Admin\BlogCommentRequest;
 use App\Repositories\Contracts\BlogCommentRepositoryInterface;
 use App\Repositories\Contracts\BlogRepositoryInterface;
 use Illuminate\Support\Facades\Auth;

@@ -3,7 +3,7 @@
 namespace App\Livewire\Admin\ProductVariants;
 
 use App\Helpers\AutoValidatesRequest;
-use App\Http\Requests\ProductVariantRequest;
+use App\Http\Requests\Admin\ProductVariantRequest;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use Livewire\Attributes\Layout;

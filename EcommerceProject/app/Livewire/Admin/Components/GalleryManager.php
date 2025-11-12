@@ -3,7 +3,7 @@
 namespace App\Livewire\Admin\Components;
 
 use App\Helpers\AutoValidatesRequest;
-use App\Http\Requests\UploadImageRequest;
+use App\Http\Requests\Admin\UploadImageRequest;
 use App\Repositories\Contracts\ImageableRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;

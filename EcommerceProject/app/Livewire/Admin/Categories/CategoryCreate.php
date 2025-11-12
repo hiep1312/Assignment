@@ -3,7 +3,7 @@
 namespace App\Livewire\Admin\Categories;
 
 use App\Helpers\AutoValidatesRequest;
-use App\Http\Requests\CategoryRequest;
+use App\Http\Requests\Admin\CategoryRequest;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;

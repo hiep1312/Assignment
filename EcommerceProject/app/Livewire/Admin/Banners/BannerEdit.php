@@ -3,7 +3,7 @@
 namespace App\Livewire\Admin\Banners;
 
 use App\Helpers\AutoValidatesRequest;
-use App\Http\Requests\BannerRequest;
+use App\Http\Requests\Admin\BannerRequest;
 use App\Repositories\Contracts\BannerRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use Livewire\Attributes\Layout;

@@ -4,7 +4,7 @@ namespace App\Livewire\Admin\Auth;
 
 use App\Enums\UserRole;
 use App\Helpers\AutoValidatesRequest;
-use App\Http\Requests\LoginRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
 use Livewire\Component;
