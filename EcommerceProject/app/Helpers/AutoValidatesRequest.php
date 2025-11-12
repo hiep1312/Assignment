@@ -35,10 +35,27 @@ trait AutoValidatesRequest
     {
         $className = basename(get_class($this));
         $requestBasePath = app_path("Http\\Requests");
+        $entries = scandir($requestBasePath, SCANDIR_SORT_NONE);
+        $detectedClass = null;
+
+        foreach($entries as $entry){
+            if($entry === "." || $entry === ".."){
+                continue;
+            }elseif(is_dir("{$requestBasePath}\\{$entry}")){
+                $detectedClass = match(true){
+                    file_exists("{$requestBasePath}\\{$entry}\\{$className}.php") => "\\App\\Http\\Requests\\{$entry}\\{$className}",
+                    file_exists("{$requestBasePath}\\{$entry}\\{$className}Request.php") => "\\App\\Http\\Requests\\{$entry}\\{$className}Request",
+                    default => $detectedClass
+                };
+
+                if($detectedClass) break;
+            }
+        }
 
         $requestClass = match(true){
             file_exists("{$requestBasePath}\\{$className}.php") => "\\App\\Http\\Requests\\{$className}",
             file_exists("{$requestBasePath}\\{$className}Request.php") => "\\App\\Http\\Requests\\{$className}Request",
+            (bool) $detectedClass => $detectedClass,
             default => throw new RuntimeException("Request class not found for {$className}.")
         };
         return $requestClass;
