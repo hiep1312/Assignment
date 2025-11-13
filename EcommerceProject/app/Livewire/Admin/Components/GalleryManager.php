@@ -51,14 +51,9 @@ class GalleryManager extends Component
         $this->validate();
 
         array_walk($this->photos, function(TemporaryUploadedFile $photo){
-            $originalName = $photo->getClientOriginalName();
-            $originalExtension = $photo->getClientOriginalExtension();
-            $baseName = basename($originalName, '.' . $originalExtension);
-            $filename = Str::limit($baseName, 80, '') . uniqid() . '.' . $photo->extension();
-
             array_push(
                 $this->selectedImageIds,
-                $this->repository->create(['image_url' => storeImage(image: $photo, folder: 'images', filename: $filename)])->id
+                $this->repository->create(['image_url' => storeImage(image: $photo, folder: 'images', filename: getFileName($photo))])->id
             );
         });
     }

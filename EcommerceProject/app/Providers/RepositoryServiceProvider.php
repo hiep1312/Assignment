@@ -19,6 +19,7 @@ use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantInventoryRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
+use App\Repositories\Contracts\UserAddressRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\BannerRepository;
 use App\Repositories\Eloquent\BlogCommentRepository;
@@ -37,6 +38,7 @@ use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Eloquent\ProductReviewRepository;
 use App\Repositories\Eloquent\ProductVariantInventoryRepository;
 use App\Repositories\Eloquent\ProductVariantRepository;
+use App\Repositories\Eloquent\UserAddressRepository;
 use App\Repositories\Eloquent\UserRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -60,7 +62,8 @@ class RepositoryServiceProvider extends ServiceProvider
         NotificationRepositoryInterface::class => NotificationRepository::class,
         MailUserRepositoryInterface::class => MailUserRepository::class,
         BlogRepositoryInterface::class => BlogRepository::class,
-        BlogCommentRepositoryInterface::class => BlogCommentRepository::class
+        BlogCommentRepositoryInterface::class => BlogCommentRepository::class,
+        UserAddressRepositoryInterface::class => UserAddressRepository::class
     ];
 
     /**

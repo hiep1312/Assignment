@@ -8,9 +8,6 @@ use Illuminate\Validation\Rule;
 
 class ProductRequest extends FormRequest
 {
-    public function __construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
-    {}
-
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -35,7 +32,7 @@ class ProductRequest extends FormRequest
                 throwNotFound: false
             );
 
-            $product && $this->merge($product->toArray(), $this->only([...$fillableFields]));
+            $product && $this->merge(array_merge($product->toArray(), $this->only([...$fillableFields])));
         }
 
         return [

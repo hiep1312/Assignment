@@ -73,12 +73,7 @@ class ImageIndex extends Component
         $this->validate();
 
         array_walk($this->photos, function(TemporaryUploadedFile $photo){
-            $originalName = $photo->getClientOriginalName();
-            $originalExtension = $photo->getClientOriginalExtension();
-            $baseName = basename($originalName, '.' . $originalExtension);
-            $filename = Str::limit($baseName, 80, '') . uniqid() . '.' . $photo->extension();
-
-            $this->repository->create(['image_url' => storeImage(image: $photo, folder: 'images', filename: $filename)]);
+            $this->repository->create(['image_url' => storeImage(image: $photo, folder: 'images', filename: getFileName($photo))]);
         });
     }
 

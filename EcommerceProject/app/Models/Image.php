@@ -16,16 +16,19 @@ class Image extends Model
 
     public function products()
     {
-        return $this->morphedByMany(Product::class, 'imageable');
+        return $this->morphedByMany(Product::class, 'imageable')
+            ->withPivot('is_main', 'position');
     }
 
     public function banners()
     {
-        return $this->morphedByMany(Banner::class, 'imageable');
+        return $this->morphedByMany(Banner::class, 'imageable')
+            ->withPivot('position');
     }
 
     public function blogs()
     {
-        return $this->morphedByMany(Blog::class, 'imageable');
+        return $this->morphedByMany(Blog::class, 'imageable')
+            ->withPivot('is_main');
     }
 }

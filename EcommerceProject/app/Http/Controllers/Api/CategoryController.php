@@ -1,0 +1,141 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Helpers\ApiQueryRelationHelper;
+use App\Http\Requests\Client\CategoryRequest;
+use App\Repositories\Contracts\CategoryRepositoryInterface;
+use Illuminate\Http\Request;
+
+class CategoryController extends BaseApiController
+{
+    use ApiQueryRelationHelper;
+
+    const API_FIELDS = ['id', 'name', 'slug', 'created_by', 'created_at'];
+    const IMAGEABLE_FIELDS = ['id', 'image_id', 'is_main', 'position', 'created_at'];
+
+    protected function getAllowedRelationsWithFields(): array
+    {
+        return [
+            'creator' => UserController::API_FIELDS,
+            'products' => ProductController::API_FIELDS
+        ];
+    }
+
+    public function __construct(
+        protected CategoryRepositoryInterface $repository
+    ){}
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $categories = $this->repository->getAll(
+            criteria: function(&$query) use ($request) {
+                $query->with($this->getRequestedRelations($request));
+
+                $query->when(isset($request->search), function($innerQuery) use ($request){
+                    $innerQuery->where(function($subQuery) use ($request){
+                        $subQuery->whereLike('name', '%'. trim($request->search) .'%')
+                            ->orWhereLike('slug', '%'. trim($request->search) .'%');
+                    });
+                })->when(
+                    isset($request->created_by),
+                    fn($innerQuery) => $innerQuery->where('created_by', $request->created_by)
+                );
+            },
+            perPage: $this->getPerPage($request),
+            columns: self::API_FIELDS,
+            pageName: 'page'
+        );
+
+        return $this->response(
+            success: true,
+            message: 'Category list retrieved successfully.',
+            additionalData: $categories->toArray()
+        );
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(CategoryRequest $request)
+    {
+        $validatedData = $request->validated();
+        $createdCategory = $this->repository->create(
+            $validatedData + ['created_by' => $request->user('jwt')->id]
+        );
+
+        return $this->response(
+            success: true,
+            message: 'Category created successfully.',
+            code: 201,
+            data: $createdCategory->only(self::API_FIELDS)
+        );
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Request $request, string $slug)
+    {
+        $category = $this->repository->first(
+            criteria: function($query) use ($request, $slug){
+                $query->with($this->getRequestedRelations($request))
+                    ->where('slug', $slug);
+            },
+            columns: self::API_FIELDS,
+            throwNotFound: false
+        );
+
+        return $this->response(
+            success: (bool) $category,
+            message: $category
+                ? 'Category retrieved successfully.'
+                : 'Category not found.',
+            code: $category ? 200 : 404,
+            data: $category?->toArray() ?? []
+        );
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(CategoryRequest $request)
+    {
+        $validatedData = $request->validated();
+        $isUpdated = $this->repository->update(
+            idOrCriteria: $request->id,
+            attributes: $validatedData,
+            updatedModel: $updatedCategory
+        );
+
+        return $this->response(
+            success: (bool) $isUpdated,
+            message: $isUpdated
+                ? 'Product updated successfully.'
+                : 'Product not found.',
+            code: $isUpdated ? 200 : 404,
+            data: $updatedCategory?->only(self::API_FIELDS) ?? []
+        );
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $slug)
+    {
+        $isDeleted = $this->repository->delete(
+            idOrCriteria: fn($query) => $query->where('slug', $slug)
+        );
+
+        return $this->response(
+            success: (bool) $isDeleted,
+            message: $isDeleted
+                ? 'Category deleted successfully.'
+                : 'Category not found.',
+            code: $isDeleted ? 200 : 404
+        );
+    }
+}

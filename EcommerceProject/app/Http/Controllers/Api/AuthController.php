@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\UserRole;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class AuthController extends Controller
+class AuthController extends BaseApiController
 {
     public function __construct(
         protected UserRepositoryInterface $repository
@@ -28,23 +27,12 @@ class AuthController extends Controller
             ]
         ));
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Registration successful.',
-            'user' => $user->only([
-                'id',
-                'email',
-                'username',
-                'first_name',
-                'last_name',
-                'name',
-                'birthday',
-                'avatar',
-                'role',
-                'created_at',
-                'updated_at'
-            ])
-        ], 201);
+        return $this->response(
+            success: true,
+            message: 'Registration successful.',
+            code: 201,
+            additionalData: ['user' => $user->only(UserController::PRIVATE_FIELDS)]
+        );
     }
 
     public function login(LoginRequest $request)
@@ -55,29 +43,22 @@ class AuthController extends Controller
             fn($query) => $query->where('email', $credentials['username'])->orWhere('username', $credentials['username']),
             'password' => $credentials['password']
         ], true)) {
-            return response()->json([
-                'success' => true,
-                'message' => "Login successful",
-                'user' => $request->user('jwt')->only([
-                    'email',
-                    'username',
-                    'first_name',
-                    'last_name',
-                    'name',
-                    'birthday',
-                    'avatar',
-                    'role',
-                    'created_at',
-                    'updated_at'
-                ]),
-                'token' => $token,
-            ], 200);
+            return $this->response(
+                success: true,
+                message: 'Login successful',
+                code: 200,
+                additionalData: [
+                    'user' => $request->user('jwt')->only(UserController::PRIVATE_FIELDS),
+                    'token' => $token,
+                ]
+            );
         }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Invalid username or password.',
-        ], 401);
+        return $this->response(
+            success: false,
+            message: 'Invalid username or password.',
+            code: 401
+        );
     }
 
     public function logout(Request $request)
@@ -87,15 +68,17 @@ class AuthController extends Controller
 
             Auth::guard('jwt')->logout($invalidateToken);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Logged out successfully.'
-            ], 200);
+            return $this->response(
+                success: true,
+                code: 200,
+                message: 'Logged out successfully.',
+            );
         }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Unauthenticated user.',
-        ], 401);
+        return $this->response(
+            success: false,
+            message: 'Unauthenticated user.',
+            code: 401
+        );
     }
 }

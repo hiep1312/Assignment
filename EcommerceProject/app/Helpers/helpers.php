@@ -1,8 +1,27 @@
 <?php
 
-use App\Enums\MailPlaceholders\CustomMailPlaceholder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+if(!function_exists('getFileName')){
+    /**
+     * Generate a safe and unique filename for an uploaded file.
+     *
+     * @param \Illuminate\Http\UploadedFile $file The uploaded file instance.
+     *
+     * @return string The generated unique filename.
+     */
+    function getFileName(UploadedFile $file): string
+    {
+        $originalName = $file->getClientOriginalName();
+        $originalExtension = $file->getClientOriginalExtension();
+        $baseName = basename($originalName, '.' . $originalExtension);
+        $filename = Str::limit($baseName, 80, '') . uniqid() . '.' . $file->extension();
+
+        return $filename;
+    }
+}
 
 if(!function_exists('storeImage')){
     /**
