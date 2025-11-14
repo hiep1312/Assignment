@@ -18,7 +18,7 @@ class CategoryRequest extends FormRequest
         return true;
     }
 
-    protected function getFillableFields()
+    protected function getFillableFields(): array
     {
         return ['name', 'slug'];
     }

@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 abstract class BaseApiController extends Controller
 {
+    const INVALID_ID = -1;
+
     protected int $defaultPerPage = 20;
     protected int $maxPerPage = 50;
+
+    protected function getPerPage(Request $request): int
+    {
+        return min($request->integer('per_page', $this->defaultPerPage), $this->maxPerPage);
+    }
 
     protected function response(bool $success, string $message, int $code = 200, array $data = [], mixed $additionalData = null): JsonResponse
     {

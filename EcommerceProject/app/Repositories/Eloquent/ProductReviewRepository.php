@@ -11,4 +11,9 @@ class ProductReviewRepository extends BaseRepository implements ProductReviewRep
     {
         return ProductReview::class;
     }
+
+    public function createByProductSlug()
+    {
+
+    }
 }

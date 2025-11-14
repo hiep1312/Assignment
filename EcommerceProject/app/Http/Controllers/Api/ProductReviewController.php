@@ -2,15 +2,26 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Helpers\ApiQueryRelationHelper;
 use App\Http\Requests\Client\ProductReviewRequest;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class ProductReviewController extends Controller
+class ProductReviewController extends BaseApiController
 {
-    const API_FIELDS = ['id', 'user_id', 'rating', 'content', 'created_at'];
+    use ApiQueryRelationHelper;
+
+    const API_FIELDS = ['id', 'product_id', 'user_id', 'rating', 'content', 'created_at'];
+
+    protected function getAllowedRelationsWithFields(): array
+    {
+        return [
+            'product' => ProductController::API_FIELDS,
+            'user' => UserController::API_FIELDS
+        ];
+    }
 
     public function __construct(
         protected ProductReviewRepositoryInterface $repository,
@@ -24,6 +35,8 @@ class ProductReviewController extends Controller
     {
         $reviews = $this->repository->getAll(
             criteria: function(&$query) use ($request, $slugProduct) {
+                $query->with($this->getRequestedRelations($request));
+
                 $query->when(isset($request->search), function($innerQuery) use ($request){
                     $innerQuery->whereLike('content', '%'. trim($request->search) .'%');
                 })->when(
@@ -33,26 +46,27 @@ class ProductReviewController extends Controller
                         if(count($ratingRange) === 1) {
                             $innerQuery->where('rating', $ratingRange[0]);
                         }else {
-                            [$minStar, $maxStar] = $ratingRange;
-                            $innerQuery->whereBetween('rating', [$minStar, $maxStar]);
+                            [$minRating, $maxRating] = $ratingRange;
+                            $innerQuery->whereBetween('rating', [$minRating, $maxRating]);
                         }
                     }
                 );
 
-                $query->whereHas('product', function($subQuery) use ($request, $slugProduct){
-                    $subQuery->where('slug', $slugProduct ?? $request->product);
-                });
+                $query->whereHas(
+                    'product',
+                    fn($subQuery) => $subQuery->where('slug', $slugProduct)
+                );
             },
-            perPage: min($request->integer('per_page', 20), 50),
+            perPage: $this->getPerPage($request),
             columns: self::API_FIELDS,
             pageName: 'page'
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Product review list retrieved successfully.',
-            ...$reviews->toArray()
-        ], 200);
+        return $this->response(
+            success: true,
+            message: 'Product review list retrieved successfully.',
+            additionalData: $reviews->toArray()
+        );
     }
 
     /**
@@ -60,15 +74,10 @@ class ProductReviewController extends Controller
      */
     public function store(ProductReviewRequest $request, string $slugProduct)
     {
-        if(!($product = $this->productRepository->first(fn($query) => $query->where('slug', $slugProduct)))){
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found.',
-            ], 404);
-        }
-
         $validatedData = $request->validated();
-        $review = $product->reviews()->create($validatedData);
+        $createdReview = $this->repository->create(
+            $validatedData + ['created_by' => $request->user('jwt')->id]
+        );
 
         return response()->json([
             'success' => true,
@@ -80,40 +89,47 @@ class ProductReviewController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        $review = $this->repository->find(
-            idOrCriteria: $id,
+        $review = $this->repository->first(
+            criteria: function($query) use ($request, $id){
+                $query->with($this->getRequestedRelations($request))
+                    ->where('id', $id);
+            },
             columns: self::API_FIELDS,
             throwNotFound: false
         );
 
-        return response()->json([
-            'success' => (bool) $review,
-            'message' => $review ? 'Product review retrieved successfully.' : 'Product review not found.',
-            'data' => $review?->only(self::API_FIELDS),
-        ], $review ? 200 : 404);
+        return $this->response(
+            success: (bool) $review,
+            message: $review
+                ? 'Product review retrieved successfully.'
+                : 'Product review not found.',
+            code: $review ? 200 : 404,
+            data: $review?->toArray() ?? []
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductReviewRequest $request, string $id)
+    public function update(ProductReviewRequest $request)
     {
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id,
+            idOrCriteria: $request->id ?? self::INVALID_ID,
             attributes: $validatedData,
             updatedModel: $updatedReview
         );
 
-        return response()->json([
-            'success' => (bool) $isUpdated,
-            'message' => $isUpdated
+        return $this->response(
+            success: (bool) $isUpdated,
+            message: $isUpdated
                 ? 'Product review updated successfully.'
                 : 'Product review not found.',
-            'data' => $updatedReview?->only(self::API_FIELDS),
-        ], $isUpdated ? 200 : 404);
+            code: $isUpdated ? 200 : 404,
+            data: $updatedReview?->only(self::API_FIELDS) ?? []
+        );
     }
 
     /**
@@ -121,15 +137,21 @@ class ProductReviewController extends Controller
      */
     public function destroy(string $id)
     {
+        ['role' => $role, 'sub' => $userId] = Auth::guard('jwt')->payload()->toArray();
+
         $isDeleted = $this->repository->delete(
-            idOrCriteria: $id,
+            idOrCriteria: function($query) use ($id, $role, $userId){
+                $query->where('id', $id)
+                    ->when($role === 'user', fn($innerQuery) => $innerQuery->where('user_id', $userId));
+            }
         );
 
-        return response()->json([
-            'success' => (bool) $isDeleted,
-            'message' => $isDeleted
+        return $this->response(
+            success: (bool) $isDeleted,
+            message: $isDeleted
                 ? 'Product review deleted successfully.'
                 : 'Product review not found.',
-        ], $isDeleted ? 200 : 404);
+            code: $isDeleted ? 200 : 404
+        );
     }
 }

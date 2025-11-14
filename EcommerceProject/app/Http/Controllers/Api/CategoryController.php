@@ -12,7 +12,7 @@ class CategoryController extends BaseApiController
     use ApiQueryRelationHelper;
 
     const API_FIELDS = ['id', 'name', 'slug', 'created_by', 'created_at'];
-    const IMAGEABLE_FIELDS = ['id', 'image_id', 'is_main', 'position', 'created_at'];
+    const CATEGORYABLE_FIELDS = ['id', 'image_id', 'is_main', 'position', 'created_at'];
 
     protected function getAllowedRelationsWithFields(): array
     {
@@ -106,7 +106,7 @@ class CategoryController extends BaseApiController
     {
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id,
+            idOrCriteria: $request->id ?? self::INVALID_ID,
             attributes: $validatedData,
             updatedModel: $updatedCategory
         );

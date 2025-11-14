@@ -9,11 +9,6 @@ use LogicException;
 
 trait ApiQueryRelationHelper
 {
-    protected function getPerPage(Request $request): int
-    {
-        return min($request->integer('per_page', $this->defaultPerPage), $this->maxPerPage);
-    }
-
     protected function getAllowedRelationsWithFields()
     {
         throw new LogicException("Class ". static::class ." must implement getAllowedRelationsWithFields() to use getRequestedRelations().");

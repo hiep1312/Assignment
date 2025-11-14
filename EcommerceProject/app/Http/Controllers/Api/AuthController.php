@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends BaseApiController
 {
+    const PRIVATE_FIELDS = ['name', ...UserController::PRIVATE_FIELDS];
+
     public function __construct(
         protected UserRepositoryInterface $repository
     ){}
@@ -31,7 +33,7 @@ class AuthController extends BaseApiController
             success: true,
             message: 'Registration successful.',
             code: 201,
-            additionalData: ['user' => $user->only(UserController::PRIVATE_FIELDS)]
+            additionalData: ['user' => $user->only(self::PRIVATE_FIELDS)]
         );
     }
 
@@ -48,7 +50,7 @@ class AuthController extends BaseApiController
                 message: 'Login successful',
                 code: 200,
                 additionalData: [
-                    'user' => $request->user('jwt')->only(UserController::PRIVATE_FIELDS),
+                    'user' => $request->user('jwt')->only(self::PRIVATE_FIELDS),
                     'token' => $token,
                 ]
             );

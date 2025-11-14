@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\ApiQueryRelationHelper;
+use App\Http\Requests\Client\UserAddressRequest;
 use App\Repositories\Contracts\UserAddressRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserAddressController extends BaseApiController
 {
-    use ApiQueryRelationHelper;
-
     const PRIVATE_FIELDS = ['id', 'user_id', 'recipient_name', 'phone', 'province', 'district', 'ward', 'street', 'postal_code', 'is_default', 'created_at'];
 
     public function __construct(
@@ -54,9 +52,19 @@ class UserAddressController extends BaseApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UserAddressRequest $request)
     {
-        //
+        $validatedData = $request->validated();
+        $createdUserAddress = $this->repository->create(
+            $validatedData + ['user_id' => Auth::guard('jwt')->payload()->get('sub')]
+        );
+
+        return $this->response(
+            success: true,
+            message: 'User address created successfully.',
+            code: 201,
+            data: $createdUserAddress->only(self::PRIVATE_FIELDS)
+        );
     }
 
     /**
@@ -64,15 +72,43 @@ class UserAddressController extends BaseApiController
      */
     public function show(string $id)
     {
-        //
+        $userAddress = $this->repository->first(
+            criteria: fn($query) => $query->where('id', $id)
+                ->where('user_id', Auth::guard('jwt')->payload()->get('sub')),
+            columns: self::PRIVATE_FIELDS,
+            throwNotFound: false
+        );
+
+        return $this->response(
+            success: (bool) $userAddress,
+            message: $userAddress
+                ? 'User address retrieved successfully.'
+                : 'User address not found.',
+            code: $userAddress ? 200 : 404,
+            data: $userAddress?->toArray() ?? []
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UserAddressRequest $request)
     {
-        //
+        $validatedData = $request->validated();
+        $isUpdated = $this->repository->update(
+            idOrCriteria: $request->id ?? self::INVALID_ID,
+            attributes: $validatedData,
+            updatedModel: $updatedUserAddress
+        );
+
+        return $this->response(
+            success: (bool) $isUpdated,
+            message: $isUpdated
+                ? 'User address updated successfully.'
+                : 'User address not found.',
+            code: $isUpdated ? 200 : 404,
+            data: $updatedUserAddress?->only(self::PRIVATE_FIELDS) ?? []
+        );
     }
 
     /**
@@ -80,6 +116,17 @@ class UserAddressController extends BaseApiController
      */
     public function destroy(string $id)
     {
-        //
+        $isDeleted = $this->repository->delete(
+            idOrCriteria: fn($query) => $query->where('id', $id)
+                ->where('user_id', Auth::guard('jwt')->payload()->get('sub'))
+        );
+
+        return $this->response(
+            success: (bool) $isDeleted,
+            message: $isDeleted
+                ? 'User address deleted successfully.'
+                : 'User address not found.',
+            code: $isDeleted ? 200 : 404
+        );
     }
 }

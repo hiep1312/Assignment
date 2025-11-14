@@ -2,17 +2,26 @@
 
 namespace App\Http\Requests\Client;
 
+use App\Helpers\RequestUtilities;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ProductReviewRequest extends FormRequest
 {
+    use RequestUtilities;
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function getFillableFields(): array
+    {
+        return ['rating', 'content'];
     }
 
     /**
@@ -22,20 +31,22 @@ class ProductReviewRequest extends FormRequest
      */
     public function rules(ProductReviewRepositoryInterface $repository): array
     {
-        $review = null;
-        if(($this->isMethod('put') || $this->isMethod('patch')) && ($id = $this->route('review'))){
-            $fillableFields = ['user_id', 'rating', 'content'];
+        if($this->isUpdate('review')){
             $review = $repository->first(
-                criteria: fn($query) => $query->where('id', $id),
-                columns: ['id', 'product_id', ...$fillableFields],
+                criteria: fn($query) => $query->where('id', $this->route('review'))
+                    ->where('user_id', Auth::guard('jwt')->payload()->get('sub')),
+                columns: ['id', ...$this->getFillableFields()],
                 throwNotFound: false
             );
 
-            $review && $this->merge(array_merge($review->toArray(), $this->only([...$fillableFields])));
+            $this->fillMissingWithExisting(
+                $review,
+                dataOld: $review?->toArray(),
+                dataNew: $this->only($this->getFillableFields())
+            );
         }
 
         return [
-            'user_id' => 'required|integer|exists:users,id',
             'rating' => 'required|integer|min:1|max:5',
             'content' => 'nullable|string|max:500',
         ];
@@ -44,9 +55,6 @@ class ProductReviewRequest extends FormRequest
     public function messages()
     {
         return [
-            'user_id.required' => 'The user is required.',
-            'user_id.integer' => 'The user ID must be a valid number.',
-            'user_id.exists' => 'The selected user does not exist.',
             'rating.required' => 'The rating is required.',
             'rating.integer' => 'The rating must be a valid number.',
             'rating.min' => 'The rating must be at least 1 star.',

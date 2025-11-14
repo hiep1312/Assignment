@@ -12,8 +12,8 @@ class UserController extends BaseApiController
 {
     use ApiQueryRelationHelper;
 
-    const API_FIELDS = ['id', 'first_name', 'last_name', 'birthday', 'avatar', 'role'];
-    const PRIVATE_FIELDS = [...self::API_FIELDS, 'email', 'username', 'created_at', 'email_verified_at'];
+    const API_FIELDS = ['id', 'username', 'first_name', 'last_name', 'avatar', 'role'];
+    const PRIVATE_FIELDS = [...self::API_FIELDS, 'email', 'birthday', 'created_at', 'email_verified_at'];
 
     public function getAllowedRelationsWithFields(): array
     {

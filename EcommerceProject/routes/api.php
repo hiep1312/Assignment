@@ -21,7 +21,7 @@ Route::name('api.')->group(function() {
     /* Data */
     Route::middleware('auth:jwt')->group(function() {
         /* User */
-        Route::apiSingleton('profile', UserController::class, ['except' => ['store']]);
+        Route::apiSingleton('profile', UserController::class, ['destroyable' => true]);
 
         /* Resources */
         Route::apiResources([
@@ -32,16 +32,11 @@ Route::name('api.')->group(function() {
         ]);
 
         /* Related Products */
-        /* Route::apiResources([
-            'products.variants' => ProductVariantController::class,
+        Route::apiResources([
+            // 'products.variants' => ProductVariantController::class,
             'products.reviews' => ProductReviewController::class
         ], [
-            'bindingFields' => [
-                'product' => 'slug',
-                'variant' => 'sku',
-                'review' => 'id'
-            ],
             'shallow' => true,
-        ]); */
+        ]);
     });
 });
