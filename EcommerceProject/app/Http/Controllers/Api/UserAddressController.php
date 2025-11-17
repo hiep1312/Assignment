@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class UserAddressController extends BaseApiController
 {
-    const PRIVATE_FIELDS = ['id', 'user_id', 'recipient_name', 'phone', 'province', 'district', 'ward', 'street', 'postal_code', 'is_default', 'created_at'];
+    const API_FIELDS = ['id', 'user_id', 'recipient_name', 'phone', 'province', 'district', 'ward', 'street', 'postal_code', 'is_default', 'created_at'];
 
     public function __construct(
         protected UserAddressRepositoryInterface $repository
@@ -38,7 +38,7 @@ class UserAddressController extends BaseApiController
                 $query->where('user_id', Auth::guard('jwt')->payload()->get('sub'));
             },
             perPage: $this->getPerPage($request),
-            columns: self::PRIVATE_FIELDS,
+            columns: self::API_FIELDS,
             pageName: 'page'
         );
 
@@ -63,7 +63,7 @@ class UserAddressController extends BaseApiController
             success: true,
             message: 'User address created successfully.',
             code: 201,
-            data: $createdUserAddress->only(self::PRIVATE_FIELDS)
+            data: $createdUserAddress->only(self::API_FIELDS)
         );
     }
 
@@ -75,7 +75,7 @@ class UserAddressController extends BaseApiController
         $userAddress = $this->repository->first(
             criteria: fn($query) => $query->where('id', $id)
                 ->where('user_id', Auth::guard('jwt')->payload()->get('sub')),
-            columns: self::PRIVATE_FIELDS,
+            columns: self::API_FIELDS,
             throwNotFound: false
         );
 
@@ -107,7 +107,7 @@ class UserAddressController extends BaseApiController
                 ? 'User address updated successfully.'
                 : 'User address not found.',
             code: $isUpdated ? 200 : 404,
-            data: $updatedUserAddress?->only(self::PRIVATE_FIELDS) ?? []
+            data: $updatedUserAddress?->only(self::API_FIELDS) ?? []
         );
     }
 

@@ -87,4 +87,9 @@ class Order extends Model
     {
         return $this->allowCancel();
     }
+
+    public function allowCustomerNote(): bool
+    {
+        return in_array($this->status, [OrderStatus::NEW->value, OrderStatus::CONFIRMED->value], true);
+    }
 }

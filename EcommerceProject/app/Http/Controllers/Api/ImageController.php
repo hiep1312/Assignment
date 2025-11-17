@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\ApiQueryRelationHelper;
+use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\ImageRequest;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ImageController extends BaseApiController
 {
-    use ApiQueryRelationHelper;
+    use ApiQueryRelation;
 
     const API_FIELDS = ['id', 'image_url', 'created_at'];
     const IMAGEABLE_FIELDS = ['id', 'image_id', 'is_main', 'position', 'created_at'];

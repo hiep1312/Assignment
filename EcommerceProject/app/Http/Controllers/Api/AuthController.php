@@ -25,7 +25,7 @@ class AuthController extends BaseApiController
             $validatedData,
             [
                 'role' => UserRole::USER,
-                'avatar' => storeImage($validatedData['avatar'], 'avatars')
+                'avatar' => storeImage($validatedData['avatar'] ?? null, 'avatars')
             ]
         ));
 

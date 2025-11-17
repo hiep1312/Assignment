@@ -21,7 +21,7 @@ class UserRequest extends FormRequest
 
     protected function getFillableFields(): array
     {
-        return ['email', 'username', 'password', 'first_name', 'last_name', 'birthday', 'avatar', 'role'];
+        return ['email', 'username', 'password', 'first_name', 'last_name', 'birthday', 'avatar', 'role', 'email_verified_at'];
     }
 
     /**
@@ -40,6 +40,7 @@ class UserRequest extends FormRequest
             'birthday' => 'nullable|date|before:today',
             'avatar' => 'nullable',
             'role' => ['required', Rule::in(UserRole::cases())],
+            'email_verified_at' => 'nullable|datetime',
         ];
 
         if($this->isUpdate(true)){
@@ -56,6 +57,8 @@ class UserRequest extends FormRequest
                 dataOld: ['role' => $user->role->value] + $user->only(['id', ...$this->getFillableFields()]),
                 dataNew: $this->only($this->getFillableFields())
             );
+        }else{
+            unset($rules['email_verified_at']);
         }
 
         return $rules;
@@ -90,6 +93,7 @@ class UserRequest extends FormRequest
             'avatar.max' => 'The avatar size must not exceed 10MB.',
             'role.required' => 'The role field is required.',
             'role.in' => 'The selected role is invalid. Must be either admin or user.',
+            'email_verified_at.datetime' => 'The email verification date must be a valid datetime.',
         ];
     }
 }

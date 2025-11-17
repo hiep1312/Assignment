@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\ApiQueryRelationHelper;
+use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\ProductReviewRequest;
-use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProductReviewController extends BaseApiController
 {
-    use ApiQueryRelationHelper;
+    use ApiQueryRelation;
 
     const API_FIELDS = ['id', 'product_id', 'user_id', 'rating', 'content', 'created_at'];
 
@@ -25,7 +24,6 @@ class ProductReviewController extends BaseApiController
 
     public function __construct(
         protected ProductReviewRepositoryInterface $repository,
-        protected ProductRepositoryInterface $productRepository
     ){}
 
     /**
@@ -75,15 +73,20 @@ class ProductReviewController extends BaseApiController
     public function store(ProductReviewRequest $request, string $slugProduct)
     {
         $validatedData = $request->validated();
-        $createdReview = $this->repository->create(
-            $validatedData + ['created_by' => $request->user('jwt')->id]
+        $isCreated = $this->repository->createByProductSlug(
+            attributes: $validatedData + ['user_id' => $request->user('jwt')->id],
+            slug: $slugProduct,
+            createdModel: $createdReview
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Product review created successfully.',
-            'data' => $review->only(self::API_FIELDS),
-        ], 201);
+        return $this->response(
+            success: (bool) $isCreated,
+            message: $isCreated
+                ? 'Product review created successfully.'
+                : 'Failed to create product review.',
+            code: $isCreated ? 201 : 400,
+            data: $createdReview?->only(self::API_FIELDS) ?? []
+        );
     }
 
     /**

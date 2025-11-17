@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ImageController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\OrderItemController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductReviewController;
 use App\Http\Controllers\Api\ProductVariantController;
@@ -29,14 +31,21 @@ Route::name('api.')->group(function() {
             'categories' => CategoryController::class,
             'images' => ImageController::class,
             'products' => ProductController::class,
+            'orders' => OrderController::class
         ]);
 
         /* Related Products */
         Route::apiResources([
-            // 'products.variants' => ProductVariantController::class,
-            'products.reviews' => ProductReviewController::class
+            /* Products */
+            'products.variants' => ProductVariantController::class,
+            'products.reviews' => ProductReviewController::class,
         ], [
             'shallow' => true,
+        ]);
+
+        Route::apiResources([
+            /* Orders */
+            'orders.items' => OrderItemController::class
         ]);
     });
 });

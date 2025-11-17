@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\ApiQueryRelationHelper;
+use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\UserRequest;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends BaseApiController
 {
-    use ApiQueryRelationHelper;
+    use ApiQueryRelation;
 
     const API_FIELDS = ['id', 'username', 'first_name', 'last_name', 'avatar', 'role'];
     const PRIVATE_FIELDS = [...self::API_FIELDS, 'email', 'birthday', 'created_at', 'email_verified_at'];
@@ -18,7 +18,7 @@ class UserController extends BaseApiController
     public function getAllowedRelationsWithFields(): array
     {
         return [
-            'addresses' => UserAddressController::PRIVATE_FIELDS
+            'addresses' => UserAddressController::API_FIELDS
         ];
     }
 

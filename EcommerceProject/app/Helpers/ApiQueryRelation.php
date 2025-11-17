@@ -7,7 +7,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Http\Request;
 use LogicException;
 
-trait ApiQueryRelationHelper
+trait ApiQueryRelation
 {
     protected function getAllowedRelationsWithFields()
     {

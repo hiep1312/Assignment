@@ -2,23 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\ProductVariantRequest;
-use App\Repositories\Contracts\ProductRepositoryInterface;
-use App\Repositories\Contracts\ProductVariantInventoryRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
-class ProductVariantController extends Controller
+class ProductVariantController extends BaseApiController
 {
     const API_FIELDS = ['id', 'product_id', 'name', 'sku', 'price', 'discount', 'status', 'created_at'];
     const INVENTORY_FIELDS = ['variant_id', 'stock', 'reserved', 'sold_number'];
 
     public function __construct(
         protected ProductVariantRepositoryInterface $repository,
-        protected ProductVariantInventoryRepositoryInterface $inventoryRepository,
-        protected ProductRepositoryInterface $productRepository
     ){}
 
     /**
@@ -41,26 +36,29 @@ class ProductVariantController extends Controller
                 )->when(
                     isset($request->price_range),
                     function($innerQuery) use ($request){
-                        [$minPrice, $maxPrice] = is_array($request->price_range) ? $request->price_range : preg_split('/\s*-\s*/', $request->price_range);
+                        $priceRange = is_array($request->price_range) ? $request->price_range : preg_split('/\s*-\s*/', $request->price_range, 2);
+                        $minPrice = is_numeric($priceRange[0]) ? (int) $priceRange[0] : 0;
+                        $maxPrice = is_numeric($priceRange[1] ?? null) ? (int) $priceRange[1] : PHP_INT_MAX;
 
                         $innerQuery->whereRaw('COALESCE(discount, price) BETWEEN ? AND ?', [$minPrice, $maxPrice]);
                     }
                 );
 
-                $query->whereHas('product', function($subQuery) use ($request, $slugProduct){
-                    $subQuery->where('slug', $slugProduct ?? $request->product);
-                });
+                $query->whereHas(
+                    'product',
+                    fn($subQuery) => $subQuery->where('slug', $slugProduct)
+                );
             },
-            perPage: min($request->integer('per_page', 20), 50),
+            perPage: $this->getPerPage($request),
             columns: self::API_FIELDS,
             pageName: 'page'
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Product variant list retrieved successfully.',
-            ...$variants->toArray()
-        ], 200);
+        return $this->response(
+            success: true,
+            message: 'Product variant list retrieved successfully.',
+            additionalData: $variants->toArray()
+        );
     }
 
     /**
@@ -68,88 +66,105 @@ class ProductVariantController extends Controller
      */
     public function store(ProductVariantRequest $request, string $slugProduct)
     {
-        if(!($product = $this->productRepository->first(fn($query) => $query->where('slug', $slugProduct)))){
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found.',
-            ], 404);
+        $validatedData = $request->validated();
+        $isCreated = $this->repository->createByProductSlug(
+            attributes: $validatedData,
+            slug: $slugProduct,
+            createdModel: $createdVariant
+        );
+
+        $createdInventory = null;
+        if($isCreated){
+            $createdInventory = $createdVariant->inventory()->create(['stock' => $validatedData['stock']]);
         }
 
-        $validatedData = $request->validated();
-        $variant = $product->variants()->create($validatedData);
-        $inventory = $variant->inventory()->create(['stock' => $validatedData['stock']]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Product variant created successfully.',
-            'data' => array_merge($variant->only(self::API_FIELDS), ['inventory' => $inventory->only(self::INVENTORY_FIELDS)]),
-        ], 201);
+        return $this->response(
+            success: (bool) $isCreated,
+            message: $isCreated
+                ? 'Product variant created successfully.'
+                : 'Failed to create product variant.',
+            code: $isCreated ? 201 : 400,
+            data: array_merge(
+                $createdVariant?->only(self::API_FIELDS) ?? [],
+                $isCreated ? ['inventory' => $createdInventory->only(self::INVENTORY_FIELDS)] : []
+            )
+        );
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $skuVariant)
+    public function show(string $sku)
     {
         $variant = $this->repository->first(
-            criteria: fn($query) => $query->where('sku', $skuVariant),
+            criteria: function($query) use ($sku){
+                $query->with('inventory:' . implode(',', self::INVENTORY_FIELDS))
+                    ->where('sku', $sku);
+            },
             columns: self::API_FIELDS,
             throwNotFound: false
         );
 
-        return response()->json([
-            'success' => (bool) $variant,
-            'message' => $variant ? 'Product variant retrieved successfully.' : 'Product variant not found.',
-            'data' => $variant?->only(self::API_FIELDS),
-        ], $variant ? 200 : 404);
+        return $this->response(
+            success: (bool) $variant,
+            message: $variant
+                ? 'Product variant retrieved successfully.'
+                : 'Product variant not found.',
+            code: $variant ? 200 : 404,
+            data: $variant?->toArray() ?? []
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductVariantRequest $request, string $skuVariant)
+    public function update(ProductVariantRequest $request)
     {
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id,
+            idOrCriteria: $request->id ?? self::INVALID_ID,
             attributes: $validatedData,
-            updatedModel: $updatedProductVariant
+            updatedModel: $updatedVariant
         );
 
-        $inventoryData = array_merge(
-            Arr::only($request->inventory ?? [], self::INVENTORY_FIELDS),
-            ['stock' => (int) $validatedData['stock']]
-        );
+        $inventoryKeys = array_diff(self::INVENTORY_FIELDS, ['id', 'variant_id', 'created_at']);;
+        $updatedInventoryData = Arr::only($validatedData, $inventoryKeys);
+        $oldInventoryData = Arr::only($request->inventory ?? [], $inventoryKeys);
 
-        if($updatedProductVariant && $validatedData['stock'] !== $request->inventory['stock']){
-            $updatedProductVariant->inventory()->update(['stock' => $validatedData['stock']]);
+        if($isUpdated && !empty(array_diff_assoc($updatedInventoryData, $oldInventoryData))){
+            $updatedVariant->inventory()->update($updatedInventoryData);
         }
 
-        return response()->json([
-            'success' => (bool) $isUpdated,
-            'message' => $isUpdated
+        return $this->response(
+            success: (bool) $isUpdated,
+            message: $isUpdated
                 ? 'Product variant updated successfully.'
                 : 'Product variant not found.',
-            'data' => $isUpdated ?
-                array_merge($updatedProductVariant?->only(self::API_FIELDS), ['inventory' => $inventoryData])
-                : null,
-        ], $isUpdated ? 200 : 404);
+            code: $isUpdated ? 200 : 404,
+            data: array_merge(
+                $updatedVariant?->only(self::API_FIELDS) ?? [],
+                $isUpdated ?
+                    ['inventory' => array_merge(['variant_id' => $updatedVariant->id], $updatedInventoryData)]
+                    : []
+            )
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $skuVariant)
+    public function destroy(string $sku)
     {
         $isDeleted = $this->repository->delete(
-            idOrCriteria: fn($query) => $query->where('sku', $skuVariant)
+            idOrCriteria: fn($query) => $query->where('sku', $sku)
         );
 
-        return response()->json([
-            'success' => (bool) $isDeleted,
-            'message' => $isDeleted
+        return $this->response(
+            success: (bool) $isDeleted,
+            message: $isDeleted
                 ? 'Product variant deleted successfully.'
                 : 'Product variant not found.',
-        ], $isDeleted ? 200 : 404);
+            code: $isDeleted ? 200 : 404
+        );
     }
 }

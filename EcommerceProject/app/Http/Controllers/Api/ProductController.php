@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\ProductRequest;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Http\Request;
 
 class ProductController extends BaseApiController
 {
+    use ApiQueryRelation;
+
     const API_FIELDS = ['id', 'title', 'slug', 'description', 'status', 'created_at'];
 
     protected function getAllowedRelationsWithFields(): array

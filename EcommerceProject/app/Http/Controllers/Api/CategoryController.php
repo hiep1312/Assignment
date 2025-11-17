@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\ApiQueryRelationHelper;
+use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\CategoryRequest;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use Illuminate\Http\Request;
 
 class CategoryController extends BaseApiController
 {
-    use ApiQueryRelationHelper;
+    use ApiQueryRelation;
 
     const API_FIELDS = ['id', 'name', 'slug', 'created_by', 'created_at'];
     const CATEGORYABLE_FIELDS = ['id', 'image_id', 'is_main', 'position', 'created_at'];
