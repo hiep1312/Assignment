@@ -5,7 +5,7 @@ namespace App\Http\Requests\Client;
 use App\Helpers\RequestUtilities;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
+
 
 class ProductReviewRequest extends FormRequest
 {
@@ -29,25 +29,12 @@ class ProductReviewRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(ProductReviewRepositoryInterface $repository): array
+    public function rules(): array
     {
-        if($this->isUpdate('review')){
-            $review = $repository->first(
-                criteria: fn($query) => $query->where('id', $this->route('review'))
-                    ->where('user_id', Auth::guard('jwt')->payload()->get('sub')),
-                columns: ['id', ...$this->getFillableFields()],
-                throwNotFound: false
-            );
-
-            $this->fillMissingWithExisting(
-                $review,
-                dataOld: $review?->toArray(),
-                dataNew: $this->only($this->getFillableFields())
-            );
-        }
+        $requirementRule = $this->isUpdate('review') ? 'sometimes' : 'required';
 
         return [
-            'rating' => 'required|integer|min:1|max:5',
+            'rating' => "{$requirementRule}|integer|min:1|max:5",
             'content' => 'nullable|string|max:500',
         ];
     }

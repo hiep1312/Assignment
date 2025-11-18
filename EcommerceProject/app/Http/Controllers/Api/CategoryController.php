@@ -62,6 +62,7 @@ class CategoryController extends BaseApiController
      */
     public function store(CategoryRequest $request)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
         $validatedData = $request->validated();
         $createdCategory = $this->repository->create(
             $validatedData + ['created_by' => $request->user('jwt')->id]
@@ -102,14 +103,16 @@ class CategoryController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(CategoryRequest $request)
+    public function update(CategoryRequest $request, string $slug)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id ?? self::INVALID_ID,
+            idOrCriteria: fn($query) => $query->where('slug', $slug),
             attributes: $validatedData,
             updatedModel: $updatedCategory
         );
+        $updatedCategory = $updatedCategory->first();
 
         return $this->response(
             success: (bool) $isUpdated,
@@ -126,6 +129,7 @@ class CategoryController extends BaseApiController
      */
     public function destroy(string $slug)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
         $isDeleted = $this->repository->delete(
             idOrCriteria: fn($query) => $query->where('slug', $slug)
         );

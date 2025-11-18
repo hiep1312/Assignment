@@ -9,7 +9,6 @@ use App\Models\Order;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 
 class OrderRequest extends FormRequest
 {
@@ -113,17 +112,17 @@ class OrderRequest extends FormRequest
             ($newStatus = OrderStatus::tryFrom($this->route('order')))
         )) return null;
 
-        $jwtPayload = Auth::guard('jwt')->payload();
+        ['role' => $role, 'sub' => $userId] = authPayload();
         $order = $repository->first(
             criteria: fn($query) => $query->where('order_code', $this->route('order'))
-                ->when($jwtPayload->get('role') === UserRole::USER->value, fn($query) => $query->where('user_id', $jwtPayload->get('sub'))),
+                ->when($role === UserRole::USER->value, fn($query) => $query->where('user_id', $userId)),
             columns: ['id', 'user_id', ...$this->getFillableFields()],
             throwNotFound: false
         );
 
         if($order && !$order->isCancelled && !$order->isFinalized){
             $currentStatus = OrderStatus::tryFrom($order?->status ?? -1);
-            $cancelStatus = $jwtPayload->get('role') === UserRole::ADMIN->value ? OrderStatus::ADMIN_CANCEL : OrderStatus::BUYER_CANCEL;
+            $cancelStatus = $role === UserRole::ADMIN->value ? OrderStatus::ADMIN_CANCEL : OrderStatus::BUYER_CANCEL;
 
             $allowedTransitions = match($currentStatus){
                 OrderStatus::NEW => [OrderStatus::CONFIRMED, $cancelStatus],
@@ -145,7 +144,7 @@ class OrderRequest extends FormRequest
                     [
                         'cancel_reason' => $isCancellationStatus ? $this->input('cancel_reason') : null,
                         'customer_note' => $order->allowCustomerNote() ? $this->input('customer_note') : null,
-                        'admin_note' => ($jwtPayload->get('role') === UserRole::ADMIN->value && $order->allowAdminNote()) ? $this->input('admin_note') : null
+                        'admin_note' => ($role === UserRole::ADMIN->value && $order->allowAdminNote()) ? $this->input('admin_note') : null
                     ]
                 ));
 

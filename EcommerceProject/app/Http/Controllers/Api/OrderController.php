@@ -6,7 +6,6 @@ use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\OrderRequest;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class OrderController extends BaseApiController
 {
@@ -63,7 +62,7 @@ class OrderController extends BaseApiController
                     fn($innerQuery) => $innerQuery->where('status', $request->status)
                 );
 
-                $query->where('user_id', Auth::guard('jwt')->payload()->get('sub'));
+                $query->where('user_id', authPayload('sub'));
             },
             perPage: $this->getPerPage($request),
             columns: self::API_FIELDS,
@@ -84,7 +83,7 @@ class OrderController extends BaseApiController
     {
         $validatedData = $request->validated();
         $createdOrder = $this->repository->create(
-            $validatedData + ['user_id' => Auth::guard('jwt')->payload()->get('sub')]
+            $validatedData + ['user_id' => authPayload('sub')]
         );
 
         return $this->response(
@@ -106,7 +105,7 @@ class OrderController extends BaseApiController
                     ->with($this->getRequestedRelations($request));
 
                 $query->where('order_code', $orderCode)
-                    ->where('user_id', Auth::guard('jwt')->payload()->get('sub'));
+                    ->where('user_id', authPayload('sub'));
             },
             columns: self::API_FIELDS,
             throwNotFound: false
@@ -149,7 +148,7 @@ class OrderController extends BaseApiController
      */
     public function destroy(string $orderCode)
     {
-        if(Auth::guard('jwt')->payload()->get('role') === 'admin'){
+        if(authPayload('role') === 'admin'){
             $isDeleted = $this->repository->delete(
                 idOrCriteria: fn($query) => $query->where('order_code', $orderCode)
             );

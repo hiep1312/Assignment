@@ -7,7 +7,7 @@ use LogicException;
 
 trait RequestUtilities
 {
-    protected function getFillableFields()
+    protected function getFillableFields(): never
     {
         throw new LogicException("The method getFillableFields() is not defined. You must provide the fields to fill or merge.");
     }

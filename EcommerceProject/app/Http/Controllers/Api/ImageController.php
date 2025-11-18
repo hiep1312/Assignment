@@ -56,6 +56,7 @@ class ImageController extends BaseApiController
      */
     public function store(ImageRequest $request)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
         $validatedData = $request->validated();
         $createdImage = $this->repository->create([
             'image_url' => storeImage($validatedData['photo'], 'images', getFileName($validatedData['photo']))
@@ -98,6 +99,7 @@ class ImageController extends BaseApiController
      */
     public function update(ImageRequest $request, string $id)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
         $validatedData = $request->validated();
         if($image = $this->repository->find($id)){
             Storage::disk('public')->putFileAs('images', $validatedData['photo'], basename($image->image_url));
@@ -119,6 +121,7 @@ class ImageController extends BaseApiController
      */
     public function destroy(string $id)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
         $isDeleted = $this->repository->delete($id);
 
         return $this->response(

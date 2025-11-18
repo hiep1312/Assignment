@@ -41,7 +41,10 @@ class OrderItemRequest extends FormRequest
             $orderItem = $repository->first(
                 criteria: function($query){
                     $query->where('id', $this->route('item'))
-                        ->whereHas('order', fn($subQuery) => $subQuery->where('order_code', $this->route('order')));
+                        ->whereHas('order', function($subQuery){
+                            $subQuery->where('order_code', $this->route('order'))
+                                ->where('user_id', authPayload('sub'));
+                        });
                 },
                 columns: ['id', 'order_id', 'product_variant_id', 'price', 'created_at', ...$this->getFillableFields()],
                 throwNotFound: false

@@ -6,7 +6,6 @@ use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\ProductReviewRequest;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ProductReviewController extends BaseApiController
 {
@@ -116,14 +115,16 @@ class ProductReviewController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductReviewRequest $request)
+    public function update(ProductReviewRequest $request, string $id)
     {
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id ?? self::INVALID_ID,
+            idOrCriteria: fn($query) => $query->where('id', $id)
+                ->where('user_id', authPayload('sub')),
             attributes: $validatedData,
             updatedModel: $updatedReview
         );
+        $updatedReview = $updatedReview->first();
 
         return $this->response(
             success: (bool) $isUpdated,
@@ -140,7 +141,7 @@ class ProductReviewController extends BaseApiController
      */
     public function destroy(string $id)
     {
-        ['role' => $role, 'sub' => $userId] = Auth::guard('jwt')->payload()->toArray();
+        ['role' => $role, 'sub' => $userId] = authPayload();
 
         $isDeleted = $this->repository->delete(
             idOrCriteria: function($query) use ($id, $role, $userId){

@@ -66,6 +66,7 @@ class ProductVariantController extends BaseApiController
      */
     public function store(ProductVariantRequest $request, string $slugProduct)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
         $validatedData = $request->validated();
         $isCreated = $this->repository->createByProductSlug(
             attributes: $validatedData,
@@ -120,6 +121,7 @@ class ProductVariantController extends BaseApiController
      */
     public function update(ProductVariantRequest $request)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
             idOrCriteria: $request->id ?? self::INVALID_ID,

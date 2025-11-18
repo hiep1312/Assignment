@@ -17,7 +17,6 @@ class OrderItemController extends BaseApiController
     protected function getAllowedRelationsWithFields(): array
     {
         return [
-            'order' => OrderController::API_FIELDS,
             'productVariant' => (object)[
                 'fields' => ProductVariantController::API_FIELDS,
                 'inventory' => ProductVariantController::INVENTORY_FIELDS,
@@ -28,7 +27,7 @@ class OrderItemController extends BaseApiController
 
     public function __construct(
         protected OrderItemRepositoryInterface $repository,
-        protected OrderItemService $service
+        protected OrderItemService $service,
     ){}
 
     /**
@@ -57,7 +56,10 @@ class OrderItemController extends BaseApiController
 
                 $query->whereHas(
                     'order',
-                    fn($subQuery) => $subQuery->where('order_code', $orderCode)
+                    function($subQuery) use ($orderCode){
+                        $subQuery->where('order_code', $orderCode)
+                            ->where('user_id', authPayload('sub'));
+                    }
                 );
             },
             perPage: $this->getPerPage($request),
@@ -113,7 +115,10 @@ class OrderItemController extends BaseApiController
             criteria: function($query) use ($request, $id, $orderCode){
                 $query->with($this->getRequestedRelations($request))
                     ->where('id', $id)
-                    ->whereHas('order', fn($subQuery) => $subQuery->where('order_code', $orderCode));
+                    ->whereHas('order', function($subQuery) use ($orderCode){
+                        $subQuery->where('order_code', $orderCode)
+                            ->where('user_id', authPayload('sub'));
+                    });
             },
             columns: self::API_FIELDS,
             throwNotFound: false
@@ -173,7 +178,10 @@ class OrderItemController extends BaseApiController
         $isDeleted = $this->repository->delete(
             idOrCriteria: function($query) use ($orderCode, $id){
                 $query->where('id', $id)
-                    ->whereHas('order', fn($subQuery) => $subQuery->where('order_code', $orderCode));
+                    ->whereHas('order', function($subQuery) use ($orderCode){
+                        $subQuery->where('order_code', $orderCode)
+                            ->where('user_id', authPayload('sub'));
+                    });
             }
         );
 

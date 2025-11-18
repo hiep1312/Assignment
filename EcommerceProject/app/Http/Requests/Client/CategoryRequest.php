@@ -5,6 +5,7 @@ namespace App\Http\Requests\Client;
 use App\Helpers\RequestUtilities;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CategoryRequest extends FormRequest
 {
@@ -18,36 +19,19 @@ class CategoryRequest extends FormRequest
         return true;
     }
 
-    protected function getFillableFields(): array
-    {
-        return ['name', 'slug'];
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(CategoryRepositoryInterface $repository): array
+    public function rules(): array
     {
-        $category = null;
-        if($this->isUpdate('category')){
-            $category = $repository->first(
-                criteria: fn($query) => $query->where('slug', $this->route('category')),
-                columns: ['id', ...$this->getFillableFields()],
-                throwNotFound: false
-            );
-
-            $this->fillMissingWithExisting(
-                $category,
-                dataOld: $category?->toArray(),
-                dataNew: $this->only($this->getFillableFields())
-            );
-        }
+        $requirementRule = $this->isUpdate('category') ? 'sometimes' : 'required';
+        $categorySlug = $this->route('category');
 
         return [
-            'name' => 'required|string|max:255|unique:categories,name' . ($category ? ",{$category->id}" : ''),
-            'slug' => 'required|string|max:255|regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/|unique:categories,slug' . ($category ? ",{$category->id}" : ''),
+            'name' => [$requirementRule, 'string', 'max:255', Rule::unique('categories')->ignore($categorySlug, 'slug')],
+            'slug' => [$requirementRule, 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('categories')->ignore($categorySlug, 'slug')],
         ];
     }
 

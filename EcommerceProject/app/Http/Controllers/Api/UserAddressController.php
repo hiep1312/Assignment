@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Client\UserAddressRequest;
 use App\Repositories\Contracts\UserAddressRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class UserAddressController extends BaseApiController
 {
@@ -35,7 +34,7 @@ class UserAddressController extends BaseApiController
                     fn($innerQuery) => $innerQuery->where('phone', $request->phone)
                 );
 
-                $query->where('user_id', Auth::guard('jwt')->payload()->get('sub'));
+                $query->where('user_id', authPayload('sub'));
             },
             perPage: $this->getPerPage($request),
             columns: self::API_FIELDS,
@@ -56,7 +55,7 @@ class UserAddressController extends BaseApiController
     {
         $validatedData = $request->validated();
         $createdUserAddress = $this->repository->create(
-            $validatedData + ['user_id' => Auth::guard('jwt')->payload()->get('sub')]
+            $validatedData + ['user_id' => authPayload('sub')]
         );
 
         return $this->response(
@@ -74,7 +73,7 @@ class UserAddressController extends BaseApiController
     {
         $userAddress = $this->repository->first(
             criteria: fn($query) => $query->where('id', $id)
-                ->where('user_id', Auth::guard('jwt')->payload()->get('sub')),
+                ->where('user_id', authPayload('sub')),
             columns: self::API_FIELDS,
             throwNotFound: false
         );
@@ -118,7 +117,7 @@ class UserAddressController extends BaseApiController
     {
         $isDeleted = $this->repository->delete(
             idOrCriteria: fn($query) => $query->where('id', $id)
-                ->where('user_id', Auth::guard('jwt')->payload()->get('sub'))
+                ->where('user_id', authPayload('sub'))
         );
 
         return $this->response(

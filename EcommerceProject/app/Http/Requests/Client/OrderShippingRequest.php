@@ -3,10 +3,11 @@
 namespace App\Http\Requests\Client;
 
 use App\Helpers\RequestUtilities;
-use App\Repositories\Contracts\UserAddressRepositoryInterface;
+use App\Models\UserAddress;
+use App\Repositories\Contracts\OrderShippingRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserAddressRequest extends FormRequest
+class OrderShippingRequest extends FormRequest
 {
     use RequestUtilities;
 
@@ -20,7 +21,7 @@ class UserAddressRequest extends FormRequest
 
     protected function getFillableFields(): array
     {
-        return ['recipient_name', 'phone', 'province', 'district', 'ward', 'street', 'postal_code', 'is_default'];
+        return ['recipient_name', 'phone', 'province', 'district', 'ward', 'street', 'postal_code', 'note'];
     }
 
     /**
@@ -28,19 +29,30 @@ class UserAddressRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(UserAddressRepositoryInterface $repository): array
+    public function rules(OrderShippingRepositoryInterface $repository): array
     {
-        if($this->isUpdate('user_address')){
-            $userAddress = $repository->first(
-                criteria: fn($query) => $query->where('id', $this->route('user_address'))
-                    ->where('user_id', authPayload('sub')),
+        if($this->filled('address_id')) {
+            $this->applyAddressTemplate();
+        }elseif($this->isUpdate('order')) {
+            $shipping = $repository->first(
+                criteria: function($query){
+                    $query->with('order');
+
+                    $query->whereHas('order', function($subQuery){
+                        $subQuery->where('order_code', $this->route('order'))
+                            ->where('user_id', authPayload('sub'));
+                    });
+                },
                 columns: ['id', ...$this->getFillableFields()],
                 throwNotFound: false
             );
 
+            $canUpdate = $shipping?->canUpdate();
+            $this->merge(['shipping_updatable' => $canUpdate]);
+
             $this->fillMissingWithExisting(
-                $userAddress,
-                dataOld: $userAddress?->toArray(),
+                $canUpdate,
+                dataOld: $shipping?->toArray(),
                 dataNew: $this->only($this->getFillableFields())
             );
         }
@@ -53,11 +65,11 @@ class UserAddressRequest extends FormRequest
             'ward' => 'required|string|max:100',
             'street' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:20',
-            'is_default' => 'nullable|boolean',
+            'note' => 'nullable|string|max:500',
         ];
     }
 
-    public function messages()
+    public function message()
     {
         return [
             'recipient_name.required' => 'Recipient name is required.',
@@ -80,7 +92,22 @@ class UserAddressRequest extends FormRequest
             'street.max' => 'Street cannot exceed 255 characters.',
             'postal_code.string' => 'Postal code must be a valid text.',
             'postal_code.max' => 'Postal code cannot exceed 20 characters.',
-            'is_default.boolean' => 'Default address flag must be true or false.',
+            'note.string' => 'Note must be a valid text.',
+            'note.max' => 'Note cannot exceed 500 characters.',
         ];
+    }
+
+    protected function applyAddressTemplate(): void
+    {
+        $addressRepository = app()->make(UserAddress::class);
+        $addressTemplate = $addressRepository->first(
+            criteria: fn($query) => $query->where('id', $this->input('address_id'))
+                ->where('user_id', authPayload('sub')),
+            columns: $this->getFillableFields()
+        );
+
+        if($addressTemplate){
+            $this->merge($addressTemplate->toArray());
+        }
     }
 }

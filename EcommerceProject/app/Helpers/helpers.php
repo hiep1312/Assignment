@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Payload;
 
 if(!function_exists('getFileName')){
     /**
@@ -203,5 +205,22 @@ if(!function_exists('formatJsonToHtml')){
         };
 
         return $formatValue($data, 0, $indentCount);
+    }
+}
+
+if(!function_exists('authPayload')){
+    /**
+     * Retrieve a value from the JWT payload of the currently authenticated user.
+     *
+     * @param string|null $key The payload key to retrieve. If null, the full payload is returned.
+     * @param mixed|null $default The default value to return when the key does not exist.
+     *
+     * @return \Tymon\JWTAuth\Payload|mixed The payload value associated with the key, or the full Payload object if $key is null.
+     */
+    function authPayload($key = null, $default = null)
+    {
+        $payload = Auth::guard('jwt')->payload();
+
+        return $payload->get($key) ?? $default;
     }
 }

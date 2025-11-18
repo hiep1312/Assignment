@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,5 +31,17 @@ class OrderShipping extends Model
     public function getAddressAttribute(): string
     {
         return trim(($this->street ? "{$this->street}, " : '') . "{$this->ward}, {$this->district}, {$this->province}");
+    }
+
+    public function canUpdate(): bool
+    {
+        $order = $this->loadMissing('order')->order;
+        return $order->status < OrderStatus::SHIPPED->value;
+    }
+
+    public function canDelete(): bool
+    {
+        $payment = $this->loadMissing('order.payment')->order->payment;
+
     }
 }

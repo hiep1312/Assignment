@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,5 +33,21 @@ abstract class BaseApiController extends Controller
         }
 
         return response()->json($responseData, $code);
+    }
+
+    protected function authorizeRole(array|UserRole $roles = UserRole::ADMIN): bool
+    {
+        $userRole = UserRole::tryFrom(authPayload('role'));
+
+        return in_array($userRole, is_array($roles) ? $roles : [$roles], true);
+    }
+
+    protected function forbiddenResponse(string $message = 'You do not have permission to perform this action.'): JsonResponse
+    {
+        return $this->response(
+            success: false,
+            message: $message,
+            code: 403,
+        );
     }
 }

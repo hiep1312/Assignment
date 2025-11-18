@@ -6,7 +6,6 @@ use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\UserRequest;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends BaseApiController
 {
@@ -34,7 +33,7 @@ class UserController extends BaseApiController
         $user = $this->repository->first(
             criteria: function($query) use ($request){
                 $query->with($this->getRequestedRelations($request))
-                    ->where('id', Auth::guard('jwt')->payload()->get('sub'));
+                    ->where('id', authPayload('sub'));
             },
             columns: self::PRIVATE_FIELDS,
             throwNotFound: false
