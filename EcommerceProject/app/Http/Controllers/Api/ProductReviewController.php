@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserRole;
 use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\ProductReviewRequest;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
@@ -145,7 +146,7 @@ class ProductReviewController extends BaseApiController
         $isDeleted = $this->repository->delete(
             idOrCriteria: function($query) use ($id, $role, $userId){
                 $query->where('id', $id)
-                    ->when($role === 'user', fn($innerQuery) => $innerQuery->where('user_id', $userId));
+                    ->when($role === UserRole::USER->value, fn($innerQuery) => $innerQuery->where('user_id', $userId));
             }
         );
 

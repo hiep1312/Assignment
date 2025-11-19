@@ -80,10 +80,15 @@ class Order extends Model
 
     public function allowCancel(): bool
     {
-        return in_array($this->status, [OrderStatus::NEW->value, OrderStatus::CONFIRMED->value, OrderStatus::PROCESSING->value]) && !$this->shipped_at;
+        return in_array($this->status, [OrderStatus::NEW->value, OrderStatus::CONFIRMED->value, OrderStatus::PROCESSING->value], true);
     }
 
     public function allowAdminNote(): bool
+    {
+        return $this->allowCancel();
+    }
+
+    public function canUpdateDependencies(): bool
     {
         return $this->allowCancel();
     }

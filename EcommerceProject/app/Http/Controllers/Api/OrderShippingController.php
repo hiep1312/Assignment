@@ -20,7 +20,10 @@ class OrderShippingController extends BaseApiController
      */
     public function store(OrderShippingRequest $request, string $orderCode)
     {
-        if(!$this->service->existsWithoutShipping($orderCode)){
+        $validatedData = $request->validated();
+        $creationResult = $this->service->create($validatedData, $orderCode);
+
+        if(is_bool($creationResult)){
             return $this->response(
                 success: false,
                 message: 'Shipping info already exists for this order.',
@@ -28,12 +31,7 @@ class OrderShippingController extends BaseApiController
             );
         }
 
-        $validatedData = $request->validated();
-        $isCreated = $this->repository->createByOrderCode(
-            attributes: $validatedData,
-            orderCode: $orderCode,
-            createdModel: $createdShipping
-        );
+        [$isCreated, $createdShipping] = $creationResult;
 
         return $this->response(
             success: (bool) $isCreated,
@@ -74,9 +72,12 @@ class OrderShippingController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(OrderShippingRequest $request)
+    public function update(OrderShippingRequest $request, string $orderCode)
     {
-        if($request->id && !$request->shipping_updatable){
+        $validatedData = $request->validated();
+        $updationData = $this->service->update($validatedData, $orderCode);
+
+        if(is_bool($updationData)){
             return $this->response(
                 success: false,
                 message: 'Shipping address cannot be updated for this order.',
@@ -84,12 +85,7 @@ class OrderShippingController extends BaseApiController
             );
         }
 
-        $validatedData = $request->validated();
-        $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id ?? self::INVALID_ID,
-            attributes: $validatedData,
-            updatedModel: $updatedShipping
-        );
+        [$isUpdated, $updatedShipping] = $updationData;
 
         return $this->response(
             success: (bool) $isUpdated,

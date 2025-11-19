@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Client;
 
 use App\Helpers\RequestUtilities;
-use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,17 +18,12 @@ class ProductVariantRequest extends FormRequest
         return true;
     }
 
-    protected function getFillableFields(): array
-    {
-        return ['name', 'sku', 'price', 'discount', 'status'];
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(ProductVariantRepositoryInterface $repository): array
+    public function rules(): array
     {
         $sometimesRule = $this->isUpdate('variant') ? 'sometimes|' : '';
         $VariantSku = $this->route('variant');

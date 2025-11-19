@@ -72,7 +72,16 @@ abstract class BaseRepository implements RepositoryInterface
             return $updatedModel?->update($attributes);
         }else {
             $this->buildCriteria($query, $idOrCriteria);
-            $shouldReturnUpdatedModel && ($updatedModel = $query->get());
+
+            if($shouldReturnUpdatedModel){
+                $updatedModel = $query->get();
+
+                $updatedModel->when($updatedModel->isNotEmpty(), function($models) use ($attributes){
+                    $models->each(function($model) use ($attributes) {
+                        $model->fill($attributes);
+                    });
+                });
+            }
         }
 
         return $shouldReturnUpdatedModel

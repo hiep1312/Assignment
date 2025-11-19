@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\OrderStatus;
-use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,15 +32,17 @@ class OrderShipping extends Model
         return trim(($this->street ? "{$this->street}, " : '') . "{$this->ward}, {$this->district}, {$this->province}");
     }
 
-    public function canUpdate(): bool
+    /* public function canUpdate(): bool
     {
         $order = $this->loadMissing('order')->order;
-        return $order->status < OrderStatus::SHIPPED->value;
-    }
+        $status = OrderStatus::tryFrom($order->status);
 
-    public function canDelete(): bool
+        return in_array($status, [OrderStatus::NEW, OrderStatus::CONFIRMED, OrderStatus::PROCESSING], true);
+    } */
+
+    /* public function canDelete(): bool
     {
         $payment = $this->loadMissing('order.payment')->order->payment;
 
-    }
+    } */
 }

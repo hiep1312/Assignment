@@ -80,21 +80,17 @@ class OrderItemController extends BaseApiController
     public function store(OrderItemRequest $request, string $orderCode)
     {
         $validatedData = $request->validated();
-        $preparedItem = $this->service->prepareOrderItem($validatedData['sku'], $validatedData['quantity']);
+        $creationResult = $this->service->create($validatedData, $orderCode);
 
-        if($preparedItem){
-            $isCreated = $this->repository->createByOrderCode(
-                attributes: $preparedItem,
-                orderCode: $orderCode,
-                createdModel: $createdOrderItem
-            );
-        }else {
+        if(is_bool($creationResult)){
             return $this->response(
                 success: false,
                 message: 'The requested quantity exceeds the available stock for this product.',
                 code: 422,
             );
         }
+
+        [$isCreated, $createdOrderItem] = $creationResult;
 
         return $this->response(
             success: (bool) $isCreated,
@@ -137,28 +133,20 @@ class OrderItemController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(OrderItemRequest $request)
+    public function update(OrderItemRequest $request, string $orderCode, string $id)
     {
         $validatedData = $request->validated();
+        $updationResult = $this->service->update($validatedData, $orderCode, $id);
 
-        if(
-            isset($request->id) &&
-            ($adjustedData = $this->service->adjustOrderItemQuantity($request->product_variant_id, $request->old_quantity, $validatedData['quantity']))
-        ){
-            $isUpdated = is_bool($adjustedData)
-                ? (bool)($updatedOrderItem = $request)
-                : $this->repository->update(
-                    idOrCriteria: $request->id,
-                    attributes: $adjustedData,
-                    updatedModel: $updatedOrderItem
-                );
-        }else {
+        if(is_bool($updationResult)){
             return $this->response(
                 success: false,
                 message: 'The requested quantity exceeds the available stock for this product.',
                 code: 422,
             );
         }
+
+        [$isUpdated, $updatedOrderItem] = $updationResult;
 
         return $this->response(
             success: (bool) $isUpdated,
@@ -175,15 +163,7 @@ class OrderItemController extends BaseApiController
      */
     public function destroy(string $orderCode, string $id)
     {
-        $isDeleted = $this->repository->delete(
-            idOrCriteria: function($query) use ($orderCode, $id){
-                $query->where('id', $id)
-                    ->whereHas('order', function($subQuery) use ($orderCode){
-                        $subQuery->where('order_code', $orderCode)
-                            ->where('user_id', authPayload('sub'));
-                    });
-            }
-        );
+        $isDeleted = $this->service->delete($orderCode, $id);
 
         return $this->response(
             success: (bool) $isDeleted,

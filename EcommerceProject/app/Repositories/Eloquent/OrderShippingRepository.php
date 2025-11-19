@@ -27,7 +27,7 @@ class OrderShippingRepository extends BaseRepository implements OrderShippingRep
 
         if(func_num_args() > 2 && (bool) $insertedRows){
             $createdModel = $this->model->whereHas('order', fn($subQuery) => $subQuery->where('order_code', $orderCode))
-                ->latest($this->model->getKeyName())->first();
+                ->first();
         }
 
         return $insertedRows;

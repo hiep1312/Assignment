@@ -4,7 +4,6 @@ namespace App\Http\Requests\Client;
 
 use App\Helpers\RequestUtilities;
 use App\Models\UserAddress;
-use App\Repositories\Contracts\OrderShippingRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
 
 class OrderShippingRequest extends FormRequest
@@ -19,53 +18,28 @@ class OrderShippingRequest extends FormRequest
         return true;
     }
 
-    protected function getFillableFields(): array
-    {
-        return ['recipient_name', 'phone', 'province', 'district', 'ward', 'street', 'postal_code', 'note'];
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(OrderShippingRepositoryInterface $repository): array
+    public function rules(): array
     {
         if($this->filled('address_id')) {
             $this->applyAddressTemplate();
-        }elseif($this->isUpdate('order')) {
-            $shipping = $repository->first(
-                criteria: function($query){
-                    $query->with('order');
-
-                    $query->whereHas('order', function($subQuery){
-                        $subQuery->where('order_code', $this->route('order'))
-                            ->where('user_id', authPayload('sub'));
-                    });
-                },
-                columns: ['id', ...$this->getFillableFields()],
-                throwNotFound: false
-            );
-
-            $canUpdate = $shipping?->canUpdate();
-            $this->merge(['shipping_updatable' => $canUpdate]);
-
-            $this->fillMissingWithExisting(
-                $canUpdate,
-                dataOld: $shipping?->toArray(),
-                dataNew: $this->only($this->getFillableFields())
-            );
         }
 
+        $sometimesRule = $this->isUpdate(true) ? 'sometimes|' : '';
+
         return [
-            'recipient_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20|regex:/^(?:[0-9\s\-\+\(\)]*)$/',
-            'province' => 'required|string|max:100',
-            'district' => 'required|string|max:100',
-            'ward' => 'required|string|max:100',
-            'street' => 'nullable|string|max:255',
-            'postal_code' => 'nullable|string|max:20',
-            'note' => 'nullable|string|max:500',
+            'recipient_name' => $sometimesRule . 'required|string|max:255',
+            'phone' => $sometimesRule . 'required|string|max:20|regex:/^(?:[0-9\s\-\+\(\)]*)$/',
+            'province' => $sometimesRule . 'required|string|max:100',
+            'district' => $sometimesRule . 'required|string|max:100',
+            'ward' => $sometimesRule . 'required|string|max:100',
+            'street' => $sometimesRule . 'nullable|string|max:255',
+            'postal_code' => $sometimesRule . 'nullable|string|max:20',
+            'note' => $sometimesRule . 'nullable|string|max:500',
         ];
     }
 
@@ -103,7 +77,7 @@ class OrderShippingRequest extends FormRequest
         $addressTemplate = $addressRepository->first(
             criteria: fn($query) => $query->where('id', $this->input('address_id'))
                 ->where('user_id', authPayload('sub')),
-            columns: $this->getFillableFields()
+            columns: ['recipient_name', 'phone', 'province', 'district', 'ward', 'street', 'postal_code', 'note']
         );
 
         if($addressTemplate){

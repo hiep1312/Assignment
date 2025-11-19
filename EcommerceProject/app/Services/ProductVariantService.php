@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Services;
+
+use App\Repositories\Contracts\ProductVariantRepositoryInterface;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+
+class ProductVariantService
+{
+    public function __construct(
+        protected ProductVariantRepositoryInterface $repository,
+    ){}
+
+    public function create(array $data, string $slugProduct): array
+    {
+        $isCreated = $this->repository->createByProductSlug(
+            attributes: array_merge($data, ['status' => $data['stock'] > 0 ? $data['status'] : 0]),
+            slug: $slugProduct,
+            createdModel: $createdVariant
+        );
+
+        $createdInventory = null;
+        if($isCreated){
+            $createdInventory = $createdVariant->inventory()->create(['stock' => $data['stock']]);
+        }
+
+        return [$isCreated, $createdVariant, $createdInventory];
+    }
+
+    public function update(array $data, string $sku): array
+    {
+        $statusPatch = isset($data['status']) ? (
+                (!isset($data['stock']) || $data['stock'] > 0) ? $data['status'] : 0
+            ) : (
+                isset($data['stock']) ? DB::raw("CASE WHEN status != 0 AND {$data['stock']} <= 0 THEN 0 ELSE status END") : null
+            );
+        $isUpdated = $this->repository->update(
+            idOrCriteria: fn($query) => $query->with('inventory')->where('sku', $sku),
+            attributes: array_merge($data, is_null($statusPatch) ? [] : ['status' => $statusPatch]),
+            updatedModel: $updatedVariant
+        );
+
+        $updatedVariant = $updatedVariant->first();
+        $inventoryKeys = ['stock', 'reserved', 'sold_number'];
+        $updatedInventoryData = Arr::only($data, $inventoryKeys);
+        $oldInventoryData = Arr::only($updatedVariant?->inventory->toArray() ?? [], $inventoryKeys);
+        $updatedInventory = $updatedVariant ? array_merge(
+            ['variant_id' => $updatedVariant->id],
+            $oldInventoryData,
+            $updatedInventoryData
+        ) : null;
+
+        if($isUpdated && !empty(array_diff_assoc($updatedInventoryData, $oldInventoryData))){
+            $updatedVariant->inventory()->update($updatedInventoryData);
+        }
+
+        return [(bool) $isUpdated, $updatedVariant, $updatedInventory];
+    }
+}

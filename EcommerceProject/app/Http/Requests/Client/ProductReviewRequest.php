@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Client;
 
 use App\Helpers\RequestUtilities;
-use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
 
 
@@ -17,11 +16,6 @@ class ProductReviewRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
-    }
-
-    protected function getFillableFields(): array
-    {
-        return ['rating', 'content'];
     }
 
     /**

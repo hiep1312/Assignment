@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Client;
 
 use App\Helpers\RequestUtilities;
-use App\Repositories\Contracts\UserAddressRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UserAddressRequest extends FormRequest

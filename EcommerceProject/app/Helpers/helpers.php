@@ -4,6 +4,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Payload;
 
 if(!function_exists('getFileName')){
@@ -219,7 +220,7 @@ if(!function_exists('authPayload')){
      */
     function authPayload($key = null, $default = null)
     {
-        $payload = Auth::guard('jwt')->payload();
+        $payload = JWTAuth::parseToken()->payload();
 
         return $payload->get($key) ?? $default;
     }

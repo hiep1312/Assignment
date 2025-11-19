@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Client\ProductVariantRequest;
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
+use App\Services\ProductVariantService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -14,6 +15,7 @@ class ProductVariantController extends BaseApiController
 
     public function __construct(
         protected ProductVariantRepositoryInterface $repository,
+        protected ProductVariantService $service
     ){}
 
     /**
@@ -69,16 +71,7 @@ class ProductVariantController extends BaseApiController
         if(!$this->authorizeRole()) return $this->forbiddenResponse();
 
         $validatedData = $request->validated();
-        $isCreated = $this->repository->createByProductSlug(
-            attributes: $validatedData,
-            slug: $slugProduct,
-            createdModel: $createdVariant
-        );
-
-        $createdInventory = null;
-        if($isCreated){
-            $createdInventory = $createdVariant->inventory()->create(['stock' => $validatedData['stock']]);
-        }
+        [$isCreated, $createdVariant, $createdInventory] = $this->service->create($validatedData, $slugProduct);
 
         return $this->response(
             success: (bool) $isCreated,
@@ -125,20 +118,7 @@ class ProductVariantController extends BaseApiController
         if(!$this->authorizeRole()) return $this->forbiddenResponse();
 
         $validatedData = $request->validated();
-        $isUpdated = $this->repository->update(
-            idOrCriteria: fn($query) => $query->where('sku', $sku),
-            attributes: $validatedData,
-            updatedModel: $updatedVariant
-        );
-
-        $updatedVariant = $updatedVariant->first();
-        $inventoryKeys = array_diff(self::INVENTORY_FIELDS, ['id', 'variant_id', 'created_at']);;
-        $updatedInventoryData = Arr::only($validatedData, $inventoryKeys);
-        $oldInventoryData = Arr::only($request->inventory ?? [], $inventoryKeys);
-
-        if($isUpdated && !empty(array_diff_assoc($updatedInventoryData, $oldInventoryData))){
-            $updatedVariant->inventory()->update($updatedInventoryData);
-        }
+        [$isUpdated, $updatedVariant, $updatedInventoryData] = $this->service->update($validatedData, $sku);
 
         return $this->response(
             success: (bool) $isUpdated,
@@ -148,9 +128,7 @@ class ProductVariantController extends BaseApiController
             code: $isUpdated ? 200 : 404,
             data: array_merge(
                 $updatedVariant?->only(self::API_FIELDS) ?? [],
-                $isUpdated ?
-                    ['inventory' => array_merge(['variant_id' => $updatedVariant->id], $updatedInventoryData)]
-                    : []
+                $updatedInventoryData?->only(self::INVENTORY_FIELDS) ?? []
             )
         );
     }

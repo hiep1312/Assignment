@@ -35,7 +35,7 @@ class UserRequest extends FormRequest
             'last_name' => $sometimesRule . 'required|string|max:100',
             'birthday' => $sometimesRule . 'nullable|date|before:today',
             'avatar' => $sometimesRule . 'nullable|image|max:10240',
-            'role' => $sometimesRule . ['required', Rule::in(UserRole::cases())],
+            'role' => [str_replace('|', '', $sometimesRule), 'required', Rule::in(UserRole::cases())],
             'email_verified_at' => $sometimesRule . 'nullable|datetime',
         ];
 

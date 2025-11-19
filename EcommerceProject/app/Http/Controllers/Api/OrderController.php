@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\OrderRequest;
 use App\Repositories\Contracts\OrderRepositoryInterface;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 
 class OrderController extends BaseApiController
@@ -29,7 +30,8 @@ class OrderController extends BaseApiController
     }
 
     public function __construct(
-        protected OrderRepositoryInterface $repository
+        protected OrderRepositoryInterface $repository,
+        protected OrderService $service
     ){}
 
     /**
@@ -125,14 +127,18 @@ class OrderController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(OrderRequest $request)
+    public function update(OrderRequest $request, string $orderCode)
     {
         $validatedData = $request->validated();
-        $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id ?? self::INVALID_ID,
-            attributes: $validatedData,
-            updatedModel: $updatedOrder
-        );
+        [$isUpdated, $updatedOrder] = $this->service->update($validatedData, $orderCode);
+
+        if(is_bool($updatedOrder)){
+            return $this->response(
+                success: false,
+                message: 'Invalid status transition. Unable to update the order.',
+                code: 422,
+            );
+        }
 
         return $this->response(
             success: (bool) $isUpdated,
