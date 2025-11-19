@@ -23,7 +23,8 @@ class OrderController extends BaseApiController
                     'inventory' => ProductVariantController::INVENTORY_FIELDS,
                     'product' => ProductController::API_FIELDS
                 ],
-            ]
+            ],
+            'shipping' => OrderShippingController::API_FIELDS
         ];
     }
 

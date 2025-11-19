@@ -54,7 +54,7 @@ class UserController extends BaseApiController
     {
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id,
+            idOrCriteria: authPayload('sub'),
             attributes: $validatedData,
             updatedModel: $updatedUser
         );

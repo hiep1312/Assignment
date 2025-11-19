@@ -91,11 +91,11 @@ class UserAddressController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserAddressRequest $request)
+    public function update(UserAddressRequest $request, string $id)
     {
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id ?? self::INVALID_ID,
+            idOrCriteria: $id,
             attributes: $validatedData,
             updatedModel: $updatedUserAddress
         );
