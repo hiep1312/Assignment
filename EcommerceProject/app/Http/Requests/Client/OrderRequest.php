@@ -22,11 +22,6 @@ class OrderRequest extends FormRequest
         return true;
     }
 
-    protected function getFillableFields(): array
-    {
-        return ['order_code', 'total_amount', 'shipping_fee', 'status', 'customer_note', 'admin_note', 'cancel_reason', 'confirmed_at', 'processing_at', 'shipped_at', 'delivered_at', 'completed_at', 'cancelled_at', 'created_at'];
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -34,6 +29,8 @@ class OrderRequest extends FormRequest
      */
     public function rules(OrderRepositoryInterface $repository): array
     {
+
+
         $rules = [
             'order_code' => 'required|string|max:100|unique:orders,order_code',
             'total_amount' => 'required|integer|min:0',
@@ -41,29 +38,14 @@ class OrderRequest extends FormRequest
             'status' => 'nullable|integer|in:1',
             'customer_note' => 'nullable|string|max:500',
             'admin_note' => 'nullable|string|max:500',
-            'cancel_reason' => 'nullable|string|max:255',
-            'confirmed_at' => 'nullable|datetime|after_or_equal:created_at',
-            'processing_at' => 'nullable|datetime|after_or_equal:confirmed_at',
-            'shipped_at' => 'nullable|datetime|after_or_equal:processing_at',
-            'delivered_at' => 'nullable|datetime|after_or_equal:shipped_at',
-            'completed_at' => 'nullable|datetime|after_or_equal:delivered_at',
-            'cancelled_at' => 'nullable|datetime|after_or_equal:created_at',
-            'created_at' => 'nullable|datetime',
+            'cancel_reason' => 'nullable|string|max:255'
         ];
 
         if($this->isUpdate('order')){
-            unset($rules['order_code'], $this['order_code']);
+            unset($rules['order_code'], $rules['total_amount']);
             $rules['status'] .= ',2,3,4,5,6,7,8,9';
-
-            $order = $this->processStatusTransition($repository);
-
-            $this->fillMissingWithExisting(
-                $order,
-                dataOld: $order?->toArray(),
-                dataNew: $this->only($this->getFillableFields())
-            );
         }else{
-            $rules = Arr::only($rules, ['order_code', 'total_amount', 'shipping_fee', 'status', 'customer_note']);
+            unset($rules['admin_note'], $rules['cancel_reason']);
         }
 
         return $rules;
@@ -105,7 +87,7 @@ class OrderRequest extends FormRequest
         ];
     }
 
-    protected function processStatusTransition(OrderRepositoryInterface $repository): ?Order
+    /* protected function processStatusTransition(OrderRepositoryInterface $repository): ?Order
     {
         if(!(
             $this->isUpdate('order') &&
@@ -153,5 +135,5 @@ class OrderRequest extends FormRequest
         }
 
         return null;
-    }
+    } */
 }
