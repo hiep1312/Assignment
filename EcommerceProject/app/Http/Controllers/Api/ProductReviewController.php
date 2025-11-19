@@ -16,7 +16,6 @@ class ProductReviewController extends BaseApiController
     protected function getAllowedRelationsWithFields(): array
     {
         return [
-            'product' => ProductController::API_FIELDS,
             'user' => UserController::API_FIELDS
         ];
     }
@@ -73,7 +72,7 @@ class ProductReviewController extends BaseApiController
     {
         $validatedData = $request->validated();
         $isCreated = $this->repository->createByProductSlug(
-            attributes: $validatedData + ['user_id' => $request->user('jwt')->id],
+            attributes: $validatedData + ['user_id' => authPayload('sub')],
             slug: $slugProduct,
             createdModel: $createdReview
         );

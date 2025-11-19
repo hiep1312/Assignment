@@ -19,11 +19,6 @@ class UserRequest extends FormRequest
         return true;
     }
 
-    protected function getFillableFields(): array
-    {
-        return ['email', 'username', 'password', 'first_name', 'last_name', 'birthday', 'avatar', 'role', 'email_verified_at'];
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -31,32 +26,25 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $sometimesRule = $this->isUpdate(true) ? 'sometimes|' : '';
         $rules = [
-            'email' => 'required|email|max:255|unique:users,email',
-            'username' => 'required|string|max:70|alpha_dash:ascii|unique:users,username',
-            'password' => 'required|string|min:8|max:100|confirmed',
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'birthday' => 'nullable|date|before:today',
-            'avatar' => 'nullable',
-            'role' => ['required', Rule::in(UserRole::cases())],
-            'email_verified_at' => 'nullable|datetime',
+            'email' => $sometimesRule . 'required|email|max:255|unique:users,email',
+            'username' => $sometimesRule . 'required|string|max:70|alpha_dash:ascii|unique:users,username',
+            'password' => $sometimesRule . 'required|string|min:8|max:100|confirmed',
+            'first_name' => $sometimesRule . 'required|string|max:100',
+            'last_name' => $sometimesRule . 'required|string|max:100',
+            'birthday' => $sometimesRule . 'nullable|date|before:today',
+            'avatar' => $sometimesRule . 'nullable|image|max:10240',
+            'role' => $sometimesRule . ['required', Rule::in(UserRole::cases())],
+            'email_verified_at' => $sometimesRule . 'nullable|datetime',
         ];
 
         if($this->isUpdate(true)){
             $user = $this->user('jwt');
             $rules['email'] .= "," . $user->id;
             $rules['username'] .= "," . $user->id;
-            $rules['avatar'] = $this->hasFile('avatar') ? "|image|max:10240" : "";
 
-            if(!$this->filled('password')) unset($rules['password']);
             if($user->role !== UserRole::ADMIN) unset($rules['role']);
-
-            $this->fillMissingWithExisting(
-                $user,
-                dataOld: ['role' => $user->role->value] + $user->only(['id', ...$this->getFillableFields()]),
-                dataNew: $this->only($this->getFillableFields())
-            );
         }else{
             unset($rules['email_verified_at']);
         }

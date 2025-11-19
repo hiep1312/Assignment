@@ -26,12 +26,12 @@ class CategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        $requirementRule = $this->isUpdate('category') ? 'sometimes' : 'required';
+        $sometimesRule = $this->isUpdate('category') ? 'sometimes' : '';
         $categorySlug = $this->route('category');
 
         return [
-            'name' => [$requirementRule, 'string', 'max:255', Rule::unique('categories')->ignore($categorySlug, 'slug')],
-            'slug' => [$requirementRule, 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('categories')->ignore($categorySlug, 'slug')],
+            'name' => [$sometimesRule, 'required', 'string', 'max:255', Rule::unique('categories')->ignore($categorySlug, 'slug')],
+            'slug' => [$sometimesRule, 'required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('categories')->ignore($categorySlug, 'slug')],
         ];
     }
 

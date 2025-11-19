@@ -67,6 +67,7 @@ class ProductVariantController extends BaseApiController
     public function store(ProductVariantRequest $request, string $slugProduct)
     {
         if(!$this->authorizeRole()) return $this->forbiddenResponse();
+
         $validatedData = $request->validated();
         $isCreated = $this->repository->createByProductSlug(
             attributes: $validatedData,
@@ -119,16 +120,18 @@ class ProductVariantController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductVariantRequest $request)
+    public function update(ProductVariantRequest $request, string $sku)
     {
         if(!$this->authorizeRole()) return $this->forbiddenResponse();
+
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id ?? self::INVALID_ID,
+            idOrCriteria: fn($query) => $query->where('sku', $sku),
             attributes: $validatedData,
             updatedModel: $updatedVariant
         );
 
+        $updatedVariant = $updatedVariant->first();
         $inventoryKeys = array_diff(self::INVENTORY_FIELDS, ['id', 'variant_id', 'created_at']);;
         $updatedInventoryData = Arr::only($validatedData, $inventoryKeys);
         $oldInventoryData = Arr::only($request->inventory ?? [], $inventoryKeys);
@@ -157,6 +160,8 @@ class ProductVariantController extends BaseApiController
      */
     public function destroy(string $sku)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
+
         $isDeleted = $this->repository->delete(
             idOrCriteria: fn($query) => $query->where('sku', $sku)
         );
