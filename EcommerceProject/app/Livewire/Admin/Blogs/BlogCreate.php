@@ -58,7 +58,7 @@ class BlogCreate extends Component
             ]
         );
 
-        $blogCreated->thumbnail()->create(['image_id' => $this->thumbnail_id, 'is_main' => true]);
+        $blogCreated->imageable()->create(['image_id' => $this->thumbnail_id, 'is_main' => true]);
         $blogCreated->categories()->attach($this->category_ids);
 
         return redirect()->route('admin.blogs.index')->with('data-changed', ['New blog has been created successfully.', now()->toISOString()]);

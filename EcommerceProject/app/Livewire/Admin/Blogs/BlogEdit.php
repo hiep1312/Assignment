@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Blogs;
 
 use App\Helpers\AutoValidatesRequest;
 use App\Http\Requests\Admin\BlogRequest;
+use App\Models\Blog;
 use App\Repositories\Contracts\BlogRepositoryInterface;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
@@ -87,8 +88,14 @@ class BlogEdit extends Component
             updatedModel: $blogUpdated
         );
 
-        $blogUpdated->thumbnail()->update(['image_id' => $this->thumbnail_id, 'is_main' => true]);
         $blogUpdated->categories()->sync($this->category_ids);
+        $blogUpdated->thumbnail()->updateOrCreate([
+            'imageable_id' => $blogUpdated->id,
+            'imageable_type' => Blog::class,
+            'is_main' => true
+        ], [
+            'image_id' => $this->thumbnail_id
+        ]);
 
         return redirect()->route('admin.blogs.index')->with('data-changed', ['Blog has been updated successfully.', now()->toISOString()]);
     }

@@ -93,7 +93,7 @@ class OrderItemService
         return false;
     }
 
-    public function delete(string $orderCode, string $id): bool
+    public function delete(string $orderCode, string $id): array
     {
         $currentItem = $this->repository->first(
             criteria: function($query) use ($orderCode, $id){
@@ -106,13 +106,13 @@ class OrderItemService
             columns: ['order_id', 'product_variant_id', 'quantity'],
         );
 
-        if(!$currentItem) return false;
+        if(!$currentItem) return [false];
 
         $this->adjustInventoryStock($currentItem->product_variant_id, -$currentItem->quantity);
         $this->orderService->updateTotalAmount($currentItem->order_id);
         $currentItem->delete();
 
-        return true;
+        return [true];
     }
 
     protected function adjustInventoryStock(ProductVariant|int $variant, int $quantity): bool

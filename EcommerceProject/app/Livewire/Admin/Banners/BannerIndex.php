@@ -62,7 +62,7 @@ class BannerIndex extends Component
     public function render()
     {
         $banners = $this->repository->getAll(criteria: function(&$query) {
-            $query->with('imageable.image');
+            $query->with('image');
 
             $query->when($this->search, function($innerQuery){
                 $innerQuery->where(function($subQuery){

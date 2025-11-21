@@ -163,7 +163,7 @@ class OrderItemController extends BaseApiController
      */
     public function destroy(string $orderCode, string $id)
     {
-        $isDeleted = $this->service->delete($orderCode, $id);
+        [$isDeleted] = $this->service->delete($orderCode, $id);
 
         return $this->response(
             success: (bool) $isDeleted,

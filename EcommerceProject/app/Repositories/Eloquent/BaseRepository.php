@@ -62,10 +62,10 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->model->create($attributes);
     }
 
-    public function update($idOrCriteria, $attributes, $rawEnabled = false, &$updatedModel = null)
+    public function update($idOrCriteria, $attributes, $rawEnabled = false, $forceFill = false, &$updatedModel = null)
     {
         $query = $this->model->query();
-        $shouldReturnUpdatedModel = func_num_args() > 3;
+        $shouldReturnUpdatedModel = func_num_args() > 4;
 
         if(is_int($idOrCriteria) || is_string($idOrCriteria)) {
             $updatedModel = $query->find($idOrCriteria);
@@ -83,16 +83,18 @@ abstract class BaseRepository implements RepositoryInterface
             if($shouldReturnUpdatedModel){
                 $updatedModel = $query->get();
 
-                $updatedModel->when($updatedModel->isNotEmpty(), function($models) use ($attributes, $rawEnabled){
-                    $models->each(function($model) use ($attributes, $rawEnabled) {
-                        $rawEnabled ? $this->safeFill($model, $attributes) : $model->fill($attributes);
+                $updatedModel->when($updatedModel->isNotEmpty(), function($models) use ($attributes, $rawEnabled, $forceFill){
+                    $models->each(function($model) use ($attributes, $rawEnabled, $forceFill) {
+                        $rawEnabled
+                            ? $this->safeFill($model, $attributes, $forceFill)
+                            : ($forceFill ? $model->forceFill($attributes) : $model->fill($attributes));
                     });
                 });
             }
         }
 
         return $shouldReturnUpdatedModel
-            ? ($updatedModel->isNotEmpty() ? $updatedModel->toQuery()->update($attributes) : 0)
+            ? ($updatedModel->isNotEmpty() ? $query->update($attributes) : 0)
             : $query->update($attributes);
     }
 
@@ -198,15 +200,16 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * Safely fill a model with attributes, excluding raw SQL expressions.
      *
-     * @param \Illuminate\Database\Eloquent\Model $model The model instance to fill (passed by reference).
+     * @param \Illuminate\Database\Eloquent\Model $model The model instance to force fill (passed by reference).
      * @param array $attributes The attributes array that may contain both regular values and Expression instances.
+     * @param bool $forceFill Optional, default false. Controls which fill method is used
      *
      * @return \Illuminate\Database\Eloquent\Model Returns the filled model instance for method chaining.
      */
-    protected function safeFill(Model &$model, array $attributes): Model
+    protected function safeFill(Model &$model, array $attributes, bool $forceFill = false): Model
     {
         $cleanAttributes = array_filter($attributes, fn($value) => !($value instanceof Expression));
-        $model->fill($cleanAttributes);
+        $forceFill ? $model->forceFill($cleanAttributes) : $model->fill($cleanAttributes);
 
         return $model;
     }

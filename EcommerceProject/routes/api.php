@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\OrderController;
@@ -33,7 +34,8 @@ Route::name('api.')->group(function() {
             'categories' => CategoryController::class,
             'images' => ImageController::class,
             'products' => ProductController::class,
-            'orders' => OrderController::class
+            'orders' => OrderController::class,
+            'banners' => BannerController::class,
         ]);
 
         /* Related Products */

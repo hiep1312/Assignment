@@ -46,10 +46,10 @@ class Product extends Model
     public function mainImage()
     {
         return $this->morphOne(Imageable::class, 'imageable')
-                ->join('images', 'images.id', '=', 'imageables.image_id')
-                ->select([
-                    'imageables.image_id', 'imageables.imageable_id', 'imageables.imageable_type',
-                    'images.*',
-                ])->where('imageables.is_main', true);
+            ->join('images', 'images.id', '=', 'imageables.image_id')
+            ->select([
+                'imageables.image_id', 'imageables.imageable_id', 'imageables.imageable_type',
+                'images.*',
+            ])->where('imageables.is_main', true);
     }
 }

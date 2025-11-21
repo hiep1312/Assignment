@@ -155,17 +155,13 @@ class OrderController extends BaseApiController
      */
     public function destroy(string $orderCode)
     {
-        if(authPayload('role') === 'admin'){
-            $isDeleted = $this->repository->delete(
-                idOrCriteria: fn($query) => $query->where('order_code', $orderCode)
-            );
-        }else{
-            return $this->response(
-                success: false,
-                message: 'Unauthorized. You do not have permission to delete orders.',
-                code: 403
-            );
+        $deletionResult = $this->service->delete($orderCode);
+
+        if(is_bool($deletionResult)){
+            return $this->forbiddenResponse('Unauthorized. You do not have permission to delete orders.');
         }
+
+        [$isDeleted] = $deletionResult;
 
         return $this->response(
             success: (bool) $isDeleted,

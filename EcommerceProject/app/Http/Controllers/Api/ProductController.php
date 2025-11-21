@@ -13,7 +13,7 @@ class ProductController extends BaseApiController
     use ApiQueryRelation;
 
     const API_FIELDS = ['id', 'title', 'slug', 'description', 'status', 'created_at'];
-    const MAIN_IMAGE_PRIVATE_FIELDS = ['imageables.image_id', 'imageables.imageable_id', 'imageables.imageable_type', 'images.id', 'images.image_url', 'images.created_at'];
+    const MAIN_IMAGE_PRIVATE_FIELDS = ['images.id', 'images.image_url', 'images.created_at', 'imageables.imageable_id', 'imageables.imageable_type'];
 
     protected function getAllowedRelationsWithFields(): array
     {

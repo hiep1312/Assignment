@@ -96,7 +96,7 @@
                             </td>
                             <td style="min-width: 250px;">
                                 <div class="d-flex align-items-center">
-                                    <img src="{{ asset('storage/' . ($blog->image_url ?? DefaultImage::BLOG->value)) }}"
+                                    <img src="{{ asset('storage/' . ($blog->thumbnail?->image_url ?? DefaultImage::BLOG->value)) }}"
                                         class="me-2" width="55" height="41" alt="Blog image {{ $blog->title }}">
                                     <div class="text-start">
                                         <div class="fw-bold text-wrap lh-base">

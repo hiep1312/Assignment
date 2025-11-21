@@ -38,16 +38,19 @@ class Blog extends Model
         return $this->hasMany(BlogComment::class, 'blog_id');
     }
 
-    public function thumbnail()
+    public function imageable()
     {
         return $this->morphOne(Imageable::class, 'imageable')
             ->where('is_main', true);
     }
 
-    public function imageUrl(): Attribute
+    public function thumbnail()
     {
-        return Attribute::make(
-            fn() => $this->loadMissing('thumbnail.image')->thumbnail?->image?->image_url
-        );
+        return $this->morphOne(Imageable::class, 'imageable')
+            ->join('images', 'images.id', '=', 'imageables.image_id')
+            ->select([
+                'imageables.image_id', 'imageables.imageable_id', 'imageables.imageable_type',
+                'images.*',
+            ])->where('imageables.is_main', true);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -60,22 +61,28 @@ class Order extends Model
         return $this->hasOne(Payment::class, 'order_id');
     }
 
-    public function getIsFinalAttribute(): bool
+    public function isFinal(): Attribute
     {
-        return ($this->status === OrderStatus::DELIVERED->value) && !($this->completed_at || $this->cancelled_at);
-    }
-
-    public function getIsFinalizedAttribute(): bool
-    {
-        return (
-            ($this->status === OrderStatus::COMPLETED->value && $this->completed_at) ||
-            ($this->status === OrderStatus::FAILED->value && $this->cancelled_at)
+        return Attribute::make(
+            fn() => ($this->status === OrderStatus::DELIVERED->value) && !($this->completed_at || $this->cancelled_at)
         );
     }
 
-    public function getIsCancelledAttribute(): bool
+    public function isFinalized(): Attribute
     {
-        return ($this->status === OrderStatus::BUYER_CANCEL->value || $this->status === OrderStatus::ADMIN_CANCEL->value);
+        return Attribute::make(
+            fn() => (
+                ($this->status === OrderStatus::COMPLETED->value && $this->completed_at) ||
+                ($this->status === OrderStatus::FAILED->value && $this->cancelled_at)
+            )
+        );
+    }
+
+    public function isCancelled(): Attribute
+    {
+        return Attribute::make(
+            fn() => ($this->status === OrderStatus::BUYER_CANCEL->value || $this->status === OrderStatus::ADMIN_CANCEL->value)
+        );
     }
 
     public function allowCancel(): bool
@@ -88,13 +95,15 @@ class Order extends Model
         return $this->allowCancel();
     }
 
-    public function canUpdateDependencies(): bool
-    {
-        return $this->allowCancel();
-    }
-
     public function allowCustomerNote(): bool
     {
         return in_array($this->status, [OrderStatus::NEW->value, OrderStatus::CONFIRMED->value], true);
+    }
+
+    public function canBeCancelled(): bool
+    {
+        $this->loadMissing('payment');
+
+        return $this->status === OrderStatus::NEW->value && (!$this->payment || ($this->payment->status === 0));
     }
 }

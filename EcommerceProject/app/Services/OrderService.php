@@ -49,6 +49,34 @@ class OrderService
         return [(bool) $transitionResult, $transitionResult];
     }
 
+    public function delete(string $orderCode): array|false
+    {
+        ['role' => $role, 'sub' => $userId] = authPayload();
+
+        if($role === UserRole::ADMIN->value){
+            $isDeleted = $this->repository->delete(
+                idOrCriteria: fn($query) => $query->where('order_code', $orderCode)
+            );
+
+            return [(bool) $isDeleted];
+        }
+
+        $orderWithPayment = $this->repository->first(
+            criteria: function($query) use ($orderCode, $userId){
+                $query->with('payment')
+                    ->where('order_code', $orderCode)
+                    ->where('user_id', $userId);
+            },
+        );
+
+        if(!$orderWithPayment) [false];
+        elseif(!$orderWithPayment->canBeCancelled()) return false;
+
+        $isDeleted = $orderWithPayment->forceDelete();
+
+        return [(bool) $isDeleted];
+    }
+
     protected function processStatusTransition(array &$attributes, string $orderCode): Order|false|null
     {
         ['role' => $role, 'sub' => $userId] = authPayload();

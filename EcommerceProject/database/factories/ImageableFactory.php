@@ -58,6 +58,7 @@ class ImageableFactory extends Factory
             'image_id' => Image::factory()->blog(),
             'imageable_id' => Blog::inRandomOrder()->value('id') ?? Blog::factory()->create()->id,
             'imageable_type' => Blog::class,
+            'is_main' => true
         ]);
     }
 

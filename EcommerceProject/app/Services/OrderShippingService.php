@@ -33,7 +33,7 @@ class OrderShippingService
         $orderWithShipping = $this->getOrderWithShipping($orderCode);
 
         if(!$orderWithShipping) return [false, null];
-        elseif(!$orderWithShipping->canUpdateDependencies()) return false;
+        elseif(!$orderWithShipping->allowCancel()) return false;
 
         $isUpdated = $orderWithShipping->shipping()->update($data);
         $updatedShipping = $orderWithShipping->shipping->fill($data);
@@ -45,8 +45,8 @@ class OrderShippingService
     {
         $orderWithShipping = $this->getOrderWithShipping($orderCode);
 
-        if(!$orderWithShipping) return [false, null];
-        elseif(!$orderWithShipping->canUpdateDependencies()) return false;
+        if(!$orderWithShipping) return [false];
+        elseif(!$orderWithShipping->allowCancel()) return false;
 
         $isDeleted = $orderWithShipping->shipping()->delete();
 

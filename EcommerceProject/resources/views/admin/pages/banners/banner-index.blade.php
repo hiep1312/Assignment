@@ -70,7 +70,7 @@
                             <td>
                                 <div class="d-flex justify-content-center">
                                     <div class="banner-image" data-bs-toggle="modal" data-bs-target="#bannerPreview" data-banner-id="{{ $banner->id }}">
-                                        <img src="{{ asset('storage/' . ($banner->image_url ?? DefaultImage::BANNER->value)) }}"
+                                        <img src="{{ asset('storage/' . ($banner->image?->image_url ?? DefaultImage::BANNER->value)) }}"
                                             alt="Banner image {{ $banner->title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0;">
                                     </div>
                                 </div>
@@ -95,7 +95,7 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="badge rounded-circle bg-label-secondary">{{ $banner->position }}</span>
+                                <span class="badge rounded-circle bg-label-secondary">{{ $banner->image?->position ?? 'N/A' }}</span>
                             </td>
                             <td>
                                 <span class="badge rounded-pill bootstrap-color
@@ -160,7 +160,7 @@
             <div class="carousel-inner">
                 @foreach($banners as $banner)
                     <div class="carousel-item" wire:key="carousel-item-{{ $banner->id }}" data-banner-id="{{ $banner->id }}" wire:ignore.self>
-                        <img src="{{ asset('storage/' . ($banner->image_url ?? DefaultImage::BANNER->value)) }}"
+                        <img src="{{ asset('storage/' . ($banner->image?->image_url ?? DefaultImage::BANNER->value)) }}"
                             class="d-block w-100" alt="Banner image {{ $banner->title }}"
                             style="object-fit: cover; aspect-ratio: 16 / 8;">
                         <div class="carousel-caption d-none d-md-block">

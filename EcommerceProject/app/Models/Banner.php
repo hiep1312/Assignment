@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,17 +24,13 @@ class Banner extends Model
         return $this->morphOne(Imageable::class, 'imageable');
     }
 
-    public function position(): Attribute
+    public function image()
     {
-        return Attribute::make(
-            fn() => $this->loadMissing('imageable')->imageable?->position ?? 'N/A'
-        );
-    }
-
-    public function imageUrl(): Attribute
-    {
-        return Attribute::make(
-            fn() => $this->loadMissing('imageable.image')->imageable?->image?->image_url
-        );
+        return $this->morphOne(Imageable::class, 'imageable')
+            ->join('images', 'images.id', '=', 'imageables.image_id')
+            ->select([
+                'imageables.image_id', 'imageables.imageable_id', 'imageables.imageable_type', 'imageables.position',
+                'images.*',
+            ]);
     }
 }
