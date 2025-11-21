@@ -126,7 +126,8 @@ class OrderItemService
             attributes: [
                 "product_variants.status" => DB::raw("CASE WHEN (pvi.stock - {$quantity}) <= 0 THEN 0 ELSE 1 END"),
                 "pvi.stock" => DB::raw("pvi.stock - {$quantity}"),
-            ]
+            ],
+            rawEnabled: true
         );
     }
 }

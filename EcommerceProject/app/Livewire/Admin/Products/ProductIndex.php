@@ -87,7 +87,7 @@ class ProductIndex extends Component
     public function render()
     {
         $products = $this->repository->getAll(criteria: function(&$query) {
-            $query->with(['mainImages', 'images' => function($subQuery){
+            $query->with(['mainImage', 'images' => function($subQuery){
                 $subQuery->where('imageables.is_main', false);
             }, 'variants.inventory'])->withCount('variants');
             if($this->isTrashed) $query->onlyTrashed();

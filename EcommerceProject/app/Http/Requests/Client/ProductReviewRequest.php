@@ -25,12 +25,10 @@ class ProductReviewRequest extends FormRequest
      */
     public function rules(): array
     {
-        $sometimesRule = $this->isUpdate('category') ? 'sometimes|' : '';
-
-        return [
-            'rating' => $sometimesRule . 'required|integer|min:1|max:5',
-            'content' => $sometimesRule . 'nullable|string|max:500',
-        ];
+        return $this->applyUpdateRules([
+            'rating' => 'required|integer|min:1|max:5',
+            'content' => 'nullable|string|max:500',
+        ], 'review');
     }
 
     public function messages()

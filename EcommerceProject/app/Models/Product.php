@@ -43,15 +43,13 @@ class Product extends Model
         return $this->hasMany(ProductReview::class, 'product_id');
     }
 
-    public function mainImages()
+    public function mainImage()
     {
-        return $this->morphToMany(Image::class, 'imageable')
-                ->wherePivot('is_main', true)
-                ->orderBy('position');
-    }
-
-    public function getMainImageAttribute(): ?Image
-    {
-        return $this->mainImages->first();
+        return $this->morphOne(Imageable::class, 'imageable')
+                ->join('images', 'images.id', '=', 'imageables.image_id')
+                ->select([
+                    'imageables.image_id', 'imageables.imageable_id', 'imageables.imageable_type',
+                    'images.*',
+                ])->where('imageables.is_main', true);
     }
 }

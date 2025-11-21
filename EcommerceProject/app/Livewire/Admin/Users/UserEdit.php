@@ -61,8 +61,8 @@ class UserEdit extends Component
         $this->validate();
 
         $this->repository->update(
-            $this->id,
-            $this->only([
+            idOrCriteria: $this->id,
+            attributes: $this->only([
                 'username',
                 'email',
                 'first_name',

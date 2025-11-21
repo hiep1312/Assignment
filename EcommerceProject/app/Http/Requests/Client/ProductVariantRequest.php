@@ -25,24 +25,23 @@ class ProductVariantRequest extends FormRequest
      */
     public function rules(): array
     {
-        $sometimesRule = $this->isUpdate('variant') ? 'sometimes|' : '';
-        $VariantSku = $this->route('variant');
+        $variantSku = $this->route('variant');
         $rules = [
-            'name' => $sometimesRule . 'required|string|max:255',
-            'sku' => [str_replace('|', '', $sometimesRule), 'required', 'string', 'max:100', Rule::unique('product_variants')->ignore($VariantSku, 'sku')],
-            'price' => $sometimesRule . 'required|integer|min:0',
-            'discount' => $sometimesRule . 'nullable|integer|min:0|lte:price',
-            'status' => $sometimesRule . 'required|integer|in:0,1',
-            'stock' => $sometimesRule . 'required|integer|min:0',
-            'reserved' => $sometimesRule . 'nullable|integer|min:0|lte:stock',
-            'sold_number' => $sometimesRule . 'nullable|integer|min:0',
+            'name' => 'required|string|max:255',
+            'sku' => ['required', 'string', 'max:100', Rule::unique('product_variants')->ignore($variantSku, 'sku')],
+            'price' => 'required|integer|min:0',
+            'discount' => 'nullable|integer|min:0|lte:price',
+            'status' => 'required|integer|in:0,1',
+            'stock' => 'required|integer|min:0',
+            'reserved' => 'nullable|integer|min:0|lte:stock',
+            'sold_number' => 'nullable|integer|min:0',
         ];
 
         if(!$this->isUpdate('variant')){
             unset($rules['reserved'], $rules['sold_number']);
         }
 
-        return $rules;
+        return $this->applyUpdateRules($rules);
     }
 
     public function messages()

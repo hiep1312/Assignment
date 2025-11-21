@@ -50,8 +50,8 @@ class NotificationEdit extends Component
         $this->validate();
 
         $this->repository->update(
-            $this->id,
-            $this->only([
+            idOrCriteria: $this->id,
+            attributes: $this->only([
                 'title',
                 'message',
                 'type',

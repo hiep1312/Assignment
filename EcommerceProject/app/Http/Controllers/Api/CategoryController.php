@@ -53,7 +53,7 @@ class CategoryController extends BaseApiController
         return $this->response(
             success: true,
             message: 'Category list retrieved successfully.',
-            additionalData: $categories->toArray()
+            additionalData: $categories->withQueryString()->toArray()
         );
     }
 

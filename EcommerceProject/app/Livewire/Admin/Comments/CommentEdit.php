@@ -51,8 +51,8 @@ class CommentEdit extends Component
         $this->validate();
 
         $this->repository->update(
-            $this->id,
-            $this->only([
+            idOrCriteria: $this->id,
+            attributes: $this->only([
                 'content',
             ]),
         );

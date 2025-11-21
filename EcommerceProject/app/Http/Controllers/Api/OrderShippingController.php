@@ -75,9 +75,9 @@ class OrderShippingController extends BaseApiController
     public function update(OrderShippingRequest $request, string $orderCode)
     {
         $validatedData = $request->validated();
-        $updationData = $this->service->update($validatedData, $orderCode);
+        $updationResult = $this->service->update($validatedData, $orderCode);
 
-        if(is_bool($updationData)){
+        if(is_bool($updationResult)){
             return $this->response(
                 success: false,
                 message: 'Shipping address cannot be updated for this order.',
@@ -85,7 +85,7 @@ class OrderShippingController extends BaseApiController
             );
         }
 
-        [$isUpdated, $updatedShipping] = $updationData;
+        [$isUpdated, $updatedShipping] = $updationResult;
 
         return $this->response(
             success: (bool) $isUpdated,
@@ -102,14 +102,17 @@ class OrderShippingController extends BaseApiController
      */
     public function destroy(string $orderCode)
     {
-        $isDeleted = $this->repository->delete(
-            idOrCriteria: function($query) use ($orderCode){
-                $query->whereHas('order', function($subQuery) use ($orderCode){
-                        $subQuery->where('order_code', $orderCode)
-                            ->where('user_id', authPayload('sub'));
-                    });
-            }
-        );
+        $deletionResult = $this->service->delete($orderCode);
+
+        if(is_bool($deletionResult)){
+            return $this->response(
+                success: false,
+                message: 'Shipping address cannot be deleted for this order.',
+                code: 403,
+            );
+        }
+
+        [$isDeleted] = $deletionResult;
 
         return $this->response(
             success: (bool) $isDeleted,

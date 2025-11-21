@@ -75,8 +75,8 @@ class BlogEdit extends Component
         $this->validate();
 
         $this->repository->update(
-            $this->id,
-            $this->only([
+            idOrCriteria: $this->id,
+            attributes: $this->only([
                 'title',
                 'slug',
                 'content',
@@ -84,7 +84,7 @@ class BlogEdit extends Component
             ]) + [
                 'author_id' => Auth::id(),
             ],
-            $blogUpdated
+            updatedModel: $blogUpdated
         );
 
         $blogUpdated->thumbnail()->update(['image_id' => $this->thumbnail_id, 'is_main' => true]);

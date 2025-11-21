@@ -62,7 +62,7 @@ class ProductReviewController extends BaseApiController
         return $this->response(
             success: true,
             message: 'Product review list retrieved successfully.',
-            additionalData: $reviews->toArray()
+            additionalData: $reviews->withQueryString()->toArray()
         );
     }
 

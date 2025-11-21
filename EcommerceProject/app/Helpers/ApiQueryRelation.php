@@ -85,7 +85,7 @@ trait ApiQueryRelation
                 $aggregateMethod = strtolower($aggregateParts[0]);
 
                 if(
-                    $aggregateParts[1] !== '' &&
+                    !empty($aggregateParts[1]) &&
                     in_array($aggregateMethod, $allowedAggregateFunctions, true) &&
                     in_array($aggregateMethod, $allowedDefinedAggregates, true) &&
                     in_array($aggregateParts[1], is_array($allowedAggregateRelations[$aggregateMethod])

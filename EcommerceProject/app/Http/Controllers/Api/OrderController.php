@@ -75,7 +75,7 @@ class OrderController extends BaseApiController
         return $this->response(
             success: true,
             message: 'Order list retrieved successfully.',
-            additionalData: $orders->toArray()
+            additionalData: $orders->withQueryString()->toArray()
         );
     }
 

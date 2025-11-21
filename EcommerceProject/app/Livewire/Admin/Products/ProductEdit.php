@@ -57,7 +57,7 @@ class ProductEdit extends Component
         $product = $this->repository->first(criteria: function(&$query) use ($product){
             $query->with(['categories', 'images' => function($subQuery){
                 $subQuery->orderBy('imageables.position');
-            }, 'mainImages', 'variants.inventory']);
+            }, 'mainImage', 'variants.inventory']);
 
             $query->where('id', $product);
         }, throwNotFound: true);
@@ -71,7 +71,7 @@ class ProductEdit extends Component
             ]) + [
                 'category_ids' => $product->categories->pluck('id')->toArray(),
                 'image_ids' => $product->images->pluck('id')->toArray(),
-                'mainImageId' => $product->getMainImageAttribute()?->id,
+                'mainImageId' => $product->mainImage?->id,
                 'variants' => $product->variants->keyBy('id')->map(function($variant){
                     return $variant->only(['id', 'name', 'sku', 'price', 'discount', 'status']) + [
                         'stock' => $variant->inventory?->stock
@@ -95,14 +95,14 @@ class ProductEdit extends Component
         $this->validate();
 
         $this->repository->update(
-            $this->id,
-            $this->only([
+            idOrCriteria: $this->id,
+            attributes: $this->only([
                 'title',
                 'slug',
                 'description',
                 'status'
             ]),
-            $productUpdated
+            updatedModel: $productUpdated
         );
 
         $productUpdated->categories()->sync($this->category_ids);

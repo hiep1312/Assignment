@@ -36,7 +36,7 @@ class OrderItemIndex extends Component
     public function render()
     {
         $orderItems = $this->repository->getAll(criteria: function(&$query) {
-            $query->with('productVariant.product.mainImages');
+            $query->with('productVariant.product.mainImage');
 
             $query->when($this->search, function($innerQuery){
                 $innerQuery->whereHas('productVariant', function($subQuery){

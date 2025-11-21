@@ -55,13 +55,13 @@ class BannerEdit extends Component
         $this->validate();
 
         $this->repository->update(
-            $this->id,
-            $this->only([
+            idOrCriteria: $this->id,
+            attributes: $this->only([
                 'title',
                 'link_url',
                 'status',
             ]),
-            $bannerUpdated
+            updatedModel: $bannerUpdated
         );
 
         $imageableData = $this->only('image_id', 'position');

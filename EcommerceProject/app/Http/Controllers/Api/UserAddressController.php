@@ -44,7 +44,7 @@ class UserAddressController extends BaseApiController
         return $this->response(
             success: true,
             message: 'User address list retrieved successfully.',
-            additionalData: $userAddresses->toArray()
+            additionalData: $userAddresses->withQueryString()->toArray()
         );
     }
 

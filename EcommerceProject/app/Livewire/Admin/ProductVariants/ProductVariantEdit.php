@@ -70,15 +70,15 @@ class ProductVariantEdit extends Component
         $this->validate();
 
         $this->repository->update(
-            $this->id,
-            $this->only([
+            idOrCriteria: $this->id,
+            attributes: $this->only([
                 'name',
                 'sku',
                 'price',
                 'discount',
                 'status'
             ]),
-            $variantUpdated
+            updatedModel: $variantUpdated
         );
 
         $variantUpdated->inventory()->update($this->only('stock'));

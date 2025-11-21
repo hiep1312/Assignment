@@ -59,7 +59,7 @@ class ProductVariantController extends BaseApiController
         return $this->response(
             success: true,
             message: 'Product variant list retrieved successfully.',
-            additionalData: $variants->toArray()
+            additionalData: $variants->withQueryString()->toArray()
         );
     }
 
@@ -128,7 +128,7 @@ class ProductVariantController extends BaseApiController
             code: $isUpdated ? 200 : 404,
             data: array_merge(
                 $updatedVariant?->only(self::API_FIELDS) ?? [],
-                $updatedInventoryData?->only(self::INVENTORY_FIELDS) ?? []
+                $updatedInventoryData ? ['inventory' => Arr::only($updatedInventoryData, self::INVENTORY_FIELDS)] : []
             )
         );
     }

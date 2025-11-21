@@ -31,7 +31,8 @@ class OrderService
 
         return $this->repository->update(
             idOrCriteria: $orderId,
-            attributes: $this->prepareTotalAmountUpdate($orderId)
+            attributes: $this->prepareTotalAmountUpdate($orderId),
+            rawEnabled: true
         );
     }
 
@@ -39,7 +40,9 @@ class OrderService
     {
         $transitionResult = $this->processStatusTransition($data, $orderCode);
         if($transitionResult){
-            $transitionResult->update(array_merge($data, $this->prepareTotalAmountUpdate($transitionResult->id)));
+            $transitionResult->query()
+                ->where($transitionResult->getKeyName(), $transitionResult->getKey())
+                ->update(array_merge($data, $this->prepareTotalAmountUpdate($transitionResult->id)));
             $transitionResult = $transitionResult->fresh();
         }
 

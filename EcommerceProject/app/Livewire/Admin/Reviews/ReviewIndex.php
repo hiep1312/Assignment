@@ -92,7 +92,7 @@ class ReviewIndex extends Component
                     )->whereHas('user');
             };
 
-            $query->with(['mainImages', 'reviews' => fn($reviewQuery) => $reviewFilter($reviewQuery, true)])
+            $query->with(['mainImage', 'reviews' => fn($reviewQuery) => $reviewFilter($reviewQuery, true)])
                 ->withCount('reviews')
                 ->withAvg('reviews', 'rating');
 

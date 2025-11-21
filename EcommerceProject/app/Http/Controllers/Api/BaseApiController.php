@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use stdClass;
 
 abstract class BaseApiController extends Controller
 {
@@ -29,7 +30,8 @@ abstract class BaseApiController extends Controller
         if(!empty($data)) $responseData['data'] = $data;
         if(!is_null($additionalData)){
             if(is_array($additionalData)) $responseData = array_merge($responseData, $additionalData);
-            else $responseData['additional_data'] = $additionalData;
+            elseif($additionalData instanceof stdClass) $responseData['meta'] = (array) $additionalData;
+            else $responseData['meta'] = $additionalData;
         }
 
         return response()->json($responseData, $code);

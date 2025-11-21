@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\ProductRequest;
 use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 
 class ProductController extends BaseApiController
@@ -12,6 +13,7 @@ class ProductController extends BaseApiController
     use ApiQueryRelation;
 
     const API_FIELDS = ['id', 'title', 'slug', 'description', 'status', 'created_at'];
+    const MAIN_IMAGE_PRIVATE_FIELDS = ['imageables.image_id', 'imageables.imageable_id', 'imageables.imageable_type', 'images.id', 'images.image_url', 'images.created_at'];
 
     protected function getAllowedRelationsWithFields(): array
     {
@@ -20,7 +22,9 @@ class ProductController extends BaseApiController
                 'fields' => ProductVariantController::API_FIELDS,
                 'inventory' => ProductVariantController::INVENTORY_FIELDS,
             ],
-            'reviews' => ProductReviewController::API_FIELDS
+            'reviews' => ProductReviewController::API_FIELDS,
+            'images' => ImageController::API_FIELDS,
+            'categories' => CategoryController::API_FIELDS
         ];
     }
 
@@ -32,7 +36,8 @@ class ProductController extends BaseApiController
     }
 
     public function __construct(
-        protected ProductRepositoryInterface $repository
+        protected ProductRepositoryInterface $repository,
+        protected ProductService $service
     ){}
 
     /**
@@ -43,7 +48,7 @@ class ProductController extends BaseApiController
         $products = $this->repository->getAll(
             criteria: function(&$query) use ($request) {
                 $this->getRequestedAggregateRelations($request, $query)
-                    ->with(['mainImages', ...$this->getRequestedRelations($request)]);
+                    ->with(['mainImage:' . (implode(',', self::MAIN_IMAGE_PRIVATE_FIELDS)), ...$this->getRequestedRelations($request)]);
 
                 $query->when(isset($request->search), function($innerQuery) use ($request){
                     $innerQuery->where(function($subQuery) use ($request){
@@ -55,9 +60,12 @@ class ProductController extends BaseApiController
                     fn($innerQuery) => $innerQuery->where('status', $request->status)
                 )->when(
                     isset($request->category),
-                    fn($innerQuery) => $innerQuery->whereHas('categories', function($subQuery) use ($request){
-                        $subQuery->where('categories.slug', $request->category);
-                    })
+                    function($innerQuery) use ($request){
+                        $innerQuery->whereHas('categories', function($subQuery) use ($request){
+                            $subQuery->where('categories.slug', $request->category)
+                                ->orWhere('categories.id', $request->category);
+                        });
+                    }
                 );
             },
             perPage: $this->getPerPage($request),
@@ -68,7 +76,7 @@ class ProductController extends BaseApiController
         return $this->response(
             success: true,
             message: 'Product list retrieved successfully.',
-            additionalData: $products->setHidden(['updated_at', 'deleted_at'])->toArray()
+            additionalData: $products->withQueryString()->toArray()
         );
     }
 
@@ -77,14 +85,16 @@ class ProductController extends BaseApiController
      */
     public function store(ProductRequest $request)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
+
         $validatedData = $request->validated();
-        $createdProduct = $this->repository->create($validatedData);
+        [$createdProduct] = $this->service->create($validatedData);
 
         return $this->response(
             success: true,
             message: 'Product created successfully.',
             code: 201,
-            data: $createdProduct->only(self::API_FIELDS)
+            data: $createdProduct->only([...self::API_FIELDS, 'images', 'categories'])
         );
     }
 
@@ -95,7 +105,8 @@ class ProductController extends BaseApiController
     {
         $product = $this->repository->first(
             criteria: function($query) use ($request, $slug){
-                $query->with($this->getRequestedRelations($request))
+                $this->getRequestedAggregateRelations($request, $query)
+                    ->with(['mainImage:' . (implode(',', self::MAIN_IMAGE_PRIVATE_FIELDS)), ...$this->getRequestedRelations($request)])
                     ->where('slug', $slug);
             },
             columns: self::API_FIELDS,
@@ -108,7 +119,7 @@ class ProductController extends BaseApiController
                 ? 'Product retrieved successfully.'
                 : 'Product not found.',
             code: $product ? 200 : 404,
-            data: $product?->only(self::API_FIELDS) ?? []
+            data: $product?->toArray() ?? []
         );
     }
 
@@ -117,20 +128,19 @@ class ProductController extends BaseApiController
      */
     public function update(ProductRequest $request, string $slug)
     {
-        $validatedData = $request->validated();
-        $isUpdated = $this->repository->update(
-            idOrCriteria: $request->id,
-            attributes: $validatedData,
-            updatedModel: $updatedProduct
-        );
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
 
-        return response()->json([
-            'success' => (bool) $isUpdated,
-            'message' => $isUpdated
+        $validatedData = $request->validated();
+        [$isUpdated, $updatedProduct] = $this->service->update($validatedData, $slug);
+
+        return $this->response(
+            success: (bool) $isUpdated,
+            message: $isUpdated
                 ? 'Product updated successfully.'
                 : 'Product not found.',
-            'data' => $updatedProduct?->only(self::API_FIELDS),
-        ], $isUpdated ? 200 : 404);
+            code: $isUpdated ? 200 : 404,
+            data: $updatedProduct?->only([...self::API_FIELDS, 'images', 'categories']) ?? [],
+        );
     }
 
     /**
@@ -138,15 +148,18 @@ class ProductController extends BaseApiController
      */
     public function destroy(string $slug)
     {
+        if(!$this->authorizeRole()) return $this->forbiddenResponse();
+
         $isDeleted = $this->repository->delete(
             idOrCriteria: fn($query) => $query->where('slug', $slug)
         );
 
-        return response()->json([
-            'success' => (bool) $isDeleted,
-            'message' => $isDeleted
+        return $this->response(
+            success: (bool) $isDeleted,
+            message: $isDeleted
                 ? 'Product deleted successfully.'
                 : 'Product not found.',
-        ], $isDeleted ? 200 : 404);
+            code: $isDeleted ? 200 : 404
+        );
     }
 }

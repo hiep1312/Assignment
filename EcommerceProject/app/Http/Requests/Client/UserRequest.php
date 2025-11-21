@@ -26,17 +26,16 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $sometimesRule = $this->isUpdate(true) ? 'sometimes|' : '';
         $rules = [
-            'email' => $sometimesRule . 'required|email|max:255|unique:users,email',
-            'username' => $sometimesRule . 'required|string|max:70|alpha_dash:ascii|unique:users,username',
-            'password' => $sometimesRule . 'required|string|min:8|max:100|confirmed',
-            'first_name' => $sometimesRule . 'required|string|max:100',
-            'last_name' => $sometimesRule . 'required|string|max:100',
-            'birthday' => $sometimesRule . 'nullable|date|before:today',
-            'avatar' => $sometimesRule . 'nullable|image|max:10240',
-            'role' => [str_replace('|', '', $sometimesRule), 'required', Rule::in(UserRole::cases())],
-            'email_verified_at' => $sometimesRule . 'nullable|datetime',
+            'email' => 'required|email|max:255|unique:users,email',
+            'username' => 'required|string|max:70|alpha_dash:ascii|unique:users,username',
+            'password' => 'required|string|min:8|max:100|confirmed',
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'birthday' => 'nullable|date|before:today',
+            'avatar' => 'nullable|image|max:10240',
+            'role' => ['required', Rule::in(UserRole::cases())],
+            'email_verified_at' => 'nullable|datetime',
         ];
 
         if($this->isUpdate(true)){
@@ -49,7 +48,7 @@ class UserRequest extends FormRequest
             unset($rules['email_verified_at']);
         }
 
-        return $rules;
+        return $this->applyUpdateRules($rules);
     }
 
     public function messages()

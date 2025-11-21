@@ -47,7 +47,7 @@ class ImageController extends BaseApiController
         return $this->response(
             success: true,
             message: 'Image list retrieved successfully.',
-            additionalData: $images->toArray()
+            additionalData: $images->withQueryString()->toArray()
         );
     }
 

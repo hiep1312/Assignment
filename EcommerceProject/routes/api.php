@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderItemController;
 use App\Http\Controllers\Api\OrderShippingController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductReviewController;
 use App\Http\Controllers\Api\ProductVariantController;
@@ -46,7 +47,8 @@ Route::name('api.')->group(function() {
         /* Related Orders */
         Route::apiResource('orders.items', OrderItemController::class);
         Route::apiSingletons([
-            'orders.shipping-address' => OrderShippingController::class
+            'orders.shipping-address' => OrderShippingController::class,
+            'orders.payment' => PaymentController::class
         ], ['creatable' => true]);
     });
 });

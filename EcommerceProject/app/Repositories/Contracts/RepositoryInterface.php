@@ -72,15 +72,17 @@ interface RepositoryInterface
      *        - If array: treated as criteria to apply complex queries for multiple records.
      *        - If callable: a function that receives the query builder for custom, complex filtering.
      * @param array $attributes The attributes/data to update the record(s) with.
+     * @param bool $rawEnabled (Optional, default: false) When true, allows raw SQL expressions (e.g., DB::raw())
+     *        in the update attributes. The model will be filled only with non-Expression values for safety.
      * @param \Illuminate\Database\Eloquent\Model|\Illuminate\Support\Collection|null $updatedModel (Optional, passed by reference)
      *        - Receives the model (for single update) or collection (for batch update) before the update is executed.
      *        - Null if no record is found.
      *
      * @return bool|int
-     *         - Returns true if a single record was successfully updated.
-     *         - Returns the number of affected rows if multiple records were updated.
+     *         - Returns true if a single record was successfully updated, false if update failed or record not found.
+     *         - Returns the number of affected rows (int) when updating multiple records via criteria.
      */
-    public function update($idOrCriteria, $attributes, &$updatedModel = null);
+    public function update($idOrCriteria, $attributes, $rawEnabled = false, &$updatedModel = null);
 
     /**
      * Insert or update multiple records in the database in a single query.

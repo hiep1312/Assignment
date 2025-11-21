@@ -30,6 +30,7 @@ class ProductVariantService
 
     public function update(array $data, string $sku): array
     {
+        $inventoryKeys = ['stock', 'reserved', 'sold_number'];
         $statusPatch = isset($data['status']) ? (
                 (!isset($data['stock']) || $data['stock'] > 0) ? $data['status'] : 0
             ) : (
@@ -37,12 +38,15 @@ class ProductVariantService
             );
         $isUpdated = $this->repository->update(
             idOrCriteria: fn($query) => $query->with('inventory')->where('sku', $sku),
-            attributes: array_merge($data, is_null($statusPatch) ? [] : ['status' => $statusPatch]),
+            attributes: array_merge(
+                Arr::except($data, $inventoryKeys),
+                is_null($statusPatch) ? [] : ['status' => $statusPatch]
+            ),
+            rawEnabled: true,
             updatedModel: $updatedVariant
         );
 
         $updatedVariant = $updatedVariant->first();
-        $inventoryKeys = ['stock', 'reserved', 'sold_number'];
         $updatedInventoryData = Arr::only($data, $inventoryKeys);
         $oldInventoryData = Arr::only($updatedVariant?->inventory->toArray() ?? [], $inventoryKeys);
         $updatedInventory = $updatedVariant ? array_merge(

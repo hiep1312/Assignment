@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Client;
 
 use App\Helpers\RequestUtilities;
-use App\Repositories\Contracts\CategoryRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,13 +25,12 @@ class CategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        $sometimesRule = $this->isUpdate('category') ? 'sometimes' : '';
         $categorySlug = $this->route('category');
 
-        return [
-            'name' => [$sometimesRule, 'required', 'string', 'max:255', Rule::unique('categories')->ignore($categorySlug, 'slug')],
-            'slug' => [$sometimesRule, 'required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('categories')->ignore($categorySlug, 'slug')],
-        ];
+        return $this->applyUpdateRules([
+            'name' => ['required', 'string', 'max:255', Rule::unique('categories')->ignore($categorySlug, 'slug')],
+            'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('categories')->ignore($categorySlug, 'slug')],
+        ], 'category');
     }
 
     public function messages()

@@ -24,15 +24,14 @@ class OrderRequest extends FormRequest
      */
     public function rules(): array
     {
-        $sometimesRule = $this->isUpdate(true) ? 'sometimes|' : '';
         $rules = [
             'order_code' => 'required|string|max:100|unique:orders,order_code',
             'total_amount' => 'required|integer|min:0',
-            'shipping_fee' => $sometimesRule . 'nullable|integer|min:0',
-            'status' => $sometimesRule . 'nullable|integer|in:1',
-            'customer_note' => $sometimesRule . 'nullable|string|max:500',
-            'admin_note' => $sometimesRule . 'nullable|string|max:500',
-            'cancel_reason' => $sometimesRule . 'nullable|string|max:255'
+            'shipping_fee' => 'nullable|integer|min:0',
+            'status' => 'nullable|integer|in:1',
+            'customer_note' => 'nullable|string|max:500',
+            'admin_note' => 'nullable|string|max:500',
+            'cancel_reason' => 'nullable|string|max:255'
         ];
 
         if($this->isUpdate('order')){
@@ -42,7 +41,7 @@ class OrderRequest extends FormRequest
             unset($rules['admin_note'], $rules['cancel_reason']);
         }
 
-        return $rules;
+        return $this->applyUpdateRules($rules);
     }
 
     public function messages()

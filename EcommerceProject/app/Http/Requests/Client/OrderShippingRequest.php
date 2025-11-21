@@ -29,18 +29,16 @@ class OrderShippingRequest extends FormRequest
             $this->applyAddressTemplate();
         }
 
-        $sometimesRule = $this->isUpdate(true) ? 'sometimes|' : '';
-
-        return [
-            'recipient_name' => $sometimesRule . 'required|string|max:255',
-            'phone' => $sometimesRule . 'required|string|max:20|regex:/^(?:[0-9\s\-\+\(\)]*)$/',
-            'province' => $sometimesRule . 'required|string|max:100',
-            'district' => $sometimesRule . 'required|string|max:100',
-            'ward' => $sometimesRule . 'required|string|max:100',
-            'street' => $sometimesRule . 'nullable|string|max:255',
-            'postal_code' => $sometimesRule . 'nullable|string|max:20',
-            'note' => $sometimesRule . 'nullable|string|max:500',
-        ];
+        return $this->applyUpdateRules([
+            'recipient_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20|regex:/^(?:[0-9\s\-\+\(\)]*)$/',
+            'province' => 'required|string|max:100',
+            'district' => 'required|string|max:100',
+            'ward' => 'required|string|max:100',
+            'street' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:20',
+            'note' => 'nullable|string|max:500',
+        ], true);
     }
 
     public function message()

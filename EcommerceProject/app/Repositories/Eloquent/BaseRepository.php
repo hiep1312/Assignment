@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Query\Expression;
 
 abstract class BaseRepository implements RepositoryInterface
 {
@@ -61,13 +62,19 @@ abstract class BaseRepository implements RepositoryInterface
         return $this->model->create($attributes);
     }
 
-    public function update($idOrCriteria, $attributes, &$updatedModel = null)
+    public function update($idOrCriteria, $attributes, $rawEnabled = false, &$updatedModel = null)
     {
         $query = $this->model->query();
-        $shouldReturnUpdatedModel = func_num_args() > 2;
+        $shouldReturnUpdatedModel = func_num_args() > 3;
 
         if(is_int($idOrCriteria) || is_string($idOrCriteria)) {
             $updatedModel = $query->find($idOrCriteria);
+
+            if($rawEnabled && $updatedModel){
+                return (bool) $this->safeFill($updatedModel, $attributes)
+                    ->query()->where($updatedModel->getKeyName(), $updatedModel->getKey())
+                    ->update($attributes);
+            }
 
             return $updatedModel?->update($attributes);
         }else {
@@ -76,9 +83,9 @@ abstract class BaseRepository implements RepositoryInterface
             if($shouldReturnUpdatedModel){
                 $updatedModel = $query->get();
 
-                $updatedModel->when($updatedModel->isNotEmpty(), function($models) use ($attributes){
-                    $models->each(function($model) use ($attributes) {
-                        $model->fill($attributes);
+                $updatedModel->when($updatedModel->isNotEmpty(), function($models) use ($attributes, $rawEnabled){
+                    $models->each(function($model) use ($attributes, $rawEnabled) {
+                        $rawEnabled ? $this->safeFill($model, $attributes) : $model->fill($attributes);
                     });
                 });
             }
@@ -186,5 +193,21 @@ abstract class BaseRepository implements RepositoryInterface
     protected function buildCriteria(QueryBuilder|EloquentBuilder &$query, array|callable $criteria): void
     {
         is_callable($criteria) ? $criteria($query) : Repository::handleCriteria($query, $criteria);
+    }
+
+    /**
+     * Safely fill a model with attributes, excluding raw SQL expressions.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model The model instance to fill (passed by reference).
+     * @param array $attributes The attributes array that may contain both regular values and Expression instances.
+     *
+     * @return \Illuminate\Database\Eloquent\Model Returns the filled model instance for method chaining.
+     */
+    protected function safeFill(Model &$model, array $attributes): Model
+    {
+        $cleanAttributes = array_filter($attributes, fn($value) => !($value instanceof Expression));
+        $model->fill($cleanAttributes);
+
+        return $model;
     }
 }

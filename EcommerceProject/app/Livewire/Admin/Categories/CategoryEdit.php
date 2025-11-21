@@ -49,8 +49,8 @@ class CategoryEdit extends Component
         $this->validate();
 
         $this->repository->update(
-            $this->id,
-            $this->only(['name', 'slug'])
+            idOrCriteria: $this->id,
+            attributes: $this->only(['name', 'slug'])
         );
 
         return redirect()->route('admin.categories.index')->with('data-changed', ['Category has been updated successfully.', now()->toISOString()]);
