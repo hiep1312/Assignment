@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Enums\UserRole;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -122,8 +123,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(BlogComment::class, 'user_id');
     }
 
-    public function getNameAttribute(): string
+    public function name(): Attribute
     {
-        return trim("{$this->first_name} {$this->last_name}");
+        return Attribute::make(
+            fn() => trim("{$this->first_name} {$this->last_name}")
+        );
     }
 }

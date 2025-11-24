@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\OrderController;
@@ -36,6 +37,7 @@ Route::name('api.')->group(function() {
             'products' => ProductController::class,
             'orders' => OrderController::class,
             'banners' => BannerController::class,
+            'blogs' => BlogController::class
         ]);
 
         /* Related Products */

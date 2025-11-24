@@ -24,12 +24,12 @@ class ProductService
 
         if(!empty($imageIds)){
             $createdProduct->images()->attach(Arr::mapWithKeys($imageIds, [$this, 'buildImagePivotData']));
-            array_push($relationsToLoad, 'images');
+            array_push($relationsToLoad, 'images:' . (implode(',', ImageController::API_FIELDS)));
         }
 
         if(!empty($data['categories']) && is_array($data['categories'])){
             $createdProduct->categories()->attach($data['categories']);
-            array_push($relationsToLoad, 'categories');
+            array_push($relationsToLoad, 'categories:' . (implode(',', CategoryController::API_FIELDS)));
         }
 
         !empty($relationsToLoad) && $createdProduct->load($relationsToLoad);
@@ -51,19 +51,16 @@ class ProductService
             isset($data['main_image']) ? [$data['main_image']] : [],
             $data['images'] ?? []
         );
-        $relationsToLoad = [];
 
         if(!empty($imageIds)){
             $updatedProduct->images()->sync(Arr::mapWithKeys($imageIds, [$this, 'buildImagePivotData']));
-            array_push($relationsToLoad, 'images:' . (implode(',', ImageController::API_FIELDS)));
         }
 
         if(!empty($data['categories']) && is_array($data['categories'])){
             $updatedProduct->categories()->sync($data['categories']);
-            array_push($relationsToLoad, 'categories:' . (implode(',', CategoryController::API_FIELDS)));
         }
 
-        !empty($relationsToLoad) && $updatedProduct->load($relationsToLoad);
+        $updatedProduct->load(['images:' . (implode(',', ImageController::API_FIELDS)), 'categories:' . (implode(',', CategoryController::API_FIELDS))]);
         return [(bool) $isUpdated, $updatedProduct];
     }
 

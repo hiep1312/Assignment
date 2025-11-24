@@ -18,7 +18,8 @@ class CategoryController extends BaseApiController
     {
         return [
             'creator' => UserController::API_FIELDS,
-            'products' => ProductController::API_FIELDS
+            'products' => ProductController::API_FIELDS,
+            'blogs' => BlogController::API_FIELDS
         ];
     }
 

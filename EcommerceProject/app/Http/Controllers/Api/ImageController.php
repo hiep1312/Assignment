@@ -19,6 +19,8 @@ class ImageController extends BaseApiController
     {
         return [
             'products' => ProductController::API_FIELDS,
+            'banners' => BannerController::API_FIELDS,
+            'blogs' => BlogController::API_FIELDS
         ];
     }
 

@@ -15,6 +15,7 @@
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.6",
         "pelago/emogrifier": "^8.1",
+        "stripe/stripe-php": "^19.0",
         "tymon/jwt-auth": "^2.2"
     },
     "require-dev": {
@@ -83,6 +84,9 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
+            "php": "8.2.29"
         }
     },
     "minimum-stability": "stable",
