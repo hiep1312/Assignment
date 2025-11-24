@@ -89,7 +89,7 @@ class BlogEdit extends Component
         );
 
         $blogUpdated->categories()->sync($this->category_ids);
-        $blogUpdated->thumbnail()->updateOrCreate([
+        $blogUpdated->imageable()->updateOrCreate([
             'imageable_id' => $blogUpdated->id,
             'imageable_type' => Blog::class,
             'is_main' => true

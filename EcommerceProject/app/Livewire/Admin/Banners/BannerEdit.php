@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Banners;
 
 use App\Helpers\AutoValidatesRequest;
 use App\Http\Requests\Admin\BannerRequest;
+use App\Models\Banner;
 use App\Repositories\Contracts\BannerRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
 use Livewire\Attributes\Layout;
@@ -65,11 +66,10 @@ class BannerEdit extends Component
         );
 
         $imageableData = $this->only('image_id', 'position');
-        if(!$bannerUpdated->imageable){
-            $bannerUpdated->imageable()->create($imageableData);
-        }else{
-            $bannerUpdated->imageable()->update($imageableData);
-        }
+        $bannerUpdated->imageable()->updateOrCreate([
+            'imageable_id' => $bannerUpdated->id,
+            'imageable_type' => Banner::class
+        ], $imageableData);
 
         return redirect()->route('admin.banners.index')->with('data-changed', ['Banner has been updated successfully.', now()->toISOString()]);
     }

@@ -51,50 +51,63 @@ class MailService
     {
         if(empty($this->mail)) throw new RuntimeException('Mail model has not been initialized. Please call createBatch() before sendBatch().');
 
-        $deliveryResults = [];
-
-        foreach($this->recipients as $userId => $recipient){
-            $updateData = [
-                'id' => $recipient->id,
-                'user_id' => $recipient->user_id,
-                'batch_key' => $recipient->batch_key
-            ];
-
-            try {
-                $sendResult = Mail::send(
-                    [], [],
-                    function(Message $message) use ($recipient, $userId){
-                        $message->to($recipient->user->email, $recipient->user->name, true)
-                            ->subject($this->mail->subject ?? 'No Subject')
-                            ->priority(match($this->mail->type){
-                                4 => Email::PRIORITY_HIGHEST,
-                                1, 2 => Email::PRIORITY_HIGH,
-                                default => Email::PRIORITY_LOW
-                            });
-
-                        $message->html(MailTemplateHelper::fillPlaceholders($this->mail, $this->sourceMap[$userId], $message), 'utf-8');
-                    }
-                );
-
-                if(!$sendResult) throw new RuntimeException("Failed to send mail to recipient ID #{$recipient->id}");
-
-                $updateData += [
-                    'status' => 1,
-                    'sent_at' => now(),
-                    'error_message' => null
-                ];
-            }catch(Throwable $error){
-                $updateData += [
-                    'status' => 2,
-                    'sent_at' => null,
-                    'error_message' => $error->getMessage()
-                ];
-            }
-
-            $deliveryResults[] = $updateData;
+        foreach($this->recipients->chunk(10, true) as $recipientChunk){
+            $this->dispatchEmailChunk($this->repository, $recipientChunk, $this->mail);
         }
 
-        return $this->repository->upsert($deliveryResults, ['id'], ['status', 'sent_at', 'error_message']);
+        return $this->recipients->count();
+    }
+
+    protected function dispatchEmailChunk(MailUserRepositoryInterface $repository, Collection $recipients, MailModel $mail): void
+    {
+        $sourceMap = array_intersect_key($this->sourceMap, $recipients->toArray());
+
+        dispatch(function() use ($repository, $recipients, $mail, $sourceMap){
+            $deliveryResults = [];
+
+            foreach($recipients as $userId => $recipient){
+                $updateData = [
+                    'id' => $recipient->id,
+                    'user_id' => $recipient->user_id,
+                    'batch_key' => $recipient->batch_key
+                ];
+
+                try {
+                    $sendResult = Mail::send(
+                        [], [],
+                        function(Message $message) use ($recipient, $userId, $mail, $sourceMap){
+                            $message->to($recipient->user->email, $recipient->user->name, true)
+                                ->subject($mail->subject ?? 'No Subject')
+                                ->priority(match($mail->type){
+                                    4 => Email::PRIORITY_HIGHEST,
+                                    1, 2 => Email::PRIORITY_HIGH,
+                                    default => Email::PRIORITY_LOW
+                                });
+
+                            $message->html(MailTemplateHelper::fillPlaceholders($mail, $sourceMap[$userId], $message), 'utf-8');
+                        }
+                    );
+
+                    if(!$sendResult) throw new RuntimeException("Failed to send mail to recipient ID #{$recipient->id}");
+
+                    $updateData += [
+                        'status' => 1,
+                        'sent_at' => now(),
+                        'error_message' => null
+                    ];
+                }catch(Throwable $error){
+                    $updateData += [
+                        'status' => 2,
+                        'sent_at' => null,
+                        'error_message' => $error->getMessage()
+                    ];
+                }
+
+                $deliveryResults[] = $updateData;
+            }
+
+            $repository->upsert($deliveryResults, ['id'], ['status', 'sent_at', 'error_message']);
+        })->name("Send Mail Batch {$recipients->count()} Items " . time());
     }
 
     public function recipients(User|int|null $user = null): Collection|MailModel|null

@@ -71,7 +71,7 @@ abstract class BaseRepository implements RepositoryInterface
             $updatedModel = $query->find($idOrCriteria);
 
             if($rawEnabled && $updatedModel){
-                return (bool) $this->safeFill($updatedModel, $attributes)
+                return (bool) $this->safeFill($updatedModel, $attributes, $forceFill)
                     ->query()->where($updatedModel->getKeyName(), $updatedModel->getKey())
                     ->update($attributes);
             }
