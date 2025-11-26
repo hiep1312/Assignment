@@ -44,7 +44,7 @@ class StripeService
         };
     }
 
-    public function createCheckoutSession(Order|array $order, ?string $returnUrl = null, bool $isStripePayment = false): array
+    public function createCheckoutSession(Order|array $order, ?string $returnUrl = null, bool $isStripePayment = true): array
     {
         try {
             if($order instanceof Order) {
@@ -133,7 +133,7 @@ class StripeService
                 $sessionOptions['line_items'] = $this->prepareLineItems($order['items']);
             }
 
-            if($isStripePayment && !empty($order['payment']['method'])) {
+            if(!$isStripePayment && !empty($order['payment']['method'])) {
                 $paymentMethod = ($order['payment']['method'] instanceof PaymentMethod)
                     ? $order['payment']['method']
                     : PaymentMethod::tryFrom($order['payment']['method']);

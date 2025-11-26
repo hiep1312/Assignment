@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use stdClass;
@@ -20,7 +21,7 @@ abstract class BaseApiController extends Controller
         return min($request->integer('per_page', $this->defaultPerPage), $this->maxPerPage);
     }
 
-    protected function response(bool $success, string $message, int $code = 200, array $data = [], mixed $additionalData = null): JsonResponse
+    protected function response(bool $success, string $message, int $code = 200, array|Model $data = [], mixed $additionalData = null): JsonResponse
     {
         $responseData = [
             'success'=> $success,

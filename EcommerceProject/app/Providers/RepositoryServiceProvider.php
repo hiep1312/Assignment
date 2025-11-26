@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Repositories\Contracts\BannerRepositoryInterface;
 use App\Repositories\Contracts\BlogCommentRepositoryInterface;
 use App\Repositories\Contracts\BlogRepositoryInterface;
+use App\Repositories\Contracts\CartItemRepositoryInterface;
+use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ImageableRepositoryInterface;
 use App\Repositories\Contracts\ImageRepositoryInterface;
@@ -24,6 +26,8 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\BannerRepository;
 use App\Repositories\Eloquent\BlogCommentRepository;
 use App\Repositories\Eloquent\BlogRepository;
+use App\Repositories\Eloquent\CartItemRepository;
+use App\Repositories\Eloquent\CartRepository;
 use App\Repositories\Eloquent\CategoryRepository;
 use App\Repositories\Eloquent\ImageableRepository;
 use App\Repositories\Eloquent\ImageRepository;
@@ -63,7 +67,9 @@ class RepositoryServiceProvider extends ServiceProvider
         MailUserRepositoryInterface::class => MailUserRepository::class,
         BlogRepositoryInterface::class => BlogRepository::class,
         BlogCommentRepositoryInterface::class => BlogCommentRepository::class,
-        UserAddressRepositoryInterface::class => UserAddressRepository::class
+        UserAddressRepositoryInterface::class => UserAddressRepository::class,
+        CartRepositoryInterface::class => CartRepository::class,
+        CartItemRepositoryInterface::class => CartItemRepository::class,
     ];
 
     /**

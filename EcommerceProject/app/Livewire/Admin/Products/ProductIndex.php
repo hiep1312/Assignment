@@ -47,7 +47,7 @@ class ProductIndex extends Component
     }
 
     public function resetFilters(){
-        $this->reset('search', 'role', 'emailVerified');
+        $this->reset('search', 'status', 'categoryId');
         $this->resetPage();
     }
 

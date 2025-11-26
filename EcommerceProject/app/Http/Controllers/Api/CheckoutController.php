@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Client\CreateCheckoutRequest;
+use App\Http\Requests\Client\FinalizeCheckoutRequest;
+use App\Http\Requests\Client\UpdateCheckoutRequest;
 use App\Services\CheckoutService;
-use Illuminate\Http\Request;
 
 class CheckoutController extends BaseApiController
 {
@@ -25,15 +26,49 @@ class CheckoutController extends BaseApiController
         );
     }
 
-    public function update(){
+    public function update(UpdateCheckoutRequest $request, string $orderCode)
+    {
+        $validatedData = $request->validated();
+        if(empty($validatedData)){
+            return $this->response(
+                success: false,
+                message: 'No data provided for update.',
+                code: 422,
+            );
+        }
 
+        $updationResult = $this->service->update($validatedData, $orderCode);
+
+        return $this->response(
+            success: $updationResult['success'],
+            message: $updationResult['message'],
+            code: $updationResult['success'] ? 200 : 422,
+            data: $updationResult['data'] ?? []
+        );
     }
 
-    public function cancel(){
+    public function cancel(string $orderCode)
+    {
+        $cancelResult = $this->service->cancel($orderCode);
 
+        return $this->response(
+            success: $cancelResult['success'],
+            message: $cancelResult['message'],
+            code: $cancelResult['success'] ? 200 : 422,
+            data: $cancelResult['data'] ?? []
+        );
     }
 
-    public function finalize(){
+    public function finalize(FinalizeCheckoutRequest $request, string $orderCode)
+    {
+        $validatedData = $request->validated();
+        $finalizationResult = $this->service->finalize($validatedData, $orderCode);
 
+        return $this->response(
+            success: $finalizationResult['success'],
+            message: $finalizationResult['message'],
+            code: $finalizationResult['success'] ? 200 : 422,
+            data: $finalizationResult['data'] ?? []
+        );
     }
 }

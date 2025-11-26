@@ -14,8 +14,10 @@ class CartItemRepository extends BaseRepository implements CartItemRepositoryInt
         return CartItem::class;
     }
 
-    public function getAvailableByCartIds(array $cartIds)
+    public function getAvailableByCartIds(array $cartIds, $useSharedLock = false)
     {
+        $placeholdersCartIds = implode(',', array_fill(0, count($cartIds), '?'));
+
         return DB::table('carts', 'c')
             ->join('cart_items as ci', 'ci.cart_id', '=', 'c.id')
             ->join('product_variants as pv', 'pv.id', '=', 'ci.product_variant_id')
@@ -28,15 +30,15 @@ class CartItemRepository extends BaseRepository implements CartItemRepositoryInt
             ->whereNull('pv.deleted_at')
             ->whereraw(<<<SQL
             pvi.stock >= (
-                SELECT SUM(ci2.quantity) FROM cart_items ci2
+                SELECT COALESCE(SUM(ci2.quantity), 0) FROM cart_items ci2
                 INNER JOIN `carts` as `c2` ON `c2`.`id` = `ci2`.`cart_id`
                 WHERE `c2`.`user_id` = `c`.`user_id`
-                AND `c2`.`id` IN (?)
+                AND `c2`.`id` IN ({$placeholdersCartIds})
                 AND `ci2`.`product_variant_id` = `pv`.`id`
             )
-            SQL, [implode(',', $cartIds)])
+            SQL, $cartIds)
             ->select('ci.*', 'pvi.stock', 'pvi.sold_number')
-            ->when(DB::transactionLevel(), fn($query) => $query->sharedLock())
+            ->when($useSharedLock && DB::transactionLevel(), fn($query) => $query->sharedLock())
             ->get();
     }
 }

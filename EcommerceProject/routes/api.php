@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BlogCommentController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderItemController;
@@ -56,5 +57,13 @@ Route::name('api.')->group(function() {
             'orders.shipping-address' => OrderShippingController::class,
             'orders.payment' => PaymentController::class
         ], ['creatable' => true]);
+
+        /* Checkout */
+        Route::prefix('/checkout')->controller(CheckoutController::class)->name('checkout.')->group(function() {
+            Route::post('/', 'create')->name('create');
+            Route::put('/{order}', 'update')->name('update');
+            Route::post('/cancel/{order}', 'cancel')->name('cancel');
+            Route::post('/finalize/{order}', 'finalize')->name('finalize');
+        });
     });
 });

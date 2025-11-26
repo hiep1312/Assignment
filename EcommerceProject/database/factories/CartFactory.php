@@ -23,7 +23,7 @@ class CartFactory extends Factory
     {
         $forUser = $this->faker->boolean(self::$userIds ? 100 : 50);
         $userId = $guestToken = $expiresAt = null;
-        $status = 1;
+        $status = rand(1, 2);
 
         switch($forUser){
             case true:
@@ -31,10 +31,10 @@ class CartFactory extends Factory
                 break;
             case false:
                 $guestToken = Str::random(60);
-                $status = rand(1, 2);
-                $expiresAt = $status === 2 ? $this->faker->dateTimeBetween('-1 month', 'now') : $this->faker->dateTimeBetween('now', '+3 days');
                 break;
         }
+
+        $expiresAt = $status === 2 ? $this->faker->dateTimeBetween('-1 month', 'now') : $this->faker->dateTimeBetween('now', '+5 days');
 
         return [
             'user_id' => $userId,
