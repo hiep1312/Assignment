@@ -4,6 +4,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Payload;
 
@@ -214,14 +215,22 @@ if(!function_exists('authPayload')){
      * Retrieve a value from the JWT payload of the currently authenticated user.
      *
      * @param string|null $key The payload key to retrieve. If null, the full payload is returned.
-     * @param mixed|null $default The default value to return when the key does not exist.
+     * @param mixed|null $default The default value to return when the key does not exist. Default is null.
+     * @param bool $throw Whether to throw an exception on JWT errors. If false, returns $default instead. Default is true.
      *
-     * @return \Tymon\JWTAuth\Payload|mixed The payload value associated with the key, or the full Payload object if $key is null.
+     * @return \Tymon\JWTAuth\Payload|mixed The payload value associated with the key, the full Payload object if $key is null, or $default on error when $throw is false.
+     *
+     * @throws \Tymon\JWTAuth\Exceptions\JWTException When token parsing fails and $throw is true.
      */
-    function authPayload($key = null, $default = null)
+    function authPayload($key = null, $default = null, $throw = true)
     {
-        $payload = JWTAuth::parseToken()->payload();
+        try {
+            $payload = JWTAuth::parseToken()->payload();
 
-        return $payload->get($key) ?? $default;
+            return $payload->get($key) ?? $default;
+        }catch (JWTException $error) {
+            if($throw) throw $error;
+            return $default;
+        }
     }
 }

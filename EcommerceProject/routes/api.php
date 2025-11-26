@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\BlogCommentController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ImageController;
@@ -40,10 +41,11 @@ Route::name('api.')->group(function() {
             'blogs' => BlogController::class
         ]);
 
-        /* Related Products */
+        /* Related Products & Blogs */
         Route::apiResources([
             'products.variants' => ProductVariantController::class,
             'products.reviews' => ProductReviewController::class,
+            'blogs.comments' => BlogCommentController::class
         ], [
             'shallow' => true,
         ]);

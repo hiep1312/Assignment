@@ -20,7 +20,8 @@ class BlogController extends BaseApiController
     {
         return [
             'author' => UserController::API_FIELDS,
-            'categories' => CategoryController::API_FIELDS
+            'categories' => CategoryController::API_FIELDS,
+            'comments' => BlogCommentController::API_FIELDS
         ];
     }
 

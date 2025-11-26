@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Banners;
 
 use App\Repositories\Contracts\BannerRepositoryInterface;
 use App\Repositories\Contracts\ImageableRepositoryInterface;
+use App\Repositories\Eloquent\CartItemRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -61,6 +62,8 @@ class BannerIndex extends Component
     #[Layout('layouts.admin')]
     public function render()
     {
+        dd(app()->make(CartItemRepository::class)->getAvailableByCartIds([1, 2, 3, 4, 5, 6, 7]));
+
         $banners = $this->repository->getAll(criteria: function(&$query) {
             $query->with('image');
 

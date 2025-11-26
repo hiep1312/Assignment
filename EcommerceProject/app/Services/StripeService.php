@@ -2,14 +2,23 @@
 
 namespace App\Services;
 
+use App\Models\Image;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\OrderShipping;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use Stripe\Customer;
 use Stripe\PaymentIntent;
 use App\Models\User;
-use App\Models\UserAddress;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Database\Eloquent\Collection;
+use Throwable;
+use App\Enums\PaymentMethod;
+use InvalidArgumentException;
+use Stripe\Event;
+use Stripe\StripeObject;
+use Stripe\Webhook;
 
 class StripeService
 {
@@ -18,533 +27,207 @@ class StripeService
         Stripe::setApiKey(config('services.stripe.secret', ''));
     }
 
-    public function createCheckoutSession(array $data)
+    protected function defaultReturnUrl(): string
+    {
+        return '';
+    }
+
+    protected function getEventHandler(string $event): callable
+    {
+        return match(true){
+            Event::CHECKOUT_SESSION_COMPLETED => fn(StripeObject $data) => null,
+            Event::CHECKOUT_SESSION_EXPIRED => fn(StripeObject $data) => null,
+            Event::PAYMENT_INTENT_SUCCEEDED => fn(StripeObject $data) => null,
+            Event::PAYMENT_INTENT_PAYMENT_FAILED => fn(StripeObject $data) => null,
+            Event::PAYMENT_INTENT_CANCELED => fn(StripeObject $data) => null,
+            default => fn() => Log::info("Unhandled webhook event: {$event}")
+        };
+    }
+
+    public function createCheckoutSession(Order|array $order, ?string $returnUrl = null, bool $isStripePayment = false): array
     {
         try {
-            $user = User::find($data['user_id']);
-            $address = $data['address_id'] ? UserAddress::find($data['address_id']) : null;
+            if($order instanceof Order) {
+                $order->loadMissing('user', 'items.productVariant.product', 'items.productVariant.inventory', 'shipping', 'payment');
+            }
 
-            $customerData = $this->prepareCustomerData($user, $address);
+            $customerObject = null;
+            if(!empty($order['user'])) {
+                $user = $order['user'];
+                $shippingAddress = $order['shipping'] ?? null;
 
-            $customerId = $this->getOrCreateCustomer($customerData);
+                $customerData = $this->prepareCustomerData($user, $shippingAddress);
+                $customerObject = $this->getOrCreateCustomer($customerData);
+            }
 
-            $sessionParams = [
+            $sessionOptions = [
+                'ui_mode' => 'embedded',
+                'mode' => 'payment',
+
+                'client_reference_id' => $order['order_code'],
+                'locale' => 'auto',
+                'return_url' => $returnUrl ?? $this->defaultReturnUrl(),
+
+                'customer' => $customerObject?->id ?? '',
+                'customer_email' => $customerObject?->email ?? '',
+
+                'metadata' => [
+                    'user_id' => $order['user_id'] ?? 'N/A',
+                    'order_id' => $order['id'] ?? 'N/A',
+                ],
+
+                'customer_creation' => 'if_required',
+                'customer_update' => [
+                    'address' => 'never',
+                    'name' => 'auto',
+                    'shipping' => 'never',
+                ],
+
+                'expires_at' => strtotime('+2 hours', strtotime($order['payment']['created_at'] ?? $order['created_at'])),
+                'invoice_creation' => $this->prepareInvoiceCreation($order['order_code']),
+                'shipping_options' => $this->prepareShippingOptions($order),
+                'branding_settings' => $this->prepareBrandingSettings(),
+                'allow_promotion_codes' => false,
+                'billing_address_collection' => 'auto',
+                'currency' => 'VND',
+                'origin_context' => 'web',
+                'redirect_on_completion' => 'always',
+                'submit_type' => 'pay',
+                'livemode' => false,
+
                 'automatic_tax' => [
                     'enabled' => false
                 ],
-                'ui_mode' => 'embedded',
-                'mode' => $data['mode'] ?? 'payment',
-                'customer' => $customerId,
-                'customer_email' => $user->email,
-                'client_reference_id' => $data['client_reference_id'] ?? '',
-                'locale' => $data['locale'] ?? 'auto',
-                'currency' => $data['currency'] ?? null,
 
-                // Line items
-                'line_items' => $this->prepareLineItems($data['items']),
-
-                // URLs
-                'return_url' => $data['return_url'],
-                'success_url' => $data['success_url'] ?? null,
-                'cancel_url' => $data['cancel_url'] ?? null,
-
-                // Metadata
-                'metadata' => array_merge([
-                    'user_id' => $user->id,
-                    'order_id' => $data['order_id'] ?? null,
-                ], $data['metadata'] ?? []),
-
-                // Tax settings
-                'automatic_tax' => [
-                    'enabled' => $data['automatic_tax_enabled'] ?? false,
+                'adaptive_pricing' => [
+                    'enabled' => false
                 ],
 
-                // Billing
-                'billing_address_collection' => $data['billing_address_collection'] ?? 'auto',
-
-                // Customer settings
-                'customer_creation' => $data['customer_creation'] ?? 'if_required',
-                'customer_update' => [
-                    'address' => $data['customer_update_address'] ?? 'never',
-                    'name' => $data['customer_update_name'] ?? 'auto',
-                    'shipping' => $data['customer_update_shipping'] ?? 'never',
+                'after_expiration' => [
+                    'recovery' => [
+                        'enabled' => false,
+                        'allow_promotion_codes' => false
+                    ]
                 ],
 
-                // Payment settings
-                'payment_method_types' => $data['payment_method_types'] ?? null,
-                'allow_promotion_codes' => $data['allow_promotion_codes'] ?? false,
+                'name_collection' => [
+                    'business' => [
+                        'enabled' => false,
+                        'optional' => false
+                    ],
 
-                // Redirect settings
-                'redirect_on_completion' => $data['redirect_on_completion'] ?? 'always',
+                    'individual' => [
+                        'enabled' => false,
+                        'optional' => false
+                    ]
+                ],
 
-                // Submit type
-                'submit_type' => $data['submit_type'] ?? 'auto',
-
-                // Saved payment methods
                 'saved_payment_method_options' => [
-                    'allow_redisplay_filters' => [$data['allow_redisplay_filters'] ?? 'always'],
-                    'payment_method_remove' => $data['payment_method_remove'] ?? 'enabled',
-                    'payment_method_save' => $data['payment_method_save'] ?? 'disabled',
+                    'allow_redisplay_filters' => ['always'],
+                    'payment_method_remove' => 'enabled',
+                    'payment_method_save' => 'disabled',
                 ],
-
-                // Origin
-                'origin_context' => $data['origin_context'] ?? 'web',
             ];
 
-            // Thêm expires_at nếu có
-            if (!empty($data['expires_at'])) {
-                $sessionParams['expires_at'] = $data['expires_at'];
+            if(!empty($order['items'])) {
+                $sessionOptions['line_items'] = $this->prepareLineItems($order['items']);
             }
 
-            // Thêm after_expiration nếu có
-            if (!empty($data['after_expiration'])) {
-                $sessionParams['after_expiration'] = [
-                    'recovery' => [
-                        'enabled' => $data['after_expiration']['recovery']['enabled'] ?? false,
-                        'allow_promotion_codes' => $data['after_expiration']['recovery']['allow_promotion_codes'] ?? false,
-                    ],
-                ];
+            if($isStripePayment && !empty($order['payment']['method'])) {
+                $paymentMethod = ($order['payment']['method'] instanceof PaymentMethod)
+                    ? $order['payment']['method']
+                    : PaymentMethod::tryFrom($order['payment']['method']);
+
+                $stripePaymentType = match($paymentMethod) {
+                    PaymentMethod::BANK_TRANSFER => 'bank_transfer',
+                    PaymentMethod::CREDIT_CARD => 'card',
+                    default => throw new InvalidArgumentException("Unsupported payment method: {$paymentMethod?->value}"),
+                };
+
+                $sessionOptions['payment_method_types'] = [$stripePaymentType];
             }
 
-            // Thêm adaptive_pricing nếu có
-            if (!empty($data['adaptive_pricing'])) {
-                $sessionParams['adaptive_pricing'] = [
-                    'enabled' => $data['adaptive_pricing']['enabled'] ?? false,
-                ];
-            }
-
-            // Thêm branding_settings nếu có
-            if (!empty($data['branding_settings'])) {
-                $sessionParams = array_merge($sessionParams,
-                    $this->prepareBrandingSettings($data['branding_settings'])
-                );
-            }
-
-            // Thêm custom_fields nếu có
-            if (!empty($data['custom_fields'])) {
-                $sessionParams['custom_fields'] = $data['custom_fields'];
-            }
-
-            // Thêm custom_text nếu có
-            if (!empty($data['custom_text'])) {
-                $sessionParams['custom_text'] = $data['custom_text'];
-            }
-
-            // Thêm invoice_creation nếu có
-            if (!empty($data['invoice_creation'])) {
-                $sessionParams['invoice_creation'] = $this->prepareInvoiceCreation($data['invoice_creation']);
-            }
-
-            // Thêm shipping_options nếu có
-            if (!empty($data['shipping_options'])) {
-                $sessionParams['shipping_options'] = $this->prepareShippingOptions($data['shipping_options']);
-            }
-
-            // Thêm name collection settings
-            if (!empty($data['name_collection'])) {
-                $sessionParams['name_collection'] = $data['name_collection'];
-            }
-
-            // Tạo session
-            $session = Session::create(array_filter($sessionParams));
+            $session = Session::create($sessionOptions);
 
             return [
                 'success' => true,
                 'session_id' => $session->id,
+                'client_reference_id' => $session->client_reference_id,
+                'metadata' => $session->metadata,
                 'client_secret' => $session->client_secret,
-                'url' => $session->url,
-                'session' => $session,
+                'created_at' => $session->created,
+                'payment_method_types' => $session->payment_method_types
             ];
 
-        } catch (Exception $e) {
-            Log::error('Stripe Checkout Session Error: ' . $e->getMessage());
+        } catch(Throwable $error) {
+            Log::error("Stripe Checkout Session Error: {$error}");
+
             return [
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $error->getMessage(),
             ];
         }
     }
 
-    public function retrieveSession(string $sessionId)
+    public function updateSession(string $sessionId, array $data): array
+    {
+        try {
+            $session = Session::update($sessionId, $data);
+
+            return [
+                'success' => true,
+                ...$session->toArray(),
+            ];
+
+        }catch(Throwable $error) {
+            Log::error("Stripe Update Session Error: {$error}");
+
+            return [
+                'success' => false,
+                'error' => $error->getMessage(),
+            ];
+        }
+    }
+
+    public function retrieveSession(string $sessionId): array
     {
         try {
             $session = Session::retrieve($sessionId);
-            return [
-                'success' => true,
-                'session' => $session,
-            ];
-        } catch (Exception $e) {
-            Log::error('Stripe Retrieve Session Error: ' . $e->getMessage());
-            return [
-                'success' => false,
-                'error' => $e->getMessage(),
-            ];
-        }
-    }
-
-    protected function getOrCreateCustomer(array $customerData)
-    {
-        try {
-            // Tìm customer theo email
-            $customers = Customer::all(['email' => $customerData['email'], 'limit' => 1]);
-
-            if (count($customers->data) > 0) {
-                return $customers->data[0]->id;
-            }
-
-            // Tạo customer mới
-            $customer = Customer::create($customerData);
-            return $customer->id;
-
-        } catch (Exception $e) {
-            Log::error('Stripe Customer Error: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    protected function prepareCustomerData(User $user, ?UserAddress $address): array
-    {
-        $data = [
-            'name' => $user->name,
-            'email' => $user->email,
-            'description' => "Customer ID: {$user->id}",
-            'metadata' => [
-                'user_id' => $user->id,
-                'username' => $user->username,
-            ]
-        ];
-
-        if ($address) {
-            $data['phone'] = $address->phone;
-            $data['shipping'] = [
-                'name' => $address->recipient_name,
-                'phone' => $address->phone,
-                'address' => [
-                    'country' => 'VN',
-                    'city' => $address->district,
-                    'line1' => $address->ward,
-                    'line2'=> $address->street ?? '',
-                    'state' => $address->province,
-                    'postal_code' => $address->postal_code ?? '',
-                ],
-            ];
-        }
-
-        return $data;
-    }
-
-    protected function prepareLineItems(array $items): array
-    {
-        $lineItems = [];
-
-        foreach ($items as $item) {
-            $lineItem = [
-                'quantity' => $item['quantity'] ?? 1,
-            ];
-
-            if (!empty($item['adjustable_quantity'])) {
-                $lineItem['adjustable_quantity'] = [
-                    'enabled' => $item['adjustable_quantity']['enabled'] ?? false,
-                    'minimum' => $item['adjustable_quantity']['minimum'] ?? 1,
-                    'maximum' => $item['adjustable_quantity']['maximum'] ?? 99,
-                ];
-            }
-
-            if (!empty($item['price_data'])) {
-                $lineItem['price_data'] = [
-                    'currency' => strtolower($item['price_data']['currency'] ?? 'vnd'),
-                    'unit_amount' => $item['price_data']['unit_amount'],
-                    'product_data' => [
-                        'name' => $item['price_data']['product_data']['name'],
-                        'description' => $item['price_data']['product_data']['description'] ?? null,
-                        'images' => $item['price_data']['product_data']['images'] ?? [],
-                    ],
-                ];
-
-                if (!empty($item['price_data']['product_data']['unit_label'])) {
-                    $lineItem['price_data']['product_data']['unit_label'] =
-                        $item['price_data']['product_data']['unit_label'];
-                }
-
-                if (!empty($item['price_data']['tax_behavior'])) {
-                    $lineItem['price_data']['tax_behavior'] = $item['price_data']['tax_behavior'];
-                }
-            } else if (!empty($item['price'])) {
-                $lineItem['price'] = $item['price'];
-            }
-
-            $lineItems[] = array_filter($lineItem);
-        }
-
-        return $lineItems;
-    }
-
-    protected function prepareBrandingSettings(array $settings)
-    {
-        $branding = [];
-
-        if (!empty($settings['background_color'])) {
-            $branding['background_color'] = $settings['background_color'];
-        }
-
-        if (!empty($settings['button_color'])) {
-            $branding['button_color'] = $settings['button_color'];
-        }
-
-        if (!empty($settings['display_name'])) {
-            $branding['display_name'] = $settings['display_name'];
-        }
-
-        if (!empty($settings['font_family'])) {
-            $branding['font_family'] = $settings['font_family'];
-        }
-
-        if (!empty($settings['border_style'])) {
-            $branding['border_style'] = $settings['border_style'];
-        }
-
-        // Icon
-        if (!empty($settings['icon'])) {
-            if ($settings['icon']['type'] === 'url' && !empty($settings['icon']['url'])) {
-                $branding['icon'] = $settings['icon']['url'];
-            } else if ($settings['icon']['type'] === 'file' && !empty($settings['icon']['file'])) {
-                $branding['icon'] = $settings['icon']['file'];
-            }
-        }
-
-        // Logo
-        if (!empty($settings['logo'])) {
-            if ($settings['logo']['type'] === 'url' && !empty($settings['logo']['url'])) {
-                $branding['logo'] = $settings['logo']['url'];
-            } else if ($settings['logo']['type'] === 'file' && !empty($settings['logo']['file'])) {
-                $branding['logo'] = $settings['logo']['file'];
-            }
-        }
-
-        return $branding;
-    }
-
-    protected function prepareInvoiceCreation(array $invoiceData)
-    {
-        $invoice = [
-            'enabled' => $invoiceData['enabled'] ?? true,
-        ];
-
-        if (!empty($invoiceData['invoice_data'])) {
-            $invoice['invoice_data'] = [];
-
-            if (!empty($invoiceData['invoice_data']['custom_fields'])) {
-                $invoice['invoice_data']['custom_fields'] = $invoiceData['invoice_data']['custom_fields'];
-            }
-
-            if (!empty($invoiceData['invoice_data']['description'])) {
-                $invoice['invoice_data']['description'] = $invoiceData['invoice_data']['description'];
-            }
-
-            if (!empty($invoiceData['invoice_data']['footer'])) {
-                $invoice['invoice_data']['footer'] = $invoiceData['invoice_data']['footer'];
-            }
-
-            if (!empty($invoiceData['invoice_data']['rendering_options'])) {
-                $invoice['invoice_data']['rendering_options'] = $invoiceData['invoice_data']['rendering_options'];
-            }
-        }
-
-        return $invoice;
-    }
-
-    protected function prepareShippingOptions(array $shippingOptions)
-    {
-        $options = [];
-
-        foreach ($shippingOptions as $option) {
-            $shippingOption = [];
-
-            if (!empty($option['shipping_rate_data'])) {
-                $rateData = [
-                    'display_name' => $option['shipping_rate_data']['display_name'],
-                    'type' => $option['shipping_rate_data']['type'] ?? 'fixed_amount',
-                ];
-
-                // Fixed amount
-                if (!empty($option['shipping_rate_data']['fixed_amount'])) {
-                    $rateData['fixed_amount'] = [
-                        'amount' => $option['shipping_rate_data']['fixed_amount']['amount'],
-                        'currency' => strtolower($option['shipping_rate_data']['fixed_amount']['currency'] ?? 'vnd'),
-                    ];
-                }
-
-                // Delivery estimate
-                if (!empty($option['shipping_rate_data']['delivery_estimate'])) {
-                    $rateData['delivery_estimate'] = [];
-
-                    if (!empty($option['shipping_rate_data']['delivery_estimate']['minimum'])) {
-                        $rateData['delivery_estimate']['minimum'] = $option['shipping_rate_data']['delivery_estimate']['minimum'];
-                    }
-
-                    if (!empty($option['shipping_rate_data']['delivery_estimate']['maximum'])) {
-                        $rateData['delivery_estimate']['maximum'] = $option['shipping_rate_data']['delivery_estimate']['maximum'];
-                    }
-                }
-
-                $shippingOption['shipping_rate_data'] = $rateData;
-            } else if (!empty($option['shipping_rate'])) {
-                $shippingOption['shipping_rate'] = $option['shipping_rate'];
-            }
-
-            $options[] = $shippingOption;
-        }
-
-        return $options;
-    }
-
-    public function handleWebhook(string $payload, string $signature)
-    {
-        try {
-            $event = \Stripe\Webhook::constructEvent(
-                $payload,
-                $signature,
-                config('services.stripe.webhook_secret')
-            );
-
-            switch ($event->type) {
-                case 'checkout.session.completed':
-                    $this->handleCheckoutSessionCompleted($event->data->object);
-                    break;
-
-                case 'checkout.session.expired':
-                    $this->handleCheckoutSessionExpired($event->data->object);
-                    break;
-
-                case 'payment_intent.succeeded':
-                    $this->handlePaymentIntentSucceeded($event->data->object);
-                    break;
-
-                case 'payment_intent.payment_failed':
-                    $this->handlePaymentIntentFailed($event->data->object);
-                    break;
-
-                default:
-                    Log::info('Unhandled webhook event: ' . $event->type);
-            }
-
-            return ['success' => true];
-
-        } catch (Exception $e) {
-            Log::error('Stripe Webhook Error: ' . $e->getMessage());
-            return ['success' => false, 'error' => $e->getMessage()];
-        }
-    }
-
-    protected function handleCheckoutSessionCompleted($session)
-    {
-        Log::info('Checkout Session Completed', [
-            'session_id' => $session->id,
-            'customer' => $session->customer,
-            'metadata' => $session->metadata,
-        ]);
-    }
-
-    protected function handleCheckoutSessionExpired($session)
-    {
-        Log::info('Checkout Session Expired', [
-            'session_id' => $session->id,
-            'metadata' => $session->metadata,
-        ]);
-
-        // Xử lý khi session hết hạn
-    }
-
-    protected function handlePaymentIntentSucceeded($paymentIntent)
-    {
-        Log::info('Payment Intent Succeeded', [
-            'payment_intent_id' => $paymentIntent->id,
-            'amount' => $paymentIntent->amount,
-            'currency' => $paymentIntent->currency,
-        ]);
-
-        // Xử lý payment thành công
-    }
-
-    /**
-     * Xử lý khi payment intent thất bại
-     */
-    protected function handlePaymentIntentFailed($paymentIntent)
-    {
-        Log::error('Payment Intent Failed', [
-            'payment_intent_id' => $paymentIntent->id,
-            'error' => $paymentIntent->last_payment_error,
-        ]);
-
-        // Xử lý payment thất bại
-    }
-
-    /**
-     * Lấy thông tin payment intent
-     */
-    public function retrievePaymentIntent(string $paymentIntentId)
-    {
-        try {
-            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
-            return [
-                'success' => true,
-                'payment_intent' => $paymentIntent,
-            ];
-        } catch (Exception $e) {
-            Log::error('Stripe Retrieve Payment Intent Error: ' . $e->getMessage());
-            return [
-                'success' => false,
-                'error' => $e->getMessage(),
-            ];
-        }
-    }
-
-    /**
-     * Huỷ payment intent
-     */
-    public function cancelPaymentIntent(string $paymentIntentId)
-    {
-        try {
-            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
-            $paymentIntent->cancel();
 
             return [
                 'success' => true,
-                'payment_intent' => $paymentIntent,
+                ...$session->toArray(),
             ];
-        } catch (Exception $e) {
-            Log::error('Stripe Cancel Payment Intent Error: ' . $e->getMessage());
+        }catch(Throwable $error) {
+            Log::error("Stripe Retrieve Session Error: {$error}");
+
             return [
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $error->getMessage(),
             ];
         }
     }
 
-    /**
-     * Lấy danh sách sessions
-     */
-    public function listSessions(array $params = [])
+    public function listSessions(array $params = []): array
     {
         try {
             $sessions = Session::all($params);
+
             return [
                 'success' => true,
-                'sessions' => $sessions,
+                ...$sessions,
             ];
-        } catch (Exception $e) {
-            Log::error('Stripe List Sessions Error: ' . $e->getMessage());
+        }catch(Throwable $error) {
+            Log::error("Stripe List Sessions Error: {$error}");
+
             return [
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $error->getMessage(),
             ];
         }
     }
 
-    /**
-     * Expire một session
-     */
-    public function expireSession(string $sessionId)
+    public function expireSession(string $sessionId): array
     {
         try {
             $session = Session::retrieve($sessionId);
@@ -552,13 +235,266 @@ class StripeService
 
             return [
                 'success' => true,
-                'session' => $session,
+                ...$session->toArray(),
             ];
-        } catch (Exception $e) {
-            Log::error('Stripe Expire Session Error: ' . $e->getMessage());
+
+        }catch(Throwable $error) {
+            Log::error("Stripe Expire Session Error: {$error}");
+
             return [
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $error->getMessage(),
+            ];
+        }
+    }
+
+    public function getOrCreateCustomer(array $customerData): ?object
+    {
+        try {
+            $customers = Customer::all([
+                'email' => $customerData['email'],
+                'limit' => 1
+            ]);
+
+            if (!$customers->isEmpty()) {
+                return $customers->first();
+            }
+
+            $customer = Customer::create($customerData);
+            return $customer;
+        }catch(Throwable $error) {
+            Log::error("Stripe Customer Error: {$error}");
+
+            return null;
+        }
+    }
+
+    protected function prepareCustomerData(User|array $user, OrderShipping|array|null $address): array
+    {
+        $data = [
+            'name' => $user['name'],
+            'email' => $user['email'],
+            'description' => "Customer ID: {$user['id']}",
+            'metadata' => [
+                'user_id' => $user['id'],
+                'username' => $user['username'],
+            ]
+        ];
+
+        if ($address) {
+            $data['phone'] = $address['phone'];
+            $data['shipping'] = [
+                'name' => $address['recipient_name'],
+                'phone' => $address['phone'],
+                'address' => [
+                    'country' => 'VN',
+                    'state' => $address['province'],
+                    'city' => $address['district'],
+                    'line1' => $address['ward'],
+                    'line2'=> $address['street'] ?? '',
+                    'postal_code' => $address['postal_code'] ?? '',
+                ],
+            ];
+        }
+
+        return $data;
+    }
+
+    protected function prepareLineItems(Collection|array $items): array
+    {
+        $lineItems = [];
+
+        foreach($items as $item) {
+            if(!($item instanceof OrderItem || is_array($item))) continue;
+
+            $lineItem = [
+                'quantity' => $item['quantity'] ?? 1
+            ];
+
+            if(!empty($item['productVariant'])) {
+                $variant = $item['productVariant'];
+                $lineItem['price_data'] = [
+                    'currency' => 'VND',
+                    'tax_behavior' => 'unspecified',
+                    'unit_amount' => $variant['discount'] ?? $variant['price']
+                ];
+
+                if(!empty($variant['inventory'])) {
+                    $inventory = $variant['inventory'];
+                    $lineItem['adjustable_quantity'] = [
+                        'enabled' => false,
+                        'maximum' => $inventory['stock'],
+                        'minimum' => 1
+                    ];
+                }
+
+                if(!empty($variant['product'])) {
+                    $product = $variant['product'];
+                    $lineItem['price_data']['product_data'] = [
+                        'name' => $product['title'] . ' - ' . $variant['name'],
+                        'description' => $product['description'],
+                        'metadata' => [
+                            'product_id' => $product['id'],
+                            'variant_id' => $variant['id'],
+                        ],
+                        'unit_label' => 'volume'
+                    ];
+
+                    if(!empty($product['images'])) {
+                        $images = $product['images'];
+                        $lineItem['price_data']['product_data']['images'] = array_map(
+                            fn($image) => $image['image_url'],
+                            ($images instanceof Image) ? $images->toArray() : $images
+                        );
+                    }
+                }
+            }
+
+            $lineItems[] = $lineItem;
+        }
+
+        return $lineItems;
+    }
+
+    protected function prepareBrandingSettings(): array
+    {
+        $defaultBranding = [
+            'background_color' => '#FFF9E6',
+            'border_style' => 'rounded',
+            'button_color' => '#F59E0B',
+            'display_name' => 'Bookio Payment',
+            'font_family' => 'be_vietnam_pro',
+            'icon' => [
+                'type' => 'url',
+                'url' => asset('storage/logo-bookio.ico')
+            ],
+            'logo' => [
+                'type' => 'url',
+                'url' => asset('storage/logo-bookio.webp')
+            ]
+        ];
+
+        return $defaultBranding;
+    }
+
+    protected function prepareInvoiceCreation(string $orderCode): array
+    {
+        $invoice = [
+            'enabled' => true,
+            'invoice_data' => [
+                'custom_fields' => [
+                    [
+                        'name' => 'Order Code',
+                        'value' => $orderCode
+                    ]
+                ],
+                'description' => 'Book purchase from Bookio - Your trusted online bookstore.',
+                'footer' => 'Thank you for shopping at Bookio! Payment is due within 15 days. Questions? Contact us at support@bookio.com.',
+                'rendering_options' => [
+                    'amount_tax_display' => 'exclude_tax'
+                ]
+            ]
+        ];
+
+        return $invoice;
+    }
+
+    protected function prepareShippingOptions(Order|array $orderData): array
+    {
+        $options = [
+            'shipping_rate_data' => [
+                'display_name' => 'Standard Shipping',
+                'delivery_estimate' => [
+                    'maximum' => [
+                        'unit' => 'week',
+                        'value' => 2
+                    ],
+
+                    'minimum' => [
+                        'unit' => 'day',
+                        'value' => 1
+                    ]
+                ],
+
+                'fixed_amount' => [
+                    'amount' => $orderData['shipping_fee'] * 100,
+                    'currency' => 'VND'
+                ],
+
+                'tax_behavior' => 'unspecified',
+                'type' => 'fixed_amount'
+            ]
+        ];
+
+        return $options;
+    }
+
+    public function retrievePaymentIntent(string $paymentIntentId): array
+    {
+        try {
+            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+
+            return [
+                'success' => true,
+                ...$paymentIntent->toArray(),
+            ];
+
+        }catch(Throwable $error) {
+            Log::error("Stripe Retrieve Payment Intent Error: {$error}");
+
+            return [
+                'success' => false,
+                'error' => $error->getMessage(),
+            ];
+        }
+    }
+
+    public function cancelPaymentIntent(string $paymentIntentId, string $cancellationReason = ''): array
+    {
+        try {
+            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+            $paymentIntent->cancel(['cancellation_reason' => $cancellationReason]);
+
+            return [
+                'success' => true,
+                ...$paymentIntent->toArray(),
+            ];
+
+        }catch(Throwable $error) {
+            Log::error("Stripe Cancel Payment Intent Error: {$error}");
+
+            return [
+                'success' => false,
+                'error' => $error->getMessage(),
+            ];
+        }
+    }
+
+    public function handleWebhook(?string $payload = null, ?string $signature = null): array
+    {
+        try {
+            $event = Webhook::constructEvent(
+                $payload ?? @file_get_contents('php://input'),
+                $signature ?? $_SERVER['HTTP_STRIPE_SIGNATURE'],
+                config('services.stripe.webhook_secret', ''),
+                Webhook::DEFAULT_TOLERANCE
+            );
+
+            $handler = $this->getEventHandler($event->type);
+            $handler($event->data);
+
+            return [
+                'success' => true,
+                'event' => $event->type,
+                ...$event->data->toArray()
+            ];
+
+        }catch(Throwable $error) {
+            Log::error("Stripe Webhook Error: {$error}");
+
+            return [
+                'success' => false,
+                'error' => $error->getMessage()
             ];
         }
     }
