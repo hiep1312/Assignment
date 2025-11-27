@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 class CheckoutService
 {
@@ -115,14 +116,6 @@ class CheckoutService
                 'data' => $orderCreated
             ];
 
-        }catch(RuntimeException $businessException) {
-            DB::rollBack();
-
-            return [
-                'success' => false,
-                'message' => $businessException->getMessage(),
-            ];
-
         }catch(QueryException $dbException) {
             DB::rollBack();
             Log::error('Database error during order creation', ['error' => $dbException]);
@@ -130,6 +123,14 @@ class CheckoutService
             return [
                 'success' => false,
                 'message' => 'An internal error occurred while creating the order.',
+            ];
+
+        }catch(Throwable $businessException) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => $businessException->getMessage(),
             ];
         }
     }
@@ -232,14 +233,6 @@ class CheckoutService
                 'data' => $order
             ];
 
-        }catch(RuntimeException $businessException) {
-            DB::rollBack();
-
-            return [
-                'success' => false,
-                'message' => $businessException->getMessage(),
-            ];
-
         }catch(QueryException $dbException) {
             DB::rollBack();
             Log::error('Database error during order update', ['error' => $dbException, 'order_code' => $orderCode]);
@@ -247,6 +240,14 @@ class CheckoutService
             return [
                 'success' => false,
                 'message' => 'An internal error occurred while updating the order.',
+            ];
+
+        }catch(Throwable $businessException) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => $businessException->getMessage(),
             ];
         }
     }
@@ -301,14 +302,6 @@ class CheckoutService
                 'data' => $restoredCart
             ];
 
-        }catch(RuntimeException $businessException) {
-            DB::rollBack();
-
-            return [
-                'success' => false,
-                'message' => $businessException->getMessage(),
-            ];
-
         }catch(QueryException $dbException) {
             DB::rollBack();
             Log::error('Database error during order cancellation', ['error' => $dbException, 'order_code' => $orderCode]);
@@ -316,6 +309,14 @@ class CheckoutService
             return [
                 'success' => false,
                 'message' => 'An internal error occurred while cancelling the order.',
+            ];
+
+        }catch(Throwable $businessException) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => $businessException->getMessage(),
             ];
         }
     }
@@ -376,14 +377,6 @@ class CheckoutService
                 'data' => $dataResponse
             ];
 
-        }catch(RuntimeException $businessException) {
-            DB::rollBack();
-
-            return [
-                'success' => false,
-                'message' => $businessException->getMessage(),
-            ];
-
         }catch(QueryException $dbException) {
             DB::rollBack();
             Log::error('Database error during order finalization', ['error' => $dbException, 'order_code' => $orderCode]);
@@ -391,6 +384,14 @@ class CheckoutService
             return [
                 'success' => false,
                 'message' => 'An internal error occurred while finalizing the order.',
+            ];
+
+        }catch(Throwable $businessException) {
+            DB::rollBack();
+
+            return [
+                'success' => false,
+                'message' => $businessException->getMessage(),
             ];
         }
     }

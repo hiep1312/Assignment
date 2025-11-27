@@ -61,7 +61,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" \"stripe listen --forward-to 127.0.0.1:8000/webhooks/payment\" --names='server,queue,vite'"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" \"stripe listen --forward-to 127.0.0.1:8000/api/webhooks/payment --events checkout.session.completed,checkout.session.expired,payment_intent.succeeded,payment_intent.payment_failed,payment_intent.canceled\" --names='server,queue,vite'"
         ],
         "test": [
             "@php artisan config:clear --ansi",

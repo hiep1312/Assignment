@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BlogCommentController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CartItemController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ImageController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Api\ProductReviewController;
 use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\UserAddressController;
 use App\Http\Controllers\Api\UserController;
+use App\Services\StripeService;
 use Illuminate\Support\Facades\Route;
 
 Route::name('api.')->group(function() {
@@ -71,9 +73,11 @@ Route::name('api.')->group(function() {
         /* Cart & Cart Items */
         Route::apiResources([
             'carts' => CartController::class,
+            'carts.items' => CartItemController::class
         ], [
             'excluded_middleware' => ['auth:jwt']
         ]);
+        // Route::delete();
 
         /* Checkout */
         Route::prefix('/checkout')->controller(CheckoutController::class)->name('checkout.')->group(function() {
@@ -83,4 +87,7 @@ Route::name('api.')->group(function() {
             Route::post('/finalize/{order}', 'finalize')->name('finalize');
         });
     });
+
+    /* Webhooks Payment */
+    Route::post('/webhooks/payment', [StripeService::class, 'handleWebhook'])->name('webhooks.payment');
 });

@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\CartItem;
 use App\Repositories\Contracts\CartItemRepositoryInterface;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -40,5 +41,25 @@ class CartItemRepository extends BaseRepository implements CartItemRepositoryInt
             ->select('ci.*', 'pvi.stock', 'pvi.sold_number')
             ->when($useSharedLock && DB::transactionLevel(), fn($query) => $query->sharedLock())
             ->get();
+    }
+
+    public function createByVariantSku(array $attributes, $sku, &$createdModel = null)
+    {
+        $fillableData = Arr::only($attributes, $this->model->getFillable());
+        unset($fillableData['product_variant_id'], $fillableData['price']);
+
+        $insertedRows = DB::table($this->model->getTable())->insertUsing(
+            ['product_variant_id', ...array_keys($fillableData), 'price', 'created_at', 'updated_at'],
+            DB::table('product_variants')->selectRaw("id, ". str_repeat("?, ", count($fillableData)) ."price, NOW(), NOW()", array_values($fillableData))
+                ->where('sku', $sku)->limit(1)
+        );
+
+        if(func_num_args() > 2 && (bool) $insertedRows){
+            $createdModel = $this->model->where('cart_id', $fillableData['cart_id'])
+                ->whereHas('productVariant', fn($query) => $query->where('sku', $sku))
+                ->first();
+        }
+
+        return $insertedRows;
     }
 }

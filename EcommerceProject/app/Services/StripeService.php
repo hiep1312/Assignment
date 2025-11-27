@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Image;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderShipping;
@@ -15,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
 use Throwable;
 use App\Enums\PaymentMethod;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use InvalidArgumentException;
 use Stripe\Event;
 use Stripe\StripeObject;
@@ -29,17 +30,17 @@ class StripeService
 
     protected function defaultReturnUrl(): string
     {
-        return '';
+        return route('admin.banners.index');
     }
 
     protected function getEventHandler(string $event): callable
     {
-        return match(true){
-            Event::CHECKOUT_SESSION_COMPLETED => fn(StripeObject $data) => null,
-            Event::CHECKOUT_SESSION_EXPIRED => fn(StripeObject $data) => null,
-            Event::PAYMENT_INTENT_SUCCEEDED => fn(StripeObject $data) => null,
-            Event::PAYMENT_INTENT_PAYMENT_FAILED => fn(StripeObject $data) => null,
-            Event::PAYMENT_INTENT_CANCELED => fn(StripeObject $data) => null,
+        return match($event){
+            Event::CHECKOUT_SESSION_COMPLETED => fn(StripeObject $data) => call_user_func([StripeWebhookService::class, 'handleCheckoutSessionCompleted'], $data),
+            Event::CHECKOUT_SESSION_EXPIRED => fn(StripeObject $data) => call_user_func([StripeWebhookService::class, 'handleCheckoutSessionExpired'], $data),
+            Event::PAYMENT_INTENT_SUCCEEDED => fn(StripeObject $data) => call_user_func([StripeWebhookService::class, 'handlePaymentIntentSucceeded'], $data),
+            Event::PAYMENT_INTENT_PAYMENT_FAILED => fn(StripeObject $data) => call_user_func([StripeWebhookService::class, 'handlePaymentIntentFailed'], $data),
+            Event::PAYMENT_INTENT_CANCELED => fn(StripeObject $data) => call_user_func([StripeWebhookService::class, 'handlePaymentIntentCanceled'], $data),
             default => fn() => Log::info("Unhandled webhook event: {$event}")
         };
     }
@@ -67,16 +68,13 @@ class StripeService
                 'client_reference_id' => $order['order_code'],
                 'locale' => 'auto',
                 'return_url' => $returnUrl ?? $this->defaultReturnUrl(),
-
                 'customer' => $customerObject?->id ?? '',
-                'customer_email' => $customerObject?->email ?? '',
 
                 'metadata' => [
                     'user_id' => $order['user_id'] ?? 'N/A',
                     'order_id' => $order['id'] ?? 'N/A',
                 ],
 
-                'customer_creation' => 'if_required',
                 'customer_update' => [
                     'address' => 'never',
                     'name' => 'auto',
@@ -93,7 +91,6 @@ class StripeService
                 'origin_context' => 'web',
                 'redirect_on_completion' => 'always',
                 'submit_type' => 'pay',
-                'livemode' => false,
 
                 'automatic_tax' => [
                     'enabled' => false
@@ -106,18 +103,18 @@ class StripeService
                 'after_expiration' => [
                     'recovery' => [
                         'enabled' => false,
-                        'allow_promotion_codes' => false
+                        // 'allow_promotion_codes' => false
                     ]
                 ],
 
                 'name_collection' => [
                     'business' => [
                         'enabled' => false,
-                        'optional' => false
+                        // 'optional' => false
                     ],
 
                     'individual' => [
-                        'enabled' => false,
+                        'enabled' => true,
                         'optional' => false
                     ]
                 ],
@@ -262,6 +259,7 @@ class StripeService
 
             $customer = Customer::create($customerData);
             return $customer;
+
         }catch(Throwable $error) {
             Log::error("Stripe Customer Error: {$error}");
 
@@ -316,15 +314,15 @@ class StripeService
                 $lineItem['price_data'] = [
                     'currency' => 'VND',
                     'tax_behavior' => 'unspecified',
-                    'unit_amount' => $variant['discount'] ?? $variant['price']
+                    'unit_amount' => (int) ($variant['discount'] ?? $variant['price'])
                 ];
 
                 if(!empty($variant['inventory'])) {
                     $inventory = $variant['inventory'];
                     $lineItem['adjustable_quantity'] = [
                         'enabled' => false,
-                        'maximum' => $inventory['stock'],
-                        'minimum' => 1
+                        // 'maximum' => $inventory['stock'],
+                        // 'minimum' => 1
                     ];
                 }
 
@@ -332,7 +330,7 @@ class StripeService
                     $product = $variant['product'];
                     $lineItem['price_data']['product_data'] = [
                         'name' => $product['title'] . ' - ' . $variant['name'],
-                        'description' => $product['description'],
+                        'description' => $product['description'] ?? '',
                         'metadata' => [
                             'product_id' => $product['id'],
                             'variant_id' => $variant['id'],
@@ -343,8 +341,8 @@ class StripeService
                     if(!empty($product['images'])) {
                         $images = $product['images'];
                         $lineItem['price_data']['product_data']['images'] = array_map(
-                            fn($image) => $image['image_url'],
-                            ($images instanceof Image) ? $images->toArray() : $images
+                            fn($image) => asset("storage/{$image['image_url']}"),
+                            ($images instanceof Collection) ? $images->toArray() : $images
                         );
                     }
                 }
@@ -364,14 +362,14 @@ class StripeService
             'button_color' => '#F59E0B',
             'display_name' => 'Bookio Payment',
             'font_family' => 'be_vietnam_pro',
-            'icon' => [
+            /* 'icon' => [
                 'type' => 'url',
                 'url' => asset('storage/logo-bookio.ico')
             ],
             'logo' => [
                 'type' => 'url',
                 'url' => asset('storage/logo-bookio.webp')
-            ]
+            ] */
         ];
 
         return $defaultBranding;
@@ -402,27 +400,29 @@ class StripeService
     protected function prepareShippingOptions(Order|array $orderData): array
     {
         $options = [
-            'shipping_rate_data' => [
-                'display_name' => 'Standard Shipping',
-                'delivery_estimate' => [
-                    'maximum' => [
-                        'unit' => 'week',
-                        'value' => 2
+            [
+                'shipping_rate_data' => [
+                    'display_name' => 'Standard Shipping',
+                    'delivery_estimate' => [
+                        'maximum' => [
+                            'unit' => 'week',
+                            'value' => 2
+                        ],
+
+                        'minimum' => [
+                            'unit' => 'day',
+                            'value' => 1
+                        ]
                     ],
 
-                    'minimum' => [
-                        'unit' => 'day',
-                        'value' => 1
-                    ]
-                ],
+                    'fixed_amount' => [
+                        'amount' => $orderData['shipping_fee'] * 100,
+                        'currency' => 'VND'
+                    ],
 
-                'fixed_amount' => [
-                    'amount' => $orderData['shipping_fee'] * 100,
-                    'currency' => 'VND'
-                ],
-
-                'tax_behavior' => 'unspecified',
-                'type' => 'fixed_amount'
+                    'tax_behavior' => 'unspecified',
+                    'type' => 'fixed_amount'
+                ]
             ]
         ];
 
@@ -470,32 +470,40 @@ class StripeService
         }
     }
 
-    public function handleWebhook(?string $payload = null, ?string $signature = null): array
+    public function handleWebhook(Request $request): JsonResponse
     {
         try {
             $event = Webhook::constructEvent(
-                $payload ?? @file_get_contents('php://input'),
-                $signature ?? $_SERVER['HTTP_STRIPE_SIGNATURE'],
+                @file_get_contents('php://input') ?? $request->getContent(),
+                $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? $request->header('Stripe-Signature'),
                 config('services.stripe.webhook_secret', ''),
                 Webhook::DEFAULT_TOLERANCE
             );
 
             $handler = $this->getEventHandler($event->type);
-            $handler($event->data);
+            $handlerResult = $handler($event->data);
+            $response = null;
 
-            return [
-                'success' => true,
-                'event' => $event->type,
-                ...$event->data->toArray()
-            ];
+            if($handlerResult instanceof JsonResponse || is_array($handlerResult)) {
+                $response = $handlerResult;
+            }else {
+                $response = [
+                    'success' => true,
+                    'event' => $event->type,
+                    'payload' => $handlerResult,
+                    ...$event->data->toArray()
+                ];
+            }
+
+            return $response instanceof JsonResponse ? $response : response()->json($response, 200);
 
         }catch(Throwable $error) {
             Log::error("Stripe Webhook Error: {$error}");
 
-            return [
+            return response()->json([
                 'success' => false,
                 'error' => $error->getMessage()
-            ];
+            ], 500);
         }
     }
 }

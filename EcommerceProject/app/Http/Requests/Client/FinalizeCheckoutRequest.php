@@ -76,7 +76,7 @@ class FinalizeCheckoutRequest extends FormRequest
         $addressTemplate = $addressRepository->first(
             criteria: fn($query) => $query->where('id', $this->input('address_id'))
                 ->where('user_id', authPayload('sub')),
-            columns: ['recipient_name', 'phone', 'province', 'district', 'ward', 'street', 'postal_code', 'note']
+            columns: ['recipient_name', 'phone', 'province', 'district', 'ward', 'street', 'postal_code']
         );
 
         if($addressTemplate){
