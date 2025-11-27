@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\BlogCommentController;
 use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ImageController;
@@ -29,7 +30,8 @@ Route::name('api.')->group(function() {
     /* Data */
     Route::middleware('auth:jwt')->group(function() {
         /* User */
-        Route::apiSingleton('profile', UserController::class, ['destroyable' => true]);
+        Route::apiSingleton('profile', UserController::class)
+            ->destroyable();
 
         /* Resources */
         Route::apiResources([
@@ -37,7 +39,6 @@ Route::name('api.')->group(function() {
             'categories' => CategoryController::class,
             'images' => ImageController::class,
             'products' => ProductController::class,
-            'orders' => OrderController::class,
             'banners' => BannerController::class,
             'blogs' => BlogController::class
         ]);
@@ -51,12 +52,28 @@ Route::name('api.')->group(function() {
             'shallow' => true,
         ]);
 
-        /* Related Orders */
-        Route::apiResource('orders.items', OrderItemController::class);
-        Route::apiSingletons([
-            'orders.shipping-address' => OrderShippingController::class,
-            'orders.payment' => PaymentController::class
-        ], ['creatable' => true]);
+        /* Orders */
+        Route::group([], function() {
+            Route::apiResource('orders', OrderController::class)
+                ->only(['index', 'show', 'update']);
+
+            /* Related Orders */
+            Route::apiResource('orders.items', OrderItemController::class)
+                ->only(['index', 'show']);
+            Route::apiSingletons([
+                'orders.shipping-address' => OrderShippingController::class,
+                'orders.payment' => PaymentController::class
+            ], [
+                'only' => ['show']
+            ]);
+        });
+
+        /* Cart & Cart Items */
+        Route::apiResources([
+            'carts' => CartController::class,
+        ], [
+            'excluded_middleware' => ['auth:jwt']
+        ]);
 
         /* Checkout */
         Route::prefix('/checkout')->controller(CheckoutController::class)->name('checkout.')->group(function() {

@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\ApiQueryRelation;
-use App\Http\Requests\Client\OrderItemRequest;
 use App\Repositories\Contracts\OrderItemRepositoryInterface;
-use App\Services\OrderItemService;
 use Illuminate\Http\Request;
 
 class OrderItemController extends BaseApiController
@@ -27,7 +25,6 @@ class OrderItemController extends BaseApiController
 
     public function __construct(
         protected OrderItemRepositoryInterface $repository,
-        protected OrderItemService $service,
     ){}
 
     /**
@@ -75,34 +72,6 @@ class OrderItemController extends BaseApiController
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(OrderItemRequest $request, string $orderCode)
-    {
-        $validatedData = $request->validated();
-        $creationResult = $this->service->create($validatedData, $orderCode);
-
-        if(is_bool($creationResult)){
-            return $this->response(
-                success: false,
-                message: 'The requested quantity exceeds the available stock for this product.',
-                code: 422,
-            );
-        }
-
-        [$isCreated, $createdOrderItem] = $creationResult;
-
-        return $this->response(
-            success: (bool) $isCreated,
-            message: $isCreated
-                ? 'Order item created successfully.'
-                : 'Failed to create order item.',
-            code: $isCreated ? 201 : 400,
-            data: $createdOrderItem?->only(self::API_FIELDS) ?? []
-        );
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(Request $request, string $orderCode, string $id)
@@ -127,50 +96,6 @@ class OrderItemController extends BaseApiController
                 : 'Order item not found.',
             code: $orderItem ? 200 : 404,
             data: $orderItem?->toArray() ?? []
-        );
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(OrderItemRequest $request, string $orderCode, string $id)
-    {
-        $validatedData = $request->validated();
-        $updationResult = $this->service->update($validatedData, $orderCode, $id);
-
-        if(is_bool($updationResult)){
-            return $this->response(
-                success: false,
-                message: 'The requested quantity exceeds the available stock for this product.',
-                code: 422,
-            );
-        }
-
-        [$isUpdated, $updatedOrderItem] = $updationResult;
-
-        return $this->response(
-            success: (bool) $isUpdated,
-            message: $isUpdated
-                ? 'Order item updated successfully.'
-                : 'Order item not found.',
-            code: $isUpdated ? 200 : 404,
-            data: $updatedOrderItem?->only(self::API_FIELDS) ?? []
-        );
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $orderCode, string $id)
-    {
-        [$isDeleted] = $this->service->delete($orderCode, $id);
-
-        return $this->response(
-            success: (bool) $isDeleted,
-            message: $isDeleted
-                ? 'Order item deleted successfully.'
-                : 'Order item not found.',
-            code: $isDeleted ? 200 : 404
         );
     }
 }

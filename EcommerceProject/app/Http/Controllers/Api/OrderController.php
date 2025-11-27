@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\ApiQueryRelation;
-use App\Http\Requests\Client\OrderRequest;
+use App\Http\Requests\Client\UpdateOrderRequest;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
@@ -17,6 +17,7 @@ class OrderController extends BaseApiController
     protected function getAllowedRelationsWithFields(): array
     {
         return [
+            'user' => UserController::API_FIELDS,
             'items' => (object)[
                 'fields' => OrderItemController::API_FIELDS,
                 'productVariant' => (object)[
@@ -25,7 +26,18 @@ class OrderController extends BaseApiController
                     'product' => ProductController::API_FIELDS
                 ],
             ],
-            'shipping' => OrderShippingController::API_FIELDS
+            'shipping' => OrderShippingController::API_FIELDS,
+            'payment' => (object)[
+                'fields' => PaymentController::API_FIELDS,
+                'user' => UserController::API_FIELDS
+            ]
+        ];
+    }
+
+    protected function getAllowedAggregateRelations(): array
+    {
+        return [
+            'count' => 'items',
         ];
     }
 
@@ -80,24 +92,6 @@ class OrderController extends BaseApiController
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(OrderRequest $request)
-    {
-        $validatedData = $request->validated();
-        $createdOrder = $this->repository->create(
-            $validatedData + ['user_id' => authPayload('sub')]
-        );
-
-        return $this->response(
-            success: true,
-            message: 'Order created successfully.',
-            code: 201,
-            data: $createdOrder->only(self::API_FIELDS)
-        );
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(Request $request, string $orderCode)
@@ -127,18 +121,26 @@ class OrderController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(OrderRequest $request, string $orderCode)
+    public function update(UpdateOrderRequest $request, string $orderCode)
     {
         $validatedData = $request->validated();
-        [$isUpdated, $updatedOrder] = $this->service->update($validatedData, $orderCode);
+        $validatedData && ($updationResult = $this->service->update($validatedData, $orderCode));
 
-        if(is_bool($updatedOrder)){
+        if(empty($validatedData)) {
+            return $this->response(
+                success: false,
+                message: 'No valid data provided for update.',
+                code: 422,
+            );
+        }elseif(is_bool($updationResult)) {
             return $this->response(
                 success: false,
                 message: 'Invalid status transition. Unable to update the order.',
                 code: 422,
             );
         }
+
+        [$isUpdated, $updatedOrder] = $updationResult;
 
         return $this->response(
             success: (bool) $isUpdated,
@@ -147,28 +149,6 @@ class OrderController extends BaseApiController
                 : 'Order not found.',
             code: $isUpdated ? 200 : 404,
             data: $updatedOrder?->only(self::API_FIELDS) ?? []
-        );
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $orderCode)
-    {
-        $deletionResult = $this->service->delete($orderCode);
-
-        if(is_bool($deletionResult)){
-            return $this->forbiddenResponse('Unauthorized. You do not have permission to delete orders.');
-        }
-
-        [$isDeleted] = $deletionResult;
-
-        return $this->response(
-            success: (bool) $isDeleted,
-            message: $isDeleted
-                ? 'Order deleted successfully.'
-                : 'Order not found.',
-            code: $isDeleted ? 200 : 404
         );
     }
 }

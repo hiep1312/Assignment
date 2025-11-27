@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\Client\OrderShippingRequest;
 use App\Repositories\Contracts\OrderShippingRepositoryInterface;
-use App\Services\OrderShippingService;
 
 class OrderShippingController extends BaseApiController
 {
@@ -12,36 +10,7 @@ class OrderShippingController extends BaseApiController
 
     public function __construct(
         protected OrderShippingRepositoryInterface $repository,
-        protected OrderShippingService $service
     ){}
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(OrderShippingRequest $request, string $orderCode)
-    {
-        $validatedData = $request->validated();
-        $creationResult = $this->service->create($validatedData, $orderCode);
-
-        if(is_bool($creationResult)){
-            return $this->response(
-                success: false,
-                message: 'Shipping info already exists for this order.',
-                code: 409,
-            );
-        }
-
-        [$isCreated, $createdShipping] = $creationResult;
-
-        return $this->response(
-            success: (bool) $isCreated,
-            message: $isCreated
-                ? 'Order shipping created successfully.'
-                : 'Failed to create order shipping.',
-            code: $isCreated ? 201 : 400,
-            data: $createdShipping?->only(self::API_FIELDS) ?? []
-        );
-    }
 
     /**
      * Display the specified resource.
@@ -66,60 +35,6 @@ class OrderShippingController extends BaseApiController
                 : 'Order shipping not found.',
             code: $shipping ? 200 : 404,
             data: $shipping?->toArray() ?? []
-        );
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(OrderShippingRequest $request, string $orderCode)
-    {
-        $validatedData = $request->validated();
-        $updationResult = $this->service->update($validatedData, $orderCode);
-
-        if(is_bool($updationResult)){
-            return $this->response(
-                success: false,
-                message: 'Shipping address cannot be updated for this order.',
-                code: 403,
-            );
-        }
-
-        [$isUpdated, $updatedShipping] = $updationResult;
-
-        return $this->response(
-            success: (bool) $isUpdated,
-            message: $isUpdated
-                ? 'Order shipping updated successfully.'
-                : 'Order shipping not found.',
-            code: $isUpdated ? 200 : 404,
-            data: $updatedShipping?->only(self::API_FIELDS) ?? []
-        );
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $orderCode)
-    {
-        $deletionResult = $this->service->delete($orderCode);
-
-        if(is_bool($deletionResult)){
-            return $this->response(
-                success: false,
-                message: 'Shipping address cannot be deleted for this order.',
-                code: 403,
-            );
-        }
-
-        [$isDeleted] = $deletionResult;
-
-        return $this->response(
-            success: (bool) $isDeleted,
-            message: $isDeleted
-                ? 'Order shipping deleted successfully.'
-                : 'Order shipping not found.',
-            code: $isDeleted ? 200 : 404
         );
     }
 }

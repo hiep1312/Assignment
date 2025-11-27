@@ -99,11 +99,4 @@ class Order extends Model
     {
         return in_array($this->status, [OrderStatus::NEW->value, OrderStatus::CONFIRMED->value], true);
     }
-
-    public function canBeCancelled(): bool
-    {
-        $this->loadMissing('payment');
-
-        return $this->status === OrderStatus::NEW->value && (!$this->payment || ($this->payment->status === 0));
-    }
 }
