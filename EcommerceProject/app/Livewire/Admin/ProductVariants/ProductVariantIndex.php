@@ -3,11 +3,13 @@
 namespace App\Livewire\Admin\ProductVariants;
 
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Throwable;
 
 class ProductVariantIndex extends Component
 {
@@ -46,7 +48,17 @@ class ProductVariantIndex extends Component
 
     #[On('variant.forceDeleted')]
     public function forceDelete(int $id){
-        $this->repository->forceDelete($id);
+        try {
+            $this->repository->forceDelete($id);
+        }catch(Throwable $error) {
+            Log::error("Failed to force delete product variant due to database constraint violation: {$error}");
+
+            $this->dispatch('show-variant-error', [
+                'title' => 'Cannot Delete Variant',
+                'time' => now()->toISOString(),
+                'message' => 'Cannot delete this variant because it is currently linked to existing orders or shopping carts.'
+            ]);
+        }
     }
 
     #[Title('Product Variant List - Bookio Admin')]

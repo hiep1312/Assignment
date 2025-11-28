@@ -6,6 +6,10 @@
         <x-livewire::toast-message title="Update Product List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
         </x-livewire::toast-message>
+    @elseif(session()->has('toast-variant-error'))
+        <x-livewire::toast-message title="{{ session('toast-variant-error')['title'] }}" type="danger" time="{{ session('toast-variant-error')['time'] }}" :show="true" :duration="12" id="toast-variant-error">
+            {{ session('toast-variant-error')['message'] }}
+        </x-livewire::toast-message>
     @endif
 
     <x-livewire::management-header title="Product List" btn-link="{{ route('admin.products.create') }}" btn-label="Add New Product" btn-icon="fas fa-plus" />

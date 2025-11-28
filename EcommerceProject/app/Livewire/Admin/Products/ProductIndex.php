@@ -82,6 +82,11 @@ class ProductIndex extends Component
         );
     }
 
+    #[On('show-variant-error')]
+    public function showVariantError(array $errorData){
+        session()->flash('toast-variant-error', $errorData);
+    }
+
     #[Title('Product List - Bookio Admin')]
     #[Layout('layouts.admin')]
     public function render()

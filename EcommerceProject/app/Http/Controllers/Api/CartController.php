@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\CartRequest;
+use App\Http\Requests\Client\DeleteCartItemsRequest;
+use App\Repositories\Contracts\CartItemRepositoryInterface;
 use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Services\CartService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class CartController extends BaseApiController
 {
@@ -39,6 +40,7 @@ class CartController extends BaseApiController
 
     public function __construct(
         protected CartRepositoryInterface $repository,
+        protected CartItemRepositoryInterface $cartItemRepository,
         protected CartService $service
     ){}
 
@@ -122,7 +124,15 @@ class CartController extends BaseApiController
      */
     public function update(CartRequest $request, string $id)
     {
+        $validatedData = $request->validated();
+        $updationResult = $this->service->update($validatedData, $id);
 
+        return $this->response(
+            success: $updationResult['success'],
+            message: $updationResult['message'],
+            code: $updationResult['success'] ? 200 : 422,
+            data: $updationResult['data']?->only(['items', ...self::API_FIELDS]) ?? [],
+        );
     }
 
     /**
@@ -143,6 +153,32 @@ class CartController extends BaseApiController
                 ? 'Cart deleted successfully.'
                 : 'Cart not found.',
             code: $isDeleted ? 200 : 404
+        );
+    }
+
+    public function deleteItems(DeleteCartItemsRequest $request, string $id)
+    {
+        $validatedData = $request->validated();
+        $isDeleted = $this->cartItemRepository->delete(
+            idOrCriteria: function($query) use ($id, $validatedData){
+                $query->whereIn('id', $validatedData['item_ids'])
+                    ->where('cart_id', $id)
+                    ->whereHas('cart', function($subQuery) {
+                        $subQuery->when(...CartService::userQueryConditions());
+                    });
+            },
+        );
+
+        return $this->response(
+            success: (bool) $isDeleted,
+            message: $isDeleted
+                ? 'Cart items deleted successfully.'
+                : 'No matching cart items found or unauthorized access.',
+            code: $isDeleted ? 200 : 404,
+            data: [
+                'deleted_count' => (int) $isDeleted,
+                'requested_item_ids' => $validatedData['item_ids']
+            ]
         );
     }
 }

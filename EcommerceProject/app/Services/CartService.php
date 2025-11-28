@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Repositories\Contracts\CartItemRepositoryInterface;
 use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,7 @@ class CartService
 {
     public function __construct(
         protected CartRepositoryInterface $repository,
+        protected CartItemRepositoryInterface $cartItemRepository,
         protected ProductVariantRepositoryInterface $productVariantRepository
     ){}
 
@@ -128,7 +130,14 @@ class CartService
                 $existingItem->quantity = $requestedQuantity;
             }
 
+            $this->cartItemRepository->upsert($updatePayload, ['id', 'cart_id']);
+            $availableCart->setRelation('items', $existingItems->values());
 
+            return [
+                'success' => true,
+                'message' => 'Cart updated successfully.',
+                'data' => $availableCart
+            ];
 
         }catch(Throwable $error) {
             return [

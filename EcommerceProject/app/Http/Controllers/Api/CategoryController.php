@@ -120,8 +120,8 @@ class CategoryController extends BaseApiController
         return $this->response(
             success: (bool) $isUpdated,
             message: $isUpdated
-                ? 'Product updated successfully.'
-                : 'Product not found.',
+                ? 'Category updated successfully.'
+                : 'Category not found.',
             code: $isUpdated ? 200 : 404,
             data: $updatedCategory?->only(self::API_FIELDS) ?? []
         );

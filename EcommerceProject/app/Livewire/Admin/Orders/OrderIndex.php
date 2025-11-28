@@ -114,6 +114,7 @@ class OrderIndex extends Component
                 })
             );
 
+            $query->whereHas('payment');
             $query->latest();
         }, perPage: 20, columns: ['*'], pageName: 'page');
 
