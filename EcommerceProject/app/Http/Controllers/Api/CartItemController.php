@@ -52,7 +52,7 @@ class CartItemController extends BaseApiController
                         $minPrice = is_numeric($priceRange[0]) ? (int) $priceRange[0] : 0;
                         $maxPrice = is_numeric($priceRange[1] ?? null) ? (int) $priceRange[1] : PHP_INT_MAX;
 
-                        $innerQuery->where('price', [$minPrice, $maxPrice]);
+                        $innerQuery->whereBetween('price', [$minPrice, $maxPrice]);
                     }
                 );
 
@@ -123,9 +123,32 @@ class CartItemController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $cartId, string $id)
+    public function update(CartItemRequest $request, string $cartId, string $id)
     {
+        $validatedData = $request->validated();
+        $isUpdated = $this->repository->update(
+            idOrCriteria: function ($query) use ($cartId, $id){
+                $query->where('id', $id)
+                    ->whereHas('cart', function($subQuery) use ($cartId){
+                        $subQuery->where('id', $cartId)
+                            ->where('status', 1)
+                            ->where('expires_at', '>', now())
+                            ->when(...CartService::userQueryConditions());
+                    });
+            },
+            attributes: $validatedData,
+            updatedModel: $updatedCartItem
+        );
+        $updatedCartItem = $updatedCartItem->first();
 
+        return $this->response(
+            success: (bool) $isUpdated,
+            message: $isUpdated
+                ? 'Cart item updated successfully.'
+                : 'Cart item not found or not eligible for update.',
+            code: $isUpdated ? 200 : 404,
+            data: $updatedCartItem?->only(self::API_FIELDS) ?? [],
+        );
     }
 
     /**

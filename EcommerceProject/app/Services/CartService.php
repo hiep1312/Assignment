@@ -7,6 +7,9 @@ use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
+use RuntimeException;
+use Throwable;
 
 class CartService
 {
@@ -27,10 +30,12 @@ class CartService
             columns: ['id', 'sku', 'price', 'discount']
         );
 
-        if(!$availableVariants) return [
-            'success' => false,
-            'message' => 'No available products found for the requested SKUs or all are out of stock.'
-        ];
+        if(!$availableVariants){
+            return [
+                'success' => false,
+                'message' => 'No available products found for the requested SKUs or all are out of stock.'
+            ];
+        }
 
         $cartData = [
             'status' => 1
@@ -86,11 +91,51 @@ class CartService
 
     public function update(array $data, string $id): array
     {
-        $availableCart = $this->repository->first(
-            criteria: function($query) use ($id){
-                $query->with('items');
-            },
-        );
+        try {
+            $availableCart = $this->repository->first(
+                criteria: function($query) use ($id) {
+                    $query->with('items')
+                        ->where('id', $id)
+                        ->where('status', 1)
+                        ->where('expires_at', '>', now())
+                        ->when(...self::userQueryConditions());
+                },
+            );
+
+            if(!$availableCart) {
+                throw new RuntimeException('Cart not found, expired, or not accessible.');
+            }
+
+            $requestedQuantities = array_column($data, 'quantity', 'item_id');
+            $existingItems = $availableCart->items->keyBy('id');
+            $validItemIds = array_intersect(array_keys($requestedQuantities), $existingItems->keys());
+            $updatePayload = [];
+
+            if(empty($validItemIds)) {
+                throw new InvalidArgumentException('No valid cart items found to update.');
+            }
+
+            foreach($validItemIds as $itemId) {
+                $requestedQuantity = $requestedQuantities[$itemId];
+                $existingItem = $existingItems[$itemId];
+
+                $updatePayload[] = [
+                    'id' => $itemId,
+                    'cart_id' => $availableCart->id,
+                    'quantity' => $requestedQuantity,
+                    'price' => $existingItem->price
+                ];
+                $existingItem->quantity = $requestedQuantity;
+            }
+
+
+
+        }catch(Throwable $error) {
+            return [
+                'success' => false,
+                'message' => $error->getMessage()
+            ];
+        }
     }
 
     public static function userQueryConditions(): array
