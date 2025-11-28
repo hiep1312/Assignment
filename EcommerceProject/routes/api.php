@@ -77,7 +77,8 @@ Route::name('api.')->group(function() {
         ], [
             'excluded_middleware' => ['auth:jwt']
         ]);
-        // Route::delete();
+        Route::delete('/carts/{cart}/items', [CartController::class, 'deleteItems'])
+            ->name('carts.items.delete');
 
         /* Checkout */
         Route::prefix('/checkout')->controller(CheckoutController::class)->name('checkout.')->group(function() {

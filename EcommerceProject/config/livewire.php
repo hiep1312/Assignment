@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'view_path' => resource_path('views/livewire'),
+    'view_path' => resource_path('views'),
 
     /*
     |---------------------------------------------------------------------------
@@ -38,7 +38,7 @@ return [
     |
     */
 
-    'layout' => 'components.layouts.app',
+    'layout' => 'layouts.client',
 
     /*
     |---------------------------------------------------------------------------

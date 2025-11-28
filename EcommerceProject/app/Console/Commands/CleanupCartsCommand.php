@@ -33,9 +33,9 @@ class CleanupCartsCommand extends Command
 
             if($isSuccess){
                 $this->info("✓ Cart cleanup completed successfully.");
-                $this->line("\t- Invalid cart items removed");
-                $this->line("\t- Cart item quantities adjusted");
-                $this->line("\t- Cart expirations extended by 5 days");
+                $this->line("  - Invalid cart items removed");
+                $this->line("  - Cart item quantities adjusted");
+                $this->line("  - Cart expirations extended by 5 days");
             }else {
                 $this->error("✗ Cart cleanup failed to execute.");
                 Log::warning("Cart cleanup task returned false - procedure may not have executed");
