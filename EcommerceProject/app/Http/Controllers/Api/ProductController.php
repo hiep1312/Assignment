@@ -31,7 +31,8 @@ class ProductController extends BaseApiController
     protected function getAllowedAggregateRelations(): array
     {
         return [
-            'avg' => 'reviews.rating',
+            'count' => 'reviews',
+            'avg' => 'reviews.rating'
         ];
     }
 

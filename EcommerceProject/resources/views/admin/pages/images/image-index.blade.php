@@ -2,24 +2,24 @@
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
     <livewire:admin.components.confirm-modal>
 
-    <x-livewire::loading-spinner id="image-loading" wire:key="image-loading" wire:loading.flex wire:target="photos, singlePhoto" />
+    <x-livewire-admin::loading-spinner id="image-loading" wire:key="image-loading" wire:loading.flex wire:target="photos, singlePhoto" />
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update Image List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Image List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @elseif(session()->has('image-updated-success'))
-        <x-livewire::toast-message title="Image Updated" type="primary" time="{{ session('image-updated-success')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Image Updated" type="primary" time="{{ session('image-updated-success')[1] }}" :show="true" :duration="8">
             {{ session('image-updated-success')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @elseif($errors->has('singlePhoto') || session()->has('image-updated-fail'))
-        <x-livewire::toast-message title="Update Failed" type="danger" time="{{ session('image-updated-fail')[1] ?? now()->toISOString() }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Failed" type="danger" time="{{ session('image-updated-fail')[1] ?? now()->toISOString() }}" :show="true" :duration="8">
             {{ session('image-updated-fail')[0] ?? $errors->first('singlePhoto') }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
         @php $errors->forget('singlePhoto'); @endphp
     @endif
 
-    <x-livewire::management-header title="Image List" btn-for-input="multipleImageInput" btn-label="Add New Image" btn-icon="fas fa-images" />
+    <x-livewire-admin::management-header title="Image List" btn-for-input="multipleImageInput" btn-label="Add New Image" btn-icon="fas fa-images" />
 
     <input type="file" id="multipleImageInput" accept="image/*" wire:model.change="photos" multiple class="d-none">
 
@@ -36,16 +36,16 @@
         </div>
     @enderror
 
-    <x-livewire::filter-bar placeholderSearch="Search images..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search images..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <input type="datetime-local" class="form-control" wire:model.change="datetimeFrom" title="Created Datetime From">
         </div>
         <div class="col-md-3">
             <input type="datetime-local" class="form-control" wire:model.change="datetimeTo" title="Created Datetime To">
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Image Records">
+    <x-livewire-admin::data-table caption="Image Records">
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Images` : `Restore All Images`"
@@ -193,7 +193,7 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 
     @isset($viewingImageId)
         @php
@@ -205,7 +205,7 @@
             $imageLastModifiedViewed = $imageExistsViewed ? Storage::disk('public')->lastModified($imagePathViewed) : 0;
             $imageMimeTypeViewed = $imageExistsViewed ? Storage::disk('public')->mimeType($imagePathViewed) : 'N/A';
         @endphp
-        <x-livewire::image-viewer title="Image Details" title-icon="fas fa-info-circle"
+        <x-livewire-admin::image-viewer title="Image Details" title-icon="fas fa-info-circle"
             ::class="`image-detail-modal ${$wire.viewingImageId && 'show'}`" wire:key="image-detail-modal" id="imageDetailModal">
             <x-slot:button-close x-on:click="$wire.viewingImageId = null"></x-slot:button-close>
 
@@ -249,6 +249,6 @@
                     Close
                 </button>
             </x-slot:actions>
-        </x-livewire::image-viewer>
+        </x-livewire-admin::image-viewer>
     @endif
 </div>

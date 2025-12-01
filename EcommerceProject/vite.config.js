@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/css/loading.css',
                 'resources/css/message-center.css',
                 'resources/css/products.css',
+                'resources/css/pagination.css',
                 'resources/js/app.js',
                 'resources/js/image-picker.js',
                 'resources/js/editor-handler.js'

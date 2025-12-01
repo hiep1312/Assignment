@@ -3,9 +3,12 @@
 namespace App\Providers;
 
 use Faker\Generator;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Smknstd\FakerPicsumImages\FakerPicsumImagesProvider;
 
@@ -29,7 +32,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Blade::componentNamespace("App\\Livewire\\Admin\\Components", 'livewire');
+        Blade::componentNamespace("App\\Livewire\\Admin\\Components", 'livewire-admin');
+        Blade::componentNamespace("App\\Livewire\\Client\\Components", 'livewire-client');
 
         // Configure global mail behavior
         if(config('mail.always_to.address') && config('app.env') !== "production"){
@@ -43,6 +47,11 @@ class AppServiceProvider extends ServiceProvider
         // Check role middleware
         Blade::if('role', function (string ...$roles) {
             return Auth::check() && in_array(Auth::user()->role->value, $roles);
+        });
+
+        // Configure rate limiter for API
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(120)->by($request->user('jwt')?->id ?: $request->ip());
         });
     }
 }

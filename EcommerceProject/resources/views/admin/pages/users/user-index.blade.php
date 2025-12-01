@@ -4,16 +4,16 @@
     <livewire:admin.components.confirm-modal>
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update User List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update User List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @endif
 
-    <x-livewire::management-header title="User List" btn-link="{{ route('admin.users.create') }}" btn-label="Add New User" btn-icon="fas fa-user-plus" />
+    <x-livewire-admin::management-header title="User List" btn-link="{{ route('admin.users.create') }}" btn-label="Add New User" btn-icon="fas fa-user-plus" />
 
-    <x-livewire::stats-overview :data-stats="$statistic" />
+    <x-livewire-admin::stats-overview :data-stats="$statistic" />
 
-    <x-livewire::filter-bar placeholderSearch="Search users..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search users..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="role">
                 <option value="">All Roles</option>
@@ -28,9 +28,9 @@
                 <option value="0">Not Verified</option>
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="User Records">
+    <x-livewire-admin::data-table caption="User Records">
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Users` : `Restore All Users`"
@@ -193,5 +193,5 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 </div>

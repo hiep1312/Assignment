@@ -1,5 +1,5 @@
 <div>
-    <x-livewire::filter-bar placeholderSearch="Search order items..." columnSearch="col-md-6 col-lg-4" modelSearch="search"
+    <x-livewire-admin::filter-bar placeholderSearch="Search order items..." columnSearch="col-md-6 col-lg-4" modelSearch="search"
         columnReset="col-md-3 col-lg-2" resetAction="resetFilters" :isDetailFilter="true">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="quantityRange">
@@ -9,9 +9,9 @@
                 <option value="11+">11+ items</option>
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Order Items Records" class="mt-3" :isDetailFilter="true">
+    <x-livewire-admin::data-table caption="Order Items Records" class="mt-3" :isDetailFilter="true">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="table-light text-center">
@@ -87,5 +87,5 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 </div>

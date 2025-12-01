@@ -23,6 +23,10 @@
     --bs-table-hover-bg: initial;
 }
 
+#main-component .btn {
+    text-transform: none;
+}
+
 /* Original bootstrap variable */
 :root {
     --bs-primary-rgb-origin: 13, 110, 253;
@@ -51,6 +55,32 @@
     --bs-info-text-emphasis-origin: #055160;
     --bs-info-bg-subtle-origin: #cff4fc;
     --bs-info-border-subtle-origin: #9eeaf9;
+}
+
+/* Client */
+:root {
+    /* Primary Color - Orange */
+    --color-primary-product: #ff8c00;
+    --color-primary-light-product: #ffa500;
+    --color-primary-dark-product: #e67e00;
+
+    /* Neutrals */
+    --color-white-product: #ffffff;
+    --color-light-gray-product: #f8f9fa;
+    --color-gray-product: #e9ecef;
+    --color-dark-gray-product: #6c757d;
+    --color-black-product: #212529;
+    --border-color-input-group: #dee2e6;
+    --border-radius-input-group: 0.375rem;
+
+    /* Accents */
+    --color-success-product: #28a745;
+    --color-danger-product: #dc3545;
+    --color-warning-product: #ffc107;
+    --color-info-product: #17a2b8;
+
+    /* Spacing */
+    --spacing-unit-product: 8px;
 }
 
 /* Alerts */

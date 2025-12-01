@@ -4,14 +4,14 @@
     <livewire:admin.components.confirm-modal>
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update Comment List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Comment List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @endif
 
-    <x-livewire::management-header title="Comments List" btn-link="{{ route('admin.comments.create') }}" btn-label="Add New Comment" btn-icon="fas fa-comment" />
+    <x-livewire-admin::management-header title="Comments List" btn-link="{{ route('admin.comments.create') }}" btn-label="Add New Comment" btn-icon="fas fa-comment" />
 
-    <x-livewire::filter-bar placeholderSearch="Search comments..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search comments..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="commentType">
                 <option value="">All Comments</option>
@@ -27,9 +27,9 @@
                 @endforeach
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Comment Records">
+    <x-livewire-admin::data-table caption="Comment Records">
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Comments` : `Restore All Comments`"
@@ -156,7 +156,7 @@
                                 </span>
                             </td>
                         </tr>
-                        <x-livewire::expandable-row id="collapseComments{{ $blog->id }}" title="Blog Comments" icon="fas fa-comment-dots" wire:key="collapse-comments-{{ $blog->id }}">
+                        <x-livewire-admin::expandable-row id="collapseComments{{ $blog->id }}" title="Blog Comments" icon="fas fa-comment-dots" wire:key="collapse-comments-{{ $blog->id }}">
                             <div class="card-body p-0 table-responsive shadow-sm" style="border-radius: 0.5rem 0.5rem 0 0;">
                                 <table class="table table-hover mb-0">
                                     <thead class="table-light text-center">
@@ -270,7 +270,7 @@
                                     {{ $paginatedComments->onEachSide(1)->links(data: ['scrollTo' => "collapseComments{$blog->id}"]) }}
                                 </div>
                             @endif
-                        </x-livewire::expandable-row>
+                        </x-livewire-admin::expandable-row>
                     @empty
                         <tr class="empty-state-row">
                             <td colspan="6" class="text-center py-5">
@@ -292,16 +292,16 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 
-    <x-livewire::content-preview title="Comment Preview" icon="fas fa-comment" id="commentPreview" class-header="bootstrap-style bootstrap-border-bottom" modal-size="modal-lg">
+    <x-livewire-admin::content-preview title="Comment Preview" icon="fas fa-comment" id="commentPreview" class-header="bootstrap-style bootstrap-border-bottom" modal-size="modal-lg">
         @if($selectedCommentId && $selectedComment)
             @if($selectedComment->parent)
                 @php
                     $parentComment = $selectedComment->parent;
                     $parentUser = $parentComment->user;
                 @endphp
-                <x-livewire::comment-item>
+                <x-livewire-admin::comment-item>
                     <x-slot:img src="{{ asset('storage/' . ($parentUser->avatar ?? DefaultImage::AVATAR->value)) }}"
                         class="rounded-circle" alt="User Avatar" style="width: 100%; height: 100%"></x-slot:img>
 
@@ -313,17 +313,17 @@
                     <x-slot:time>{{ $parentComment->created_at->diffForHumans() }}</x-slot:time>
 
                     {{ $parentComment->content }}
-                </x-livewire::comment-item>
+                </x-livewire-admin::comment-item>
             @endif
 
             @if($selectedComment->parent && $selectedComment->replyTo && $selectedComment->parent_id !== $selectedComment->reply_to)
-                <x-livewire::comment-item :is-placeholder="true" />
+                <x-livewire-admin::comment-item :is-placeholder="true" />
 
                 @php
                     $replyComment = $selectedComment->replyTo;
                     $replyUser = $replyComment->user;
                 @endphp
-                <x-livewire::comment-item class="reply">
+                <x-livewire-admin::comment-item class="reply">
                     <x-slot:img src="{{ asset('storage/' . ($replyUser->avatar ?? DefaultImage::AVATAR->value)) }}"
                         class="rounded-circle" alt="User Avatar" style="width: 100%; height: 100%"></x-slot:img>
 
@@ -335,13 +335,13 @@
                     <x-slot:time>{{ $replyComment->created_at->diffForHumans() }}</x-slot:time>
 
                     {{ $replyComment->content }}
-                </x-livewire::comment-item>
+                </x-livewire-admin::comment-item>
             @endif
 
             @php
                 $user = $selectedComment->user;
             @endphp
-            <x-livewire::comment-item @class([
+            <x-livewire-admin::comment-item @class([
                 "viewing",
                 "reply" => $selectedComment->parent
             ])>
@@ -362,7 +362,7 @@
                 @endif
 
                 {{ $selectedComment->content }}
-            </x-livewire::comment-item>
+            </x-livewire-admin::comment-item>
         @else
             <div class="text-center mt-2">
                 <div class="dots">
@@ -373,7 +373,7 @@
                 <span class="loading-text-dots">Loading</span>
             </div>
         @endif
-    </x-livewire::content-preview>
+    </x-livewire-admin::content-preview>
 </div>
 @script
 <script>

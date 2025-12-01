@@ -65,7 +65,7 @@ class BlogController extends BaseApiController
                     fn($innerQuery) => $innerQuery->where('author_id', $request->author)
                 );
 
-                if(authPayload('sub') === UserRole::ADMIN->value){
+                if(authPayload('sub', null, false) === UserRole::ADMIN->value){
                     $query->when(
                         isset($request->status),
                         fn($innerQuery) => $innerQuery->where('status', $request->status)

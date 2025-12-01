@@ -3,7 +3,7 @@
         <livewire:admin.components.confirm-modal id="confirmModalDetail" wire:key="confirm-modal-detail">
     @endteleport
 
-    <x-livewire::filter-bar placeholderSearch="Search variants..." columnSearch="col-md-6 col-lg-4" modelSearch="search"
+    <x-livewire-admin::filter-bar placeholderSearch="Search variants..." columnSearch="col-md-6 col-lg-4" modelSearch="search"
         columnReset="col-md-3 col-lg-2" resetAction="resetFilters" :isDetailFilter="true">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="status">
@@ -19,9 +19,9 @@
                 <option value="0">Out of Stock</option>
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Product Variant Records" class="mt-3" :isDetailFilter="true">
+    <x-livewire-admin::data-table caption="Product Variant Records" class="mt-3" :isDetailFilter="true">
         <x-slot:actions>
             <a href="{{ route('admin.products.variants.create', $product_id) }}" class="btn btn-primary">
                 <i class="fas fa-layer-group me-1"></i>
@@ -157,5 +157,5 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 </div>

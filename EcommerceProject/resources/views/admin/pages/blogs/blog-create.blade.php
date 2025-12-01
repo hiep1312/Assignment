@@ -4,12 +4,12 @@
 @use('App\Livewire\Admin\Components\FormPanel\ImageUploader')
 @use('App\Enums\DefaultImage')
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
-    <x-livewire::management-header title="Add New Blog" btn-link="{{ route('admin.blogs.index') }}" btn-label="Back to List"
+    <x-livewire-admin::management-header title="Add New Blog" btn-link="{{ route('admin.blogs.index') }}" btn-label="Back to List"
         btn-icon="fas fa-arrow-left" btn-class="btn btn-outline-secondary bootstrap-focus" />
 
     <livewire:admin.components.gallery-manager wire:key="gallery-picker" id="galleryPickerModal" />
 
-    <x-livewire::data-selector title="Select Categories" id="dataSelectorCategory" resetProperty="selectedCategoryIds" wire:key="data-selector-category">
+    <x-livewire-admin::data-selector title="Select Categories" id="dataSelectorCategory" resetProperty="selectedCategoryIds" wire:key="data-selector-category">
         <x-slot:input type="text" placeholder="Search categories..." wire:model.live.debounce.300ms="searchCategories"></x-slot:input>
 
         @forelse($categories as $category)
@@ -25,10 +25,10 @@
         @endforelse
 
         <x-slot:button-confirm wire:click="selectCategories" :disabled="!count($selectedCategoryIds)">Choose Categories</x-slot:button-confirm>
-    </x-livewire::data-selector>
+    </x-livewire-admin::data-selector>
 
-    <x-livewire::form-panel :isFormNormal="false" id="blog-create-form" action="store">
-        <x-livewire::form-panel.image-uploader :isMultiple="false" :type="ImageUploader::TYPE_BLOG" label="Blog Thumbnail" labelIcon="fa-solid fa-image">
+    <x-livewire-admin::form-panel :isFormNormal="false" id="blog-create-form" action="store">
+        <x-livewire-admin::form-panel.image-uploader :isMultiple="false" :type="ImageUploader::TYPE_BLOG" label="Blog Thumbnail" labelIcon="fa-solid fa-image">
             @php $previewImage = is_int($thumbnail_id) ? asset("storage/{$thumbnail->image_url}") : DefaultImage::getDefaultPath(ImageUploader::TYPE_BLOG) @endphp
             <x-slot:image :src="$previewImage" alt="Blog Thumbnail Preview"></x-slot:image>
 
@@ -41,12 +41,12 @@
                     </div>
                 @enderror
             </x-slot:feedback>
-        </x-livewire::form-panel.image-uploader>
+        </x-livewire-admin::form-panel.image-uploader>
 
         <hr class="my-4">
 
-        <x-livewire::form-panel.group title="Blog Information" icon="fas fa-blog">
-            <x-livewire::form-panel.group.input-group label="Title" icon="fas fa-heading" for="title" column="col-md-6" required>
+        <x-livewire-admin::form-panel.group title="Blog Information" icon="fas fa-blog">
+            <x-livewire-admin::form-panel.group.input-group label="Title" icon="fas fa-heading" for="title" column="col-md-6" required>
                 <input type="text" class="form-control custom-radius-end @error('title') is-invalid @enderror" id="title"
                     wire:model.blur="title" placeholder="Enter blog title">
                 <x-slot:feedback>
@@ -56,9 +56,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Slug" icon="fas fa-link" for="slug" column="col-md-6" required>
+            <x-livewire-admin::form-panel.group.input-group label="Slug" icon="fas fa-link" for="slug" column="col-md-6" required>
                 <input type="text" class="form-control custom-radius-end @error('slug') is-invalid @enderror" id="slug"
                     wire:model="slug" placeholder="Enter blog slug">
                 <x-slot:feedback>
@@ -68,9 +68,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Status" :icon="$status == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
+            <x-livewire-admin::form-panel.group.input-group label="Status" :icon="$status == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
                 <select class="form-select custom-radius-end @error('status') is-invalid @enderror" id="status"
                     wire:model.change="status">
                     <option value="0">Draft</option>
@@ -84,9 +84,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Categories" icon="fas fa-folder" for="categories" column="col-md-6">
+            <x-livewire-admin::form-panel.group.input-group label="Categories" icon="fas fa-folder" for="categories" column="col-md-6">
                 <input type="text" class="form-control @error('category_ids') is-invalid @enderror" id="categories"
                     value="{{ implode(', ', $category_names) }}" placeholder="Choose categories" readonly>
                 <button type="button" class="btn btn-outline-secondary custom-radius-end bootstrap-hover bootstrap-focus"
@@ -99,8 +99,8 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
-        </x-livewire::form-panel.group>
+            </x-livewire-admin::form-panel.group.input-group>
+        </x-livewire-admin::form-panel.group>
 
         <hr class="my-4">
 
@@ -150,5 +150,5 @@
                 Create Blog
             </button>
         </x-slot:actions>
-    </x-livewire::form-panel>
+    </x-livewire-admin::form-panel>
 </div>

@@ -3,14 +3,14 @@
     @vite('resources/js/editor-handler.js')
 @endassets
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
-    <x-livewire::management-header title="Edit Mail" btn-link="{{ route('admin.mails.index') }}" btn-label="Back to List"
+    <x-livewire-admin::management-header title="Edit Mail" btn-link="{{ route('admin.mails.index') }}" btn-label="Back to List"
         btn-icon="fas fa-arrow-left" btn-class="btn btn-outline-secondary bootstrap-focus" />
 
     <livewire:admin.components.gallery-manager wire:key="gallery-picker" id="galleryPickerModal" />
 
-    <x-livewire::form-panel :isFormNormal="false" id="mail-edit-form" action="update">
-        <x-livewire::form-panel.group title="Mail Information" icon="fas fa-envelope">
-            <x-livewire::form-panel.group.input-group label="Subject" icon="fas fa-heading" for="subject" column="col-md-6">
+    <x-livewire-admin::form-panel :isFormNormal="false" id="mail-edit-form" action="update">
+        <x-livewire-admin::form-panel.group title="Mail Information" icon="fas fa-envelope">
+            <x-livewire-admin::form-panel.group.input-group label="Subject" icon="fas fa-heading" for="subject" column="col-md-6">
                 <input type="text" class="form-control custom-radius-end @error('subject') is-invalid @enderror" id="subject"
                     wire:model="subject" placeholder="Enter subject">
                 <x-slot:feedback>
@@ -20,9 +20,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Type" icon="fas fa-tag" for="type" column="col-md-6" required>
+            <x-livewire-admin::form-panel.group.input-group label="Type" icon="fas fa-tag" for="type" column="col-md-6" required>
                 <select class="form-select custom-radius-end @error('type') is-invalid @enderror" id="type"
                     wire:model.change="type">
                     <option value="0">Custom</option>
@@ -39,8 +39,8 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
-        </x-livewire::form-panel.group>
+            </x-livewire-admin::form-panel.group.input-group>
+        </x-livewire-admin::form-panel.group>
 
         <hr class="my-4">
 
@@ -88,5 +88,5 @@
                 Update Mail
             </button>
         </x-slot:actions>
-    </x-livewire::form-panel>
+    </x-livewire-admin::form-panel>
 </div>

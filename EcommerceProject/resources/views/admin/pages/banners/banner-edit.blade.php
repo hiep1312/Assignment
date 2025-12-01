@@ -2,13 +2,13 @@
 @use('App\Livewire\Admin\Components\FormPanel\ImageUploader')
 @use('App\Enums\DefaultImage')
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
-    <x-livewire::management-header title="Edit Banner" btn-link="{{ route('admin.banners.index') }}" btn-label="Back to List"
+    <x-livewire-admin::management-header title="Edit Banner" btn-link="{{ route('admin.banners.index') }}" btn-label="Back to List"
         btn-icon="fas fa-arrow-left" btn-class="btn btn-outline-secondary bootstrap-focus" />
 
     <livewire:admin.components.gallery-manager wire:key="gallery-picker" id="galleryPickerModal" />
 
-    <x-livewire::form-panel :isFormNormal="false" id="banner-edit-form" action="update">
-        <x-livewire::form-panel.image-uploader :isMultiple="false" :type="ImageUploader::TYPE_BANNER" label="Banner Image" labelIcon="fa-solid fa-image-landscape">
+    <x-livewire-admin::form-panel :isFormNormal="false" id="banner-edit-form" action="update">
+        <x-livewire-admin::form-panel.image-uploader :isMultiple="false" :type="ImageUploader::TYPE_BANNER" label="Banner Image" labelIcon="fa-solid fa-image-landscape">
             @php $previewImage = is_int($image_id) ? asset("storage/{$image->image_url}") : DefaultImage::getDefaultPath(ImageUploader::TYPE_BANNER) @endphp
             <x-slot:image :src="$previewImage" alt="Banner Preview"></x-slot:image>
 
@@ -21,12 +21,12 @@
                     </div>
                 @enderror
             </x-slot:feedback>
-        </x-livewire::form-panel.image-uploader>
+        </x-livewire-admin::form-panel.image-uploader>
 
         <hr class="my-4">
 
-        <x-livewire::form-panel.group title="Banner Information" icon="fas fa-rectangle-ad">
-            <x-livewire::form-panel.group.input-group label="Title" icon="fas fa-heading" for="title" column="col-12">
+        <x-livewire-admin::form-panel.group title="Banner Information" icon="fas fa-rectangle-ad">
+            <x-livewire-admin::form-panel.group.input-group label="Title" icon="fas fa-heading" for="title" column="col-12">
                 <input type="text" class="form-control custom-radius-end @error('title') is-invalid @enderror" id="title"
                     wire:model="title" placeholder="Enter banner title">
                 <x-slot:feedback>
@@ -36,9 +36,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Link URL" icon="fas fa-link" for="link_url" column="col-md-6" required>
+            <x-livewire-admin::form-panel.group.input-group label="Link URL" icon="fas fa-link" for="link_url" column="col-md-6" required>
                 <input type="url" class="form-control custom-radius-end @error('link_url') is-invalid @enderror" id="link_url"
                     wire:model="link_url" placeholder="Enter link url">
                 <x-slot:feedback>
@@ -48,9 +48,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Status" :icon="$status == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
+            <x-livewire-admin::form-panel.group.input-group label="Status" :icon="$status == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
                 <select class="form-select custom-radius-end @error('status') is-invalid @enderror" id="status"
                     wire:model.change="status" wire:key="status">
                     <option value="1">Active</option>
@@ -63,7 +63,7 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
             <div class="col-12">
                 <label for="position" class="form-label bootstrap-style">Display Order <span class="text-danger">*</span></label>
@@ -87,7 +87,7 @@
                     </div>
                 @enderror
             </div>
-        </x-livewire::form-panel.group>
+        </x-livewire-admin::form-panel.group>
 
         <x-slot:actions>
             <button type="button" class="btn btn-outline-secondary bootstrap-focus me-2" wire:click="resetForm">
@@ -99,5 +99,5 @@
                 Update Banner
             </button>
         </x-slot:actions>
-    </x-livewire::form-panel>
+    </x-livewire-admin::form-panel>
 </div>

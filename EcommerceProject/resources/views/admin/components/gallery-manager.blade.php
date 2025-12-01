@@ -4,7 +4,7 @@
 @use('Illuminate\Support\Facades\Storage')
 @use('App\Enums\DefaultImage')
 <div class="modal fade image-picker-modal" id="{{ $id }}" tabindex="-1" wire:ignore.self>
-    <x-livewire::loading-spinner id="loading-uploader" wire:key="loading-uploader" wire:loading.flex wire:target="photos" />
+    <x-livewire-admin::loading-spinner id="loading-uploader" wire:key="loading-uploader" wire:loading.flex wire:target="photos" />
 
     @error('photos.*')
         <div class="error-overlay">
@@ -202,7 +202,7 @@
                     $imageLastModifiedViewed = $imageExistsViewed ? Storage::disk('public')->lastModified($imagePathViewed) : 0;
                     $imageMimeTypeViewed = $imageExistsViewed ? Storage::disk('public')->mimeType($imagePathViewed) : 'N/A';
                 @endphp
-                <x-livewire::image-viewer title="Image Details" title-icon="fas fa-info-circle"
+                <x-livewire-admin::image-viewer title="Image Details" title-icon="fas fa-info-circle"
                     ::class="`image-detail-modal ${$wire.viewingImageId && 'show'}`" wire:key="image-detail-modal" id="imageDetailModal">
                     <x-slot:button-close x-on:click="$wire.viewingImageId = null"></x-slot:button-close>
 
@@ -246,7 +246,7 @@
                             Close
                         </button>
                     </x-slot:actions>
-                </x-livewire::image-viewer>
+                </x-livewire-admin::image-viewer>
             @endif
 
             <div class="modal-footer">

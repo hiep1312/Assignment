@@ -3,20 +3,20 @@
     <livewire:admin.components.confirm-modal wire:key="confirm-modal-product-{{ $recordDetail }}">
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update Product List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Product List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @elseif(session()->has('toast-variant-error'))
-        <x-livewire::toast-message title="{{ session('toast-variant-error')['title'] }}" type="danger" time="{{ session('toast-variant-error')['time'] }}" :show="true" :duration="12" id="toast-variant-error">
+        <x-livewire-admin::toast-message title="{{ session('toast-variant-error')['title'] }}" type="danger" time="{{ session('toast-variant-error')['time'] }}" :show="true" :duration="12" id="toast-variant-error">
             {{ session('toast-variant-error')['message'] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @endif
 
-    <x-livewire::management-header title="Product List" btn-link="{{ route('admin.products.create') }}" btn-label="Add New Product" btn-icon="fas fa-plus" />
+    <x-livewire-admin::management-header title="Product List" btn-link="{{ route('admin.products.create') }}" btn-label="Add New Product" btn-icon="fas fa-plus" />
 
-    <x-livewire::stats-overview :data-stats="$statistic" />
+    <x-livewire-admin::stats-overview :data-stats="$statistic" />
 
-    <x-livewire::detail-modal activeRecordVariable="recordDetail" title="Product Details" icon="fas fa-layer-group" id="productDetailModal" wire:key="product-detail">
+    <x-livewire-admin::detail-modal activeRecordVariable="recordDetail" title="Product Details" icon="fas fa-layer-group" id="productDetailModal" wire:key="product-detail">
         <x-slot:tabs>
             <li class="nav-item" role="presentation">
                 <button class="nav-link active bootstrap-style" id="variants-tab" data-bs-toggle="tab" data-bs-target="#variants-content"
@@ -64,9 +64,9 @@
                 </div>
             @endif
         </div>
-    </x-livewire::detail-modal>
+    </x-livewire-admin::detail-modal>
 
-    <x-livewire::filter-bar placeholderSearch="Search products..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search products..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="status">
                 <option value="">All Status</option>
@@ -82,9 +82,9 @@
                 @endforeach
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Product Records">
+    <x-livewire-admin::data-table caption="Product Records">
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Products` : `Restore All Products`"
@@ -256,5 +256,5 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 </div>

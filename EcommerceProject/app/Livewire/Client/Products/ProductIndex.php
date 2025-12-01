@@ -8,12 +8,12 @@ use Livewire\Component;
 
 class ProductIndex extends Component
 {
+    public array $products = [];
 
     #[Title('Explore Books - Bookio')]
     #[Layout('layouts.client')]
     public function render()
     {
-        $this->js('console.log', 'run');
         return view('client.pages.products.product-index');
     }
 }

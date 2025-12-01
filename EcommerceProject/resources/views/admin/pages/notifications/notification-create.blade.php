@@ -3,14 +3,14 @@
     @vite('resources/js/editor-handler.js')
 @endassets
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
-    <x-livewire::management-header title="Add New Notification" btn-link="{{ route('admin.notifications.index') }}" btn-label="Back to List"
+    <x-livewire-admin::management-header title="Add New Notification" btn-link="{{ route('admin.notifications.index') }}" btn-label="Back to List"
         btn-icon="fas fa-arrow-left" btn-class="btn btn-outline-secondary bootstrap-focus" />
 
     <livewire:admin.components.gallery-manager wire:key="gallery-picker" id="galleryPickerModal" />
 
-    <x-livewire::form-panel :isFormNormal="false" id="notification-create-form" action="store">
-        <x-livewire::form-panel.group title="Notification Information" icon="fas fa-bell">
-            <x-livewire::form-panel.group.input-group label="Title" icon="fas fa-heading" for="title" column="col-md-6" required>
+    <x-livewire-admin::form-panel :isFormNormal="false" id="notification-create-form" action="store">
+        <x-livewire-admin::form-panel.group title="Notification Information" icon="fas fa-bell">
+            <x-livewire-admin::form-panel.group.input-group label="Title" icon="fas fa-heading" for="title" column="col-md-6" required>
                 <input type="text" class="form-control custom-radius-end @error('title') is-invalid @enderror" id="title"
                     wire:model="title" placeholder="Enter title">
                 <x-slot:feedback>
@@ -20,9 +20,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Type" icon="fas fa-tag" for="type" column="col-md-6" required>
+            <x-livewire-admin::form-panel.group.input-group label="Type" icon="fas fa-tag" for="type" column="col-md-6" required>
                 <select class="form-select custom-radius-end @error('type') is-invalid @enderror" id="type"
                     wire:model.change="type">
                     <option value="0">Custom</option>
@@ -40,8 +40,8 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
-        </x-livewire::form-panel.group>
+            </x-livewire-admin::form-panel.group.input-group>
+        </x-livewire-admin::form-panel.group>
 
         <hr class="my-4">
 
@@ -89,5 +89,5 @@
                 Create Notification
             </button>
         </x-slot:actions>
-    </x-livewire::form-panel>
+    </x-livewire-admin::form-panel>
 </div>

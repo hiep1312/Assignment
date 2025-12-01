@@ -2,14 +2,14 @@
     <livewire:admin.components.confirm-modal>
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update Notification List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Notification List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @endif
 
-    <x-livewire::management-header title="Notification Template List" btn-link="{{ route('admin.notifications.create') }}" btn-label="Add New Notification" btn-icon="fas fa-bell" />
+    <x-livewire-admin::management-header title="Notification Template List" btn-link="{{ route('admin.notifications.create') }}" btn-label="Add New Notification" btn-icon="fas fa-bell" />
 
-    <x-livewire::filter-bar placeholderSearch="Search notifications..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search notifications..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="type">
                 <option value="">All Types</option>
@@ -22,9 +22,9 @@
                 <option value="6">Internal System</option>
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Notification Records">
+    <x-livewire-admin::data-table caption="Notification Records">
         <x-slot:actions>
             <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Delete Notifications"
                 x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
@@ -131,5 +131,5 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 </div>

@@ -35,14 +35,23 @@ Route::name('api.')->group(function() {
         Route::apiSingleton('profile', UserController::class)
             ->destroyable();
 
-        /* Resources */
+        /* Resources accessible only by authenticated users */
         Route::apiResources([
             'user-addresses' => UserAddressController::class,
             'categories' => CategoryController::class,
             'images' => ImageController::class,
+        ]);
+
+        /* Resources accessible by guests for index/show but other actions require authentication */
+        Route::apiResources([
             'products' => ProductController::class,
             'banners' => BannerController::class,
             'blogs' => BlogController::class
+        ], [
+            'excluded_middleware_for' => [
+                'index' => ['auth:jwt'],
+                'show' => ['auth:jwt']
+            ]
         ]);
 
         /* Related Products & Blogs */
@@ -52,6 +61,10 @@ Route::name('api.')->group(function() {
             'blogs.comments' => BlogCommentController::class
         ], [
             'shallow' => true,
+            'excluded_middleware_for' => [
+                'index' => ['auth:jwt'],
+                'show' => ['auth:jwt']
+            ]
         ]);
 
         /* Orders */

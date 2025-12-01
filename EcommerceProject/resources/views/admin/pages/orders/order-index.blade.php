@@ -5,21 +5,21 @@
     <livewire:admin.components.confirm-modal wire:key="confirm-modal-order-{{ $recordDetail }}">
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update Order List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Order List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @elseif(session()->has('timeline-updated'))
-        <x-livewire::toast-message title="{{ session('timeline-updated')[0] }}" type="primary" time="{{ session('timeline-updated')[2] }}" :show="true" :duration="8" id="timeline-updated-container">
+        <x-livewire-admin::toast-message title="{{ session('timeline-updated')[0] }}" type="primary" time="{{ session('timeline-updated')[2] }}" :show="true" :duration="8" id="timeline-updated-container">
             {{ session('timeline-updated')[1] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
         @php session()->forget('timeline-updated'); @endphp
     @endif
 
-    <x-livewire::management-header title="Order List" />
+    <x-livewire-admin::management-header title="Order List" />
 
-    <x-livewire::stats-overview :data-stats="$statistic" />
+    <x-livewire-admin::stats-overview :data-stats="$statistic" />
 
-    <x-livewire::detail-modal activeRecordVariable="recordDetail" title="Order Details" icon="fas fa-shopping-cart" id="orderDetailModal" wire:key="order-detail">
+    <x-livewire-admin::detail-modal activeRecordVariable="recordDetail" title="Order Details" icon="fas fa-shopping-cart" id="orderDetailModal" wire:key="order-detail">
         <x-slot:tabs>
             <li class="nav-item" role="presentation">
                 <button class="nav-link active bootstrap-style" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-content"
@@ -88,9 +88,9 @@
                 <livewire:admin.payments.payment-detail :order="$recordDetail" wire:key="payment-{{ $recordDetail }}-{{ $lockReloadDetail }}" />
             @endif
         </div>
-    </x-livewire::detail-modal>
+    </x-livewire-admin::detail-modal>
 
-    <x-livewire::filter-bar placeholderSearch="Search orders..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search orders..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="status">
                 <option value="">All Status</option>
@@ -113,9 +113,9 @@
                 <option value="{{ PaymentMethod::CREDIT_CARD->value }}">Credit Card</option>
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Order Records">
+    <x-livewire-admin::data-table caption="Order Records">
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Orders` : `Restore All Orders`"
@@ -332,5 +332,5 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 </div>

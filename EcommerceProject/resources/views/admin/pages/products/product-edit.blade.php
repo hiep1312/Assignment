@@ -5,12 +5,12 @@
     } }">
     <livewire:admin.components.confirm-modal>
 
-    <x-livewire::management-header title="Edit Product" btn-link="{{ route('admin.products.index') }}" btn-label="Back to List"
+    <x-livewire-admin::management-header title="Edit Product" btn-link="{{ route('admin.products.index') }}" btn-label="Back to List"
         btn-icon="fas fa-arrow-left" btn-class="btn btn-outline-secondary bootstrap-focus" />
 
     <livewire:admin.components.gallery-manager wire:key="gallery-picker" id="galleryPickerModal" />
 
-    <x-livewire::data-selector title="Select Categories" id="dataSelectorCategory" resetProperty="selectedCategoryIds" wire:key="data-selector-category">
+    <x-livewire-admin::data-selector title="Select Categories" id="dataSelectorCategory" resetProperty="selectedCategoryIds" wire:key="data-selector-category">
         <x-slot:input type="text" placeholder="Search categories..." wire:model.live.debounce.300ms="searchCategories"></x-slot:input>
 
         @forelse($categories as $category)
@@ -26,10 +26,10 @@
         @endforelse
 
         <x-slot:button-confirm wire:click="selectCategories" :disabled="!count($selectedCategoryIds)">Choose Categories</x-slot:button-confirm>
-    </x-livewire::data-selector>
+    </x-livewire-admin::data-selector>
 
-    <x-livewire::form-panel :isFormNormal="false" id="product-edit-form" action="update">
-        <x-livewire::form-panel.image-uploader :isMultiple="true" :type="ImageUploader::TYPE_PRODUCT" label="Product Image" labelIcon="fas fa-camera-retro">
+    <x-livewire-admin::form-panel :isFormNormal="false" id="product-edit-form" action="update">
+        <x-livewire-admin::form-panel.image-uploader :isMultiple="true" :type="ImageUploader::TYPE_PRODUCT" label="Product Image" labelIcon="fas fa-camera-retro">
             <x-slot:upload-button data-bs-toggle="modal" data-bs-target="#galleryPickerModal"></x-slot:upload-button>
 
             <x-slot:gallery-uploader wire:sc-sortable="images" wire:sc-model.live.debounce.500ms="image_ids" wire:ignore.self wire:key="gallery-uploader-{{ count($images) }}"></x-slot:gallery-uploader>
@@ -60,12 +60,12 @@
             @empty
                 <x-slot:empty-state>No product images yet</x-slot:empty-state>
             @endforelse
-        </x-livewire::form-panel.image-uploader>
+        </x-livewire-admin::form-panel.image-uploader>
 
         <hr class="my-4">
 
-        <x-livewire::form-panel.group title="Product Information" icon="fas fa-box">
-            <x-livewire::form-panel.group.input-group label="Title" icon="fas fa-tag" for="title" column="col-md-6" required>
+        <x-livewire-admin::form-panel.group title="Product Information" icon="fas fa-box">
+            <x-livewire-admin::form-panel.group.input-group label="Title" icon="fas fa-tag" for="title" column="col-md-6" required>
                 <input type="text" class="form-control custom-radius-end @error('title') is-invalid @enderror" id="title"
                     wire:model.blur="title" placeholder="Enter product title">
                 <x-slot:feedback>
@@ -75,9 +75,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Slug" icon="fas fa-link" for="slug" column="col-md-6" required>
+            <x-livewire-admin::form-panel.group.input-group label="Slug" icon="fas fa-link" for="slug" column="col-md-6" required>
                 <input type="text" class="form-control custom-radius-end @error('slug') is-invalid @enderror" id="slug"
                     wire:model="slug" placeholder="Enter product slug">
                 <x-slot:feedback>
@@ -87,9 +87,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Description" icon="fas fa-align-left" for="description" column="col-md-12">
+            <x-livewire-admin::form-panel.group.input-group label="Description" icon="fas fa-align-left" for="description" column="col-md-12">
                 <textarea class="form-control custom-radius-end @error('description') is-invalid @enderror" id="description"
                     wire:model="description" placeholder="Enter description" rows="5"></textarea>
                 <x-slot:feedback>
@@ -99,9 +99,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Status" :icon="$status == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
+            <x-livewire-admin::form-panel.group.input-group label="Status" :icon="$status == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
                 <select class="form-select custom-radius-end @error('status') is-invalid @enderror" id="status"
                     wire:model.change="status">
                     <option value="1">Active</option>
@@ -114,9 +114,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Categories" icon="fas fa-folder" for="categories" column="col-md-6">
+            <x-livewire-admin::form-panel.group.input-group label="Categories" icon="fas fa-folder" for="categories" column="col-md-6">
                 <input type="text" class="form-control @error('category_ids') is-invalid @enderror" id="categories"
                     value="{{ implode(', ', $category_names) }}" placeholder="Choose categories" readonly>
                 <button type="button" class="btn btn-outline-secondary custom-radius-end bootstrap-hover bootstrap-focus"
@@ -129,12 +129,12 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
-        </x-livewire::form-panel.group>
+            </x-livewire-admin::form-panel.group.input-group>
+        </x-livewire-admin::form-panel.group>
 
         <hr class="mt-4 mb-3">
 
-        <x-livewire::form-panel.group title="Product Variants" icon="fas fa-cubes" :hasTitleAction="true">
+        <x-livewire-admin::form-panel.group title="Product Variants" icon="fas fa-cubes" :hasTitleAction="true">
             <x-slot:button-action type="button" class="btn btn-success bootstrap" icon="fas fa-plus"
                 data-bs-toggle="modal" data-bs-target="#variantModal" wire:click="addVariant" x-on:click="isEditing = false">Add Variant</x-slot:button-action>
 
@@ -219,7 +219,7 @@
                     </tbody>
                 </table>
             </div>
-        </x-livewire::form-panel.group>
+        </x-livewire-admin::form-panel.group>
 
         <x-slot:actions>
             <button type="button" class="btn btn-outline-secondary bootstrap-focus me-2" wire:click="resetForm">
@@ -231,7 +231,7 @@
                 Update Product
             </button>
         </x-slot:actions>
-    </x-livewire::form-panel>
+    </x-livewire-admin::form-panel>
 
     <div class="modal fade" id="variantModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" wire:ignore.self>
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -243,7 +243,7 @@
                 <div class="modal-body">
                     @if($activeVariantData)
                         <div class="row g-3" wire:key="variant-{{ $activeVariantData['keyId'] ?? count($variants) }}">
-                            <x-livewire::form-panel.group.input-group label="Variant Name" icon="fas fa-tag" for="name" column="col-lg-6" required>
+                            <x-livewire-admin::form-panel.group.input-group label="Variant Name" icon="fas fa-tag" for="name" column="col-lg-6" required>
                                 <input type="text" class="form-control custom-radius-end @error("activeVariantData.name") is-invalid @enderror" id="name"
                                     wire:model="activeVariantData.name" placeholder="Enter variant name">
                                 <x-slot:feedback>
@@ -253,9 +253,9 @@
                                         </div>
                                     @enderror
                                 </x-slot:feedback>
-                            </x-livewire::form-panel.group.input-group>
+                            </x-livewire-admin::form-panel.group.input-group>
 
-                            <x-livewire::form-panel.group.input-group label="SKU" icon="fas fa-barcode" for="sku" column="col-lg-6" required>
+                            <x-livewire-admin::form-panel.group.input-group label="SKU" icon="fas fa-barcode" for="sku" column="col-lg-6" required>
                                 <input type="text" class="form-control @error("activeVariantData.sku") is-invalid @enderror" id="sku"
                                     wire:model="activeVariantData.sku" placeholder="Enter unique SKU code">
                                 <button type="button" class="btn btn-outline-warning custom-radius-end bootstrap-hover bootstrap-focus"
@@ -267,9 +267,9 @@
                                         </div>
                                     @enderror
                                 </x-slot:feedback>
-                            </x-livewire::form-panel.group.input-group>
+                            </x-livewire-admin::form-panel.group.input-group>
 
-                            <x-livewire::form-panel.group.input-group label="Price" icon="fas fa-dollar-sign" for="price" column="col-lg-6" required>
+                            <x-livewire-admin::form-panel.group.input-group label="Price" icon="fas fa-dollar-sign" for="price" column="col-lg-6" required>
                                 <input type="number" class="form-control custom-radius-end @error("activeVariantData.price") is-invalid @enderror" id="price"
                                     wire:model="activeVariantData.price" placeholder="Enter price" min="0" step="1">
                                 <x-slot:feedback>
@@ -279,9 +279,9 @@
                                         </div>
                                     @enderror
                                 </x-slot:feedback>
-                            </x-livewire::form-panel.group.input-group>
+                            </x-livewire-admin::form-panel.group.input-group>
 
-                            <x-livewire::form-panel.group.input-group label="Discounted Price" icon="fas fa-percent" for="discount" column="col-lg-6">
+                            <x-livewire-admin::form-panel.group.input-group label="Discounted Price" icon="fas fa-percent" for="discount" column="col-lg-6">
                                 <input type="number" class="form-control custom-radius-end @error("activeVariantData.discount") is-invalid @enderror" id="discount"
                                     wire:model="activeVariantData.discount" placeholder="Enter discounted price" min="0" step="1">
                                 <x-slot:feedback>
@@ -291,9 +291,9 @@
                                         </div>
                                     @enderror
                                 </x-slot:feedback>
-                            </x-livewire::form-panel.group.input-group>
+                            </x-livewire-admin::form-panel.group.input-group>
 
-                            <x-livewire::form-panel.group.input-group label="Stock Quantity" icon="fas fa-boxes" for="stock" column="col-lg-6" required>
+                            <x-livewire-admin::form-panel.group.input-group label="Stock Quantity" icon="fas fa-boxes" for="stock" column="col-lg-6" required>
                                 <input type="number" class="form-control custom-radius-end @error("activeVariantData.stock") is-invalid @enderror" id="stock"
                                     wire:model="activeVariantData.stock" placeholder="Enter stock quantity" min="0" step="1">
                                 <x-slot:feedback>
@@ -303,9 +303,9 @@
                                         </div>
                                     @enderror
                                 </x-slot:feedback>
-                            </x-livewire::form-panel.group.input-group>
+                            </x-livewire-admin::form-panel.group.input-group>
 
-                            <x-livewire::form-panel.group.input-group label="Status" :icon="$activeVariantData['status'] == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
+                            <x-livewire-admin::form-panel.group.input-group label="Status" :icon="$activeVariantData['status'] == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
                                 <select class="form-select custom-radius-end @error("activeVariantData.status") is-invalid @enderror" id="status"
                                     wire:model.change="activeVariantData.status" wire:key="status">
                                     <option value="1">Active</option>
@@ -318,7 +318,7 @@
                                         </div>
                                     @enderror
                                 </x-slot:feedback>
-                            </x-livewire::form-panel.group.input-group>
+                            </x-livewire-admin::form-panel.group.input-group>
                         </div>
                     @else
                         <div class="text-center">

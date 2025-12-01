@@ -40,7 +40,7 @@
     @stack('styles')
 </head>
 <body class="bg-white p-0">
-    @include('client.partials.spinner')
+    {{-- @include('client.partials.spinner') --}}
 
     @section('body')
         <div class="container-fluid position-relative p-0">

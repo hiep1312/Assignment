@@ -3,14 +3,14 @@
     <livewire:admin.components.confirm-modal>
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update Blog List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Blog List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @endif
 
-    <x-livewire::management-header title="Blog List" btn-link="{{ route('admin.blogs.create') }}" btn-label="Add New Blog" btn-icon="fas fa-plus-circle" />
+    <x-livewire-admin::management-header title="Blog List" btn-link="{{ route('admin.blogs.create') }}" btn-label="Add New Blog" btn-icon="fas fa-plus-circle" />
 
-    <x-livewire::filter-bar placeholderSearch="Search blogs..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search blogs..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="status">
                 <option value="">All Status</option>
@@ -27,9 +27,9 @@
                 @endforeach
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Blog Records">
+    <x-livewire-admin::data-table caption="Blog Records">
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Blogs` : `Restore All Blogs`"
@@ -206,9 +206,9 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 
-    <x-livewire::content-preview title="Blog Preview" icon="fas fa-blog" id="blogPreview" class-header="bootstrap-style bootstrap-border-bottom">
+    <x-livewire-admin::content-preview title="Blog Preview" icon="fas fa-blog" id="blogPreview" class-header="bootstrap-style bootstrap-border-bottom">
         @if($selectedBlogId && ($selectedBlog = $blogs->firstWhere('id', $selectedBlogId)))
             <h3 class="fw-bold mb-2">{{ $selectedBlog->title }}</h3>
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -239,7 +239,7 @@
                 <span class="loading-text-dots">Loading</span>
             </div>
         @endif
-    </x-livewire::content-preview>
+    </x-livewire-admin::content-preview>
 </div>
 @script
 <script>

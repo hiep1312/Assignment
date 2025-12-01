@@ -1,9 +1,9 @@
 @use('App\Enums\DefaultImage')
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
-    <x-livewire::management-header title="Add New Comment" btn-link="{{ route('admin.comments.index') }}" btn-label="Back to List"
+    <x-livewire-admin::management-header title="Add New Comment" btn-link="{{ route('admin.comments.index') }}" btn-label="Back to List"
         btn-icon="fas fa-arrow-left" btn-class="btn btn-outline-secondary bootstrap-focus" />
 
-    <x-livewire::data-selector title="Select Blog" id="dataSelectorBlog" resetProperty="selectedBlogId" wire:key="data-selector-blog">
+    <x-livewire-admin::data-selector title="Select Blog" id="dataSelectorBlog" resetProperty="selectedBlogId" wire:key="data-selector-blog">
         <x-slot:input type="text" placeholder="Search blogs..." wire:model.live.debounce.300ms="searchBlogs"></x-slot:input>
 
         @forelse($blogs as $blog)
@@ -19,11 +19,11 @@
         @endforelse
 
         <x-slot:button-confirm wire:click="selectBlog" :disabled="!$selectedBlogId">Choose Blog</x-slot:button-confirm>
-    </x-livewire::data-selector>
+    </x-livewire-admin::data-selector>
 
-    <x-livewire::form-panel :isFormNormal="false" id="comment-create-form" action="store">
-        <x-livewire::form-panel.group title="Comment Information" icon="fas fa-comment-dots">
-            <x-livewire::form-panel.group.input-group label="Blog" icon="fas fa-file-alt" for="blog" column="col-md-6" required>
+    <x-livewire-admin::form-panel :isFormNormal="false" id="comment-create-form" action="store">
+        <x-livewire-admin::form-panel.group title="Comment Information" icon="fas fa-comment-dots">
+            <x-livewire-admin::form-panel.group.input-group label="Blog" icon="fas fa-file-alt" for="blog" column="col-md-6" required>
                 <input type="text" class="form-control @error('blog_id') is-invalid @enderror" id="blog"
                     value="{{ $blog_title ?? '' }}" placeholder="Choose blog" readonly>
                 <button type="button" class="btn btn-outline-secondary custom-radius-end bootstrap-hover bootstrap-focus"
@@ -36,9 +36,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Parent Comment" icon="fas fa-comment-dots" for="parent_id" column="col-md-6">
+            <x-livewire-admin::form-panel.group.input-group label="Parent Comment" icon="fas fa-comment-dots" for="parent_id" column="col-md-6">
                 <select class="form-select custom-radius-end @error('parent_id') is-invalid @enderror" id="parent_id"
                     wire:model.change="parent_id">
                     <option value="" wire:key="parent-comment-default">Root Comment</option>
@@ -53,9 +53,9 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
-            <x-livewire::form-panel.group.input-group label="Reply To Comment" icon="fas fa-reply" for="reply_to" column="col-12">
+            <x-livewire-admin::form-panel.group.input-group label="Reply To Comment" icon="fas fa-reply" for="reply_to" column="col-12">
                 <select class="form-select custom-radius-end @error('reply_to') is-invalid @enderror" id="reply_to"
                     wire:model.change="reply_to">
                     <option value="" wire:key="reply-to-default">Reply to Parent Comment</option>
@@ -70,14 +70,14 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
 
             @if($parent_id && $parentCommentSelected)
                 <div class="col-12" style="margin-top: 20px;" wire:key="parent-comment-{{ $parentCommentSelected->id }}">
                     @php
                         $parentUser = $parentCommentSelected->user;
                     @endphp
-                    <x-livewire::comment-item style="margin-bottom: 0" wire:key="frame-parent-comment-{{ $parentCommentSelected->id }}">
+                    <x-livewire-admin::comment-item style="margin-bottom: 0" wire:key="frame-parent-comment-{{ $parentCommentSelected->id }}">
                         <x-slot:img src="{{ asset('storage/' . ($parentUser->avatar ?? DefaultImage::AVATAR->value)) }}"
                             class="rounded-circle" alt="User Avatar" style="width: 100%; height: 100%"></x-slot:img>
 
@@ -89,14 +89,14 @@
                         <x-slot:time>{{ $parentCommentSelected->created_at->diffForHumans() }}</x-slot:time>
 
                         {{ $parentCommentSelected->content }}
-                    </x-livewire::comment-item>
+                    </x-livewire-admin::comment-item>
                 </div>
 
                 @if($reply_to && $replyCommentSelected)
                     @php
                         $replyUser = $replyCommentSelected->user;
                     @endphp
-                    <x-livewire::comment-item class="reply" style="margin-top: 20px; margin-bottom: 0" wire:key="frame-reply-comment-{{ $replyCommentSelected->id }}">
+                    <x-livewire-admin::comment-item class="reply" style="margin-top: 20px; margin-bottom: 0" wire:key="frame-reply-comment-{{ $replyCommentSelected->id }}">
                         <x-slot:img src="{{ asset('storage/' . ($replyUser->avatar ?? DefaultImage::AVATAR->value)) }}"
                             class="rounded-circle" alt="User Avatar" style="width: 100%; height: 100%"></x-slot:img>
 
@@ -108,11 +108,11 @@
                         <x-slot:time>{{ $replyCommentSelected->created_at->diffForHumans() }}</x-slot:time>
 
                         {{ $replyCommentSelected->content }}
-                    </x-livewire::comment-item>
+                    </x-livewire-admin::comment-item>
                 @endif
             @endif
 
-            <x-livewire::form-panel.group.input-group label="Comment Content" icon="fas fa-edit" for="content" column="col-md-12" required>
+            <x-livewire-admin::form-panel.group.input-group label="Comment Content" icon="fas fa-edit" for="content" column="col-md-12" required>
                 <textarea class="form-control custom-radius-end @error('content') is-invalid @enderror" id="content"
                     wire:model="content" placeholder="Enter comment content" rows="5" maxlength="500"></textarea>
                 <x-slot:feedback>
@@ -122,12 +122,12 @@
                         </div>
                     @enderror
                 </x-slot:feedback>
-            </x-livewire::form-panel.group.input-group>
+            </x-livewire-admin::form-panel.group.input-group>
             <small class="text-muted d-block mt-2">
                 <i class="fas fa-info-circle"></i> Maximum 500 characters
                 <span class="float-end" x-text="`${$wire.content.length}/500`"></span>
             </small>
-        </x-livewire::form-panel.group>
+        </x-livewire-admin::form-panel.group>
 
         <x-slot:actions>
             <button type="button" class="btn btn-outline-secondary bootstrap-focus me-2" wire:click="resetForm">
@@ -139,5 +139,5 @@
                 Create Comment
             </button>
         </x-slot:actions>
-    </x-livewire::form-panel>
+    </x-livewire-admin::form-panel>
 </div>

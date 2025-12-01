@@ -3,14 +3,14 @@
     <livewire:admin.components.confirm-modal wire:key="confirm-modal">
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update Banner List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Banner List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @endif
 
-    <x-livewire::management-header title="Banner List" btn-link="{{ route('admin.banners.create') }}" btn-label="Add New Banner" btn-icon="fas fa-image" />
+    <x-livewire-admin::management-header title="Banner List" btn-link="{{ route('admin.banners.create') }}" btn-label="Add New Banner" btn-icon="fas fa-image" />
 
-    <x-livewire::filter-bar placeholderSearch="Search banners..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search banners..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="status">
                 <option value="">All Status</option>
@@ -26,9 +26,9 @@
                 <option value="desc">Position: High to Low</option>
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Banner Records">
+    <x-livewire-admin::data-table caption="Banner Records">
         <x-slot:actions>
             <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Delete Banners"
                 x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
@@ -153,9 +153,9 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 
-    <x-livewire::content-preview title="Banner Preview" icon="fas fa-images" id="bannerPreview">
+    <x-livewire-admin::content-preview title="Banner Preview" icon="fas fa-images" id="bannerPreview">
         <div id="slideshowBanner" class="carousel slide">
             <div class="carousel-inner">
                 @foreach($banners as $banner)
@@ -199,5 +199,5 @@
                 });
             </script>
         </x-slot:script>
-    </x-livewire::content-preview>
+    </x-livewire-admin::content-preview>
 </div>

@@ -3,14 +3,14 @@
     <livewire:admin.components.confirm-modal>
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update Category List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Category List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @endif
 
-    <x-livewire::management-header title="Category List" btn-link="{{ route('admin.categories.create') }}" btn-label="Add New Category" btn-icon="fas fa-folder-plus" />
+    <x-livewire-admin::management-header title="Category List" btn-link="{{ route('admin.categories.create') }}" btn-label="Add New Category" btn-icon="fas fa-folder-plus" />
 
-    <x-livewire::filter-bar placeholderSearch="Search categories..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search categories..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="createdBy">
                 <option value="">All Creators</option>
@@ -26,9 +26,9 @@
                 <option value="blog">Blog</option>
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Category Records">
+    <x-livewire-admin::data-table caption="Category Records">
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Categories` : `Restore All Categories`"
@@ -182,5 +182,5 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 </div>

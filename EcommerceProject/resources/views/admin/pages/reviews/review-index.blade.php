@@ -4,14 +4,14 @@
     <livewire:admin.components.confirm-modal>
 
     @if(session()->has('data-changed'))
-        <x-livewire::toast-message title="Update Review List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Update Review List" type="primary" time="{{ session('data-changed')[1] }}" :show="true" :duration="8">
             {{ session('data-changed')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @endif
 
-    <x-livewire::management-header title="Reviews List" />
+    <x-livewire-admin::management-header title="Reviews List" />
 
-    <x-livewire::filter-bar placeholderSearch="Search reviews..." modelSearch="search" resetAction="resetFilters">
+    <x-livewire-admin::filter-bar placeholderSearch="Search reviews..." modelSearch="search" resetAction="resetFilters">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="rating">
                 <option value="">All Ratings</option>
@@ -26,13 +26,13 @@
             <select class="form-select" wire:model.change="productId">
                 <option value="">All Products</option>
                 @foreach($products as $product)
-                    <option value="{{ $product->id }}">{{ $product->title }}</option>
+                    <option value="{{ $product->id }}" wire:key="product-filter-{{ $product->id }}">{{ $product->title }}</option>
                 @endforeach
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Review Records">
+    <x-livewire-admin::data-table caption="Review Records">
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Reviews` : `Restore All Reviews`"
@@ -147,7 +147,7 @@
                                 </span>
                             </td>
                         </tr>
-                        <x-livewire::expandable-row id="collapseReviews{{ $product->id }}" title="Product Reviews" icon="fas fa-comments" wire:key="collapse-reviews-{{ $product->id }}">
+                        <x-livewire-admin::expandable-row id="collapseReviews{{ $product->id }}" title="Product Reviews" icon="fas fa-comments" wire:key="collapse-reviews-{{ $product->id }}">
                             <div class="card-body p-0 table-responsive shadow-sm" style="border-radius: 0.5rem 0.5rem 0 0;">
                                 <table class="table table-hover mb-0">
                                     <thead class="table-light text-center">
@@ -248,7 +248,7 @@
                                     {{ $paginatedReviews->onEachSide(1)->links(data: ['scrollTo' => "collapseReviews{$product->id}"]) }}
                                 </div>
                             @endif
-                        </x-livewire::expandable-row>
+                        </x-livewire-admin::expandable-row>
                     @empty
                         <tr class="empty-state-row">
                             <td colspan="6" class="text-center py-5">
@@ -270,9 +270,9 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 
-    <x-livewire::content-preview title="Review Preview" icon="fas fa-star" id="reviewPreview" class-header="bootstrap-style bootstrap-border-bottom" modal-size="modal-normal">
+    <x-livewire-admin::content-preview title="Review Preview" icon="fas fa-star" id="reviewPreview" class-header="bootstrap-style bootstrap-border-bottom" modal-size="modal-normal">
         @if($selectedReviewId && $selectedReview)
             <div class="user-info">
                 @php $user = $selectedReview->user; @endphp
@@ -307,7 +307,7 @@
                 <span class="loading-text-dots">Loading</span>
             </div>
         @endif
-    </x-livewire::content-preview>
+    </x-livewire-admin::content-preview>
 </div>
 @script
 <script>

@@ -4,7 +4,7 @@
 <div wire:poll.5s>
     <livewire:admin.components.confirm-modal wire:key="confirm-modal">
 
-    <x-livewire::filter-bar placeholderSearch="Search mail batches..." modelSearch="search" resetAction="resetFilters" :isDetailFilter="true">
+    <x-livewire-admin::filter-bar placeholderSearch="Search mail batches..." modelSearch="search" resetAction="resetFilters" :isDetailFilter="true">
         <div class="col-md-3">
             <select class="form-select" wire:model.change="type">
                 <option value="">All Types</option>
@@ -24,9 +24,9 @@
                 <option value="2">Failed</option>
             </select>
         </div>
-    </x-livewire::filter-bar>
+    </x-livewire-admin::filter-bar>
 
-    <x-livewire::data-table caption="Mail Batch Records" class="mt-3">
+    <x-livewire-admin::data-table caption="Mail Batch Records" class="mt-3">
         <x-slot:actions>
             <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Delete Batches"
                 x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
@@ -145,7 +145,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <x-livewire::expandable-row id="collapseBatch{{ $batch->batch_key }}" title="Mail Recipients" icon="fas fa-user-friends" wire:key="collapse-batch-{{ $batch->batch_key }}">
+                        <x-livewire-admin::expandable-row id="collapseBatch{{ $batch->batch_key }}" title="Mail Recipients" icon="fas fa-user-friends" wire:key="collapse-batch-{{ $batch->batch_key }}">
                             <div class="card-body p-0 table-responsive shadow-sm" style="border-radius: 0.5rem 0.5rem 0 0;">
                                 <table class="table table-hover mb-0">
                                     <thead class="table-light text-center">
@@ -248,7 +248,7 @@
                                     {{ $paginatedRecipients->onEachSide(1)->links(data: ['scrollTo' => "collapseBatch{$batch->batch_key}"]) }}
                                 </div>
                             @endif
-                        </x-livewire::expandable-row>
+                        </x-livewire-admin::expandable-row>
                     @empty
                         <tr class="empty-state-row">
                             <td colspan="6" class="text-center py-5">
@@ -270,5 +270,5 @@
                 </div>
             @endif
         </x-slot:pagination>
-    </x-livewire::data-table>
+    </x-livewire-admin::data-table>
 </div>

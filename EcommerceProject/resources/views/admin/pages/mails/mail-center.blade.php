@@ -6,14 +6,14 @@
 @use('App\Enums\DefaultImage')
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component">
     @if(session()->has('mail.queued'))
-        <x-livewire::toast-message title="Email Queued" type="primary" time="{{ session('mail.queued')[1] }}" :show="true" :duration="8">
+        <x-livewire-admin::toast-message title="Email Queued" type="primary" time="{{ session('mail.queued')[1] }}" :show="true" :duration="8">
             {{ session('mail.queued')[0] }}
-        </x-livewire::toast-message>
+        </x-livewire-admin::toast-message>
     @endif
 
     <livewire:admin.components.gallery-manager wire:key="gallery-picker" id="galleryPickerModal" />
 
-    <x-livewire::management-header title="Mail Center" btn-link="{{ route('admin.mails.index') }}" btn-label="Manage Templates" btn-icon="fas fa-folder-open" />
+    <x-livewire-admin::management-header title="Mail Center" btn-link="{{ route('admin.mails.index') }}" btn-label="Manage Templates" btn-icon="fas fa-folder-open" />
 
     <div class="card-container">
         <ul class="nav nav-tabs" role="tablist">
@@ -34,7 +34,7 @@
         <div class="tab-content">
             <div class="tab-pane fade show active" id="send-content" role="tabpanel"
                 wire:ignore.self>
-                <x-livewire::form-section title="Choose Sending Method" icon="fas fa-cogs">
+                <x-livewire-admin::form-section title="Choose Sending Method" icon="fas fa-cogs">
                     <div class="radio-group">
                         <div :class="`radio-option ${$wire.sendType === 'template' ? 'active' : ''}`" x-on:click="$wire.$set('sendType', 'template')">
                             <label class="radio-label">
@@ -53,9 +53,9 @@
                             <p class="mb-0" style="font-size: 0.85rem;">Compose a custom email message</p>
                         </div>
                     </div>
-                </x-livewire::form-section>
+                </x-livewire-admin::form-section>
 
-                <x-livewire::form-section ::class="$wire.sendType !== 'template' ? 'd-none' : ''" title="Choose Template" icon="fas fa-envelope-open-text">
+                <x-livewire-admin::form-section ::class="$wire.sendType !== 'template' ? 'd-none' : ''" title="Choose Template" icon="fas fa-envelope-open-text">
                     <div class="form-group">
                         <label for="selectedTemplate">Template Email <span class="text-danger">*</span></label>
                         <select class="form-select @error('selectedTemplate') is-invalid @enderror" wire:model="selectedTemplate" id="selectedTemplate">
@@ -74,9 +74,9 @@
                         <i class="fas fa-info-circle"></i>
                         <strong>Note:</strong> The placeholders in the email will be automatically replaced with real recipient data.
                     </div>
-                </x-livewire::form-section>
+                </x-livewire-admin::form-section>
 
-                <x-livewire::form-section ::class="$wire.sendType !== 'manual' ? 'd-none' : ''" title="Compose Email" icon="fas fa-edit">
+                <x-livewire-admin::form-section ::class="$wire.sendType !== 'manual' ? 'd-none' : ''" title="Compose Email" icon="fas fa-edit">
                     <div class="form-group">
                         <label for="subject">Subject <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('subject') is-invalid @enderror" placeholder="Example: Special promotion for you"
@@ -116,9 +116,9 @@
                             </div>
                         </div>
                     </div>
-                </x-livewire::form-section>
+                </x-livewire-admin::form-section>
 
-                <x-livewire::form-section title="Select Recipients" icon="fas fa-users">
+                <x-livewire-admin::form-section title="Select Recipients" icon="fas fa-users">
                     <div class="user-selection-controls" x-data="{ allSelected: false }" x-effect="allSelected = @json($users->pluck('id')->toArray()).every(userId => $wire.selectedUsers.includes(userId))">
                         <input type="text" class="form-control user-search-input" id="user-search" wire:model.live.debounce.300ms="searchUsers"
                             placeholder="🔍 Search by name or email...">
@@ -153,7 +153,7 @@
                             {{ $errors->first('selectedUsers') ?? $errors->first('selectedUsers.*') }}
                         </div>
                     @endif
-                </x-livewire::form-section>
+                </x-livewire-admin::form-section>
 
                 <div class="btn-group-action">
                     <button class="btn-primary-custom" wire:click="submitEmail">
