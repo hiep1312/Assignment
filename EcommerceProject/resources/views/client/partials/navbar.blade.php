@@ -1,4 +1,3 @@
-
 <div class="collapse navbar-collapse" id="navbarCollapse">
     <div class="navbar-nav ms-auto py-0 pe-4">
         <a href="{{ route('template.client.index') }}" class="nav-item nav-link @if(request()->routeIs('template.client.index')) active @endif">Home</a>
