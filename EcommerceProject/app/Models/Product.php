@@ -52,4 +52,12 @@ class Product extends Model
                 'images.*',
             ])->where('imageables.is_main', true);
     }
+
+    public function primaryVariant()
+    {
+        return $this->hasOne(ProductVariant::class, 'product_id')
+            ->where('status', 1)
+            ->orderByRaw('COALESCE(discount, price) ASC')
+            ->limit(1);
+    }
 }

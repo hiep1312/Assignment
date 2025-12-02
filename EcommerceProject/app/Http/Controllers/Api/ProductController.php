@@ -18,6 +18,7 @@ class ProductController extends BaseApiController
     protected function getAllowedRelationsWithFields(): array
     {
         return [
+            'primaryVariant' => ProductVariantController::API_FIELDS,
             'variants' => (object)[
                 'fields' => ProductVariantController::API_FIELDS,
                 'inventory' => ProductVariantController::INVENTORY_FIELDS,

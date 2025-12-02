@@ -242,3 +242,33 @@
 .btn-primary:focus {
     box-shadow: 0 0 0 0.25rem rgba(255, 140, 0, 0.25) !important;
 }
+
+.no-data-placeholder {
+    grid-column: 1 / -1;
+    background-color: var(--color-white-product);
+    border-radius: 12px;
+    padding: 60px 40px;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    border: 2px dashed var(--border-color-origin);
+}
+
+.no-data-content i {
+    font-size: 64px;
+    color: var(--color-primary-light-product);
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.no-data-content h4 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333333;
+    margin-bottom: 12px;
+}
+
+.no-data-content p {
+    font-size: 15px;
+    color: #666666;
+    margin-bottom: 10px;
+}

@@ -16,8 +16,9 @@
         </div>
     </div>
 @endsection
-
 @script
+
+@use('App\Enums\DefaultImage')
 <script>
     window.pagination = null;
 
@@ -27,6 +28,7 @@
                 const response = await window.http.get(@js(route('api.products.index')), {
                     params: {
                         aggregate: 'count:reviews, avg:reviews.rating',
+                        include: 'variants',
                     }
                 });
 
@@ -43,6 +45,7 @@
                 };
 
                 $wire.set('products', axiosData.data, true);
+                console.log($wire.get('products'));
             } catch(axiosError) {
                 const message = axiosError.response.data?.message ?? axiosError.message;
 
@@ -182,20 +185,27 @@
             </div>
 
             <x-livewire-client::product-grid>
-                {{-- @forelse()
+                @forelse($products as $product)
+                    @php
+                        $defaultVariant = $product['variants'][0];
+                        $mainImage = $product['main_image'];
+                    @endphp
+                    <x-livewire-client::product-grid.card :title="$product['title']" :price="100" :original-price="0" :stock-quantity="2"
+                        :avg-rating="(float) $product['reviews_avg_rating']" :total-reviews="$product['reviews_count']">
+                        <x-slot:img :src="asset('storage/' . (isset($mainImage['image_url']) ? $mainImage['image_url'] : DefaultImage::PRODUCT->value))" :alt="'Product image of' . $product['title']"></x-slot:img>
 
+                        <x-slot:add-to-cart-button>Add to Cart</x-slot:add-to-cart-button>
+                        <x-slot:view-details-button>View Details</x-slot:view-details-button>
+                    </x-livewire-client::product-grid.card>
                 @empty
-                    <div class="no-data-placeholder" id="noDataPlaceholder" style="display: none;">
+                    <div class="no-data-placeholder">
                         <div class="no-data-content">
-                            <i class="fas fa-search"></i>
-                            <h4>Không tìm thấy sản phẩm</h4>
-                            <p>Xin lỗi, không có sản phẩm nào phù hợp với tiêu chí tìm kiếm của bạn.</p>
-                            <button class="btn btn-primary mt-3">
-                                <i class="fas fa-redo me-2"></i>Đặt Lại Bộ Lọc
-                            </button>
+                            <i class="fas fa-ghost"></i>
+                            <h4>Oops! Nothing Found</h4>
+                            <p>We couldn't find any products for your current selection. Try adjusting your filters or check back later.</p>
                         </div>
                     </div>
-                @endforelse --}}
+                @endforelse
             </x-livewire-client::product-grid>
 
             <x-livewire-client::pagination class="mt-4" />

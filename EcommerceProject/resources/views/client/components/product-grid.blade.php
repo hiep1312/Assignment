@@ -1,6 +1,6 @@
-@push('styles')
+@assets
     @vite('resources/css/product-grid.css')
-@endpush
+@endassets
 
 <div {{ $attributes->merge(['class' => 'products-grid']) }}>
     {{ $slot }}

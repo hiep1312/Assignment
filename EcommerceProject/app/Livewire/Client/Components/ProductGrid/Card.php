@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Client\Components;
+namespace App\Livewire\Client\Components\ProductGrid;
 
 use Closure;
 use Illuminate\Contracts\View\View;

@@ -11,6 +11,8 @@ export default defineConfig({
                 'resources/css/message-center.css',
                 'resources/css/products.css',
                 'resources/css/pagination.css',
+                'resources/css/product-grid.css',
+                'resources/css/product-card.css',
                 'resources/js/app.js',
                 'resources/js/image-picker.js',
                 'resources/js/editor-handler.js'

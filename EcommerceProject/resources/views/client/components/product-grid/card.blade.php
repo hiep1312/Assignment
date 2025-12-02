@@ -1,6 +1,6 @@
-@push('styles')
+@assets
     @vite('resources/css/product-card.css')
-@endpush
+@endassets
 
 <div class="product-card">
     <div class="product-image-container">
@@ -19,7 +19,7 @@
 
         @if($isNew)
             <span class="badge bg-info position-absolute top-0 start-0 m-2">New</span>
-        @else
+        @endif
     </div>
     <div class="product-info">
         <h6 class="product-title">{{ $title }}</h6>
@@ -35,7 +35,7 @@
                 ($hasHalfStar ? '<i class="fas fa-star-half-alt text-warning"></i>' : '') .
                 str_repeat('<i class="fas fa-star text-muted"></i>', $emptyStars)
             !!}
-            <span class="rating-text ms-2">({{ $countRatings }} reviews)</span>
+            <span class="rating-text ms-2">({{ $totalReviews }} reviews)</span>
         </div>
 
         <div class="product-price">
