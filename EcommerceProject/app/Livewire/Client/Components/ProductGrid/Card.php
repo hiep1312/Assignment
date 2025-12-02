@@ -16,10 +16,12 @@ class Card extends Component
         public float $avgRating,
         public int $totalReviews,
         public int $stockQuantity,
+        public int $soldCount,
         public int $price,
         public ?int $originalPrice = null,
         public float $discountPercent = 0,
         public bool $isNew = false,
+        public bool $isPlaceholder = false
     ){}
 
     /**

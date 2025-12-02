@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends BaseApiController
 {
-    const PRIVATE_FIELDS = ['name', ...UserController::PRIVATE_FIELDS];
+    const PRIVATE_FIELDS = [...UserController::PRIVATE_FIELDS, 'name'];
 
     public function __construct(
         protected UserRepositoryInterface $repository

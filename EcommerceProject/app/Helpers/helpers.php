@@ -210,6 +210,34 @@ if(!function_exists('formatJsonToHtml')){
     }
 }
 
+if(!function_exists('formatNumberCompact')){
+    /**
+     * Format a number into a compact, human-readable string with unit suffixes.
+     *
+     * @param int|float $number The number to format. Can be an integer or floating-point number.
+     *
+     * @return string The formatted number with appropriate unit suffix.
+     *                Returns the number with one decimal place (if needed) followed by:
+     *                - '' (empty) for numbers < 1,000
+     *                - 'K' for thousands (1,000 - 999,999)
+     *                - 'M' for millions (1,000,000 - 999,999,999)
+     *                - 'B' for billions (1,000,000,000 - 999,999,999,999)
+     *                - 'T' for trillions (1,000,000,000,000+)
+     */
+    function formatNumberCompact(int|float $number): string
+    {
+        $units = ['', 'K', 'M', 'B', 'T'];
+        $unitIndex = 0;
+
+        while($number >= 1000 && $unitIndex < count($units) - 1) {
+            $number /= 1000;
+            $unitIndex++;
+        }
+
+        return rtrim(rtrim(number_format($number, 1), '0'), '.') . $units[$unitIndex];
+    }
+}
+
 if(!function_exists('authPayload')){
     /**
      * Retrieve a value from the JWT payload of the currently authenticated user.

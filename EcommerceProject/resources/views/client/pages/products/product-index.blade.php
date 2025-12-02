@@ -16,42 +16,88 @@
         </div>
     </div>
 @endsection
-@script
 
 @use('App\Enums\DefaultImage')
+@script
 <script>
-    window.pagination = null;
-
     const PageController = {
-        init: async () => {
+        init: () => {
+            PageController.fetchData();
+            PageController.registerEvents();
+        },
+
+        fetchData: async () => {
             try {
-                const response = await window.http.get(@js(route('api.products.index')), {
-                    params: {
-                        aggregate: 'count:reviews, avg:reviews.rating',
-                        include: 'variants',
-                    }
-                });
+                const [categoriesResponse, productsResponse] = await Promise.all([
+                    window.http.get(@js(route('api.categories.index')), { params: PageController._buildApiParams.categoryQueryParams() }),
+                    window.http.get(@js(route('api.products.index')), { params: PageController._buildApiParams.productQueryParams() })
+                ]);
 
-                const axiosData = response.data;
+                const { data: axiosCategoryData } = categoriesResponse;
+                const { data: axiosProductData } = productsResponse;
 
-                pagination = {
-                    current_page: axiosData.current_page,
-                    last_page: axiosData.last_page,
-                    links: axiosData.links,
-                    next_page_url: axiosData.next_page_url,
-                    per_page: axiosData.per_page,
-                    prev_page_url: axiosData.prev_page_url,
-                    total: axiosData.total
-                };
+                $wire.categories = axiosCategoryData.data;
+                $wire.products = axiosProductData.data;
+                $wire.pagination = window.getPaginationFromApi(axiosProductData);
+                $wire.isCardLoading = false;
+                $wire.$refresh();
 
-                $wire.set('products', axiosData.data, true);
-                console.log($wire.get('products'));
-            } catch(axiosError) {
+                return [axiosCategoryData, axiosProductData];
+            }catch(axiosError) {
                 const message = axiosError.response.data?.message ?? axiosError.message;
 
                 console.error("Failed to fetch: ", message);
             }
         },
+
+        _buildApiParams: {
+            productQueryParams: () => {
+                const params = new URLSearchParams(window.location.search);
+                const allowedFields = ['page'];
+                const apiParams = {};
+
+                for(const field of allowedFields) {
+                    if(params.has(field)) {
+                        apiParams[field] = params.get(field);
+                    }
+                }
+
+                return {
+                    aggregate: 'count:reviews, avg:reviews.rating',
+                    include: 'primaryVariant',
+                    ...apiParams
+                };
+            },
+
+            categoryQueryParams: () => ({
+                with_product: true
+            })
+        },
+
+        events: {
+            "pagination:changed": (event) => {
+                if(event.detail.page !== $wire.pagination.current_page) return;
+
+                $wire.isCardLoading = true;
+                $wire.$refresh();
+                PageController.fetchData();
+            }
+        },
+
+        registerEvents: () => {
+            for(const [eventName, handler] of Object.entries(PageController.customEvents)) {
+                document.addEventListener(eventName, handler);
+            }
+
+            /* Register default events and ensure cleanup on page unload */
+            window.addEventListener('beforeunload', PageController.unregisterEvents);
+        },
+
+        unregisterEvents: () => {
+            for(const [eventName, handler] of Object.entries(PageController.customEvents)) {
+                document.removeEventListener(eventName, handler);
+            }
+        }
     };
 
     PageController.init();
@@ -61,119 +107,20 @@
 <div class="container-xl" id="main-component">
     <div class="row">
         <div class="col-lg-3 mb-4">
-            <div class="filter-card">
-                <div class="mb-4">
-                    <label class="form-label fw-bold mb-3">
-                        <i class="fas fa-eye me-2 text-primary"></i>Tìm Kiếm Sản Phẩm
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="fas fa-search text-warning"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0" placeholder="Tên sản phẩm...">
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold mb-3">
-                        <i class="fas fa-list me-2 text-primary"></i>Danh Mục
-                    </label>
-                    <div class="category-list">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="cat1" checked>
-                            <label class="form-check-label" for="cat1">
-                                Tất Cả Sản Phẩm <span class="badge bg-secondary ms-2 text-truncate" style="max-width: 60px;">124000000000000000000000000</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold mb-3">
-                        <i class="fas fa-dollar-sign me-2 text-primary"></i>Khoảng Giá
-                    </label>
-                    <div class="price-range-container">
-                        <input type="range" class="price-slider" id="minPrice" min="0" max="10000000" value="0" step="100000">
-                        <input type="range" class="price-slider" id="maxPrice" min="0" max="10000000" value="10000000" step="100000">
-                    </div>
-                    <div class="d-flex gap-2 mt-3">
-                        <div class="flex-grow-1">
-                            <label class="form-label small" for="minPriceInput">Từ</label>
-                            <input type="text" class="form-control form-control-sm" id="minPriceInput" value="0" readonly>
-                        </div>
-                        <div class="flex-grow-1">
-                            <label class="form-label small" for="maxPriceInput">Đến</label>
-                            <input type="text" class="form-control form-control-sm" id="maxPriceInput" value="10.000.000" readonly>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Rating Filter -->
-                <div class="mb-4">
-                    <label class="form-label fw-bold mb-3">
-                        <i class="fas fa-star me-2 text-primary"></i>Đánh Giá
-                    </label>
-                    <div class="rating-list">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="rating5">
-                            <label class="form-check-label" for="rating5">
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <span class="badge bg-secondary ms-2">45</span>
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="rating3">
-                            <label class="form-check-label" for="rating3">
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-muted"></i>
-                                <i class="fas fa-star text-muted"></i>
-                                <span class="badge bg-secondary ms-2">28</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold mb-3">
-                        <i class="fas fa-tag me-2 text-primary"></i>Trạng Thái
-                    </label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="inStock" checked>
-                        <label class="form-check-label" for="inStock">
-                            <span class="badge badge-status bg-success me-2">Còn Hàng</span>
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="new">
-                        <label class="form-check-label" for="new">
-                            <span class="badge badge-status bg-primary me-2">Hàng Mới</span>
-                        </label>
-                    </div>
-                </div>
-
-                <button class="btn btn-outline-secondary filter-btn w-100" type="button">
-                    <i class="fas fa-redo me-2"></i>Đặt Lại
-                </button>
-            </div>
+            <x-livewire-client::product-filter>
+            </x-livewire-client::product-filter>
         </div>
 
         <div class="col-lg-9">
             <div class="top-bar mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
                     <p class="mb-0 text-muted">
-                        <i class="fas fa-list me-2"></i>Hiển thị <strong>12</strong> trên <strong>124</strong> sản
-                        phẩm
+                        <i class="fas fa-list me-2"></i>Showing <strong x-text="$wire.products.length"></strong> out of <strong x-text="$wire.pagination?.total ?? 0"></strong> products
                     </p>
                 </div>
                 <div class="sort-container">
                     <label for="sortBy" class="form-label me-2 mb-0">Sắp xếp:</label>
-                    <select id="sortBy" class="form-select form-select-sm">
+                    <select id="sortBy" class="form-select form-select-sm" style="border-radius: var(--border-radius-input-group); padding-top: .35rem; padding-bottom: .35rem;">
                         <option value="">Mặc Định</option>
                         <option value="price-asc">Giá: Thấp Đến Cao</option>
                         <option value="price-desc">Giá: Cao Đến Thấp</option>
@@ -185,30 +132,37 @@
             </div>
 
             <x-livewire-client::product-grid>
-                @forelse($products as $product)
-                    @php
-                        $defaultVariant = $product['variants'][0];
-                        $mainImage = $product['main_image'];
-                    @endphp
-                    <x-livewire-client::product-grid.card :title="$product['title']" :price="100" :original-price="0" :stock-quantity="2"
-                        :avg-rating="(float) $product['reviews_avg_rating']" :total-reviews="$product['reviews_count']">
-                        <x-slot:img :src="asset('storage/' . (isset($mainImage['image_url']) ? $mainImage['image_url'] : DefaultImage::PRODUCT->value))" :alt="'Product image of' . $product['title']"></x-slot:img>
+                @if($isCardLoading)
+                    @for($i = 0; $i < 12; $i++)
+                        <x-livewire-client::product-grid.card-placeholder wire:key="product-placeholder-{{ $i }}"></x-livewire-client::product-grid.card-placeholder>
+                    @endfor
+                @else
+                    @forelse($products as $product)
+                        @php
+                            $primaryVariant = $product['primary_variant'] ?? ['price' => 0, 'discount' => null];
+                            $mainImage = $product['main_image'];
+                            $inventoryStats = $product['inventory_summary'] ?? ['total_stock' => 0, 'total_sold' => 0];
+                        @endphp
+                        <x-livewire-client::product-grid.card :title="$product['title']" :price="$primaryVariant['discount'] ?? $primaryVariant['price']" :original-price="$primaryVariant['discount']" :stock-quantity="$inventoryStats['total_stock']" :sold-count="$inventoryStats['total_sold']"
+                            :avg-rating="(float) $product['reviews_avg_rating']" :total-reviews="$product['reviews_count']" wire:key="product-{{ $product['id'] }}">
+                            <x-slot:img :src="asset('storage/' . (isset($mainImage['image_url']) ? $mainImage['image_url'] : DefaultImage::PRODUCT->value))" :alt="'Product image of' . $product['title']"></x-slot:img>
 
-                        <x-slot:add-to-cart-button>Add to Cart</x-slot:add-to-cart-button>
-                        <x-slot:view-details-button>View Details</x-slot:view-details-button>
-                    </x-livewire-client::product-grid.card>
-                @empty
-                    <div class="no-data-placeholder">
-                        <div class="no-data-content">
-                            <i class="fas fa-ghost"></i>
-                            <h4>Oops! Nothing Found</h4>
-                            <p>We couldn't find any products for your current selection. Try adjusting your filters or check back later.</p>
+                            <x-slot:add-to-cart-button>Add to Cart</x-slot:add-to-cart-button>
+                            <x-slot:view-details-button>View Details</x-slot:view-details-button>
+                        </x-livewire-client::product-grid.card>
+                    @empty
+                        <div class="no-data-placeholder">
+                            <div class="no-data-content">
+                                <i class="fas fa-ghost"></i>
+                                <h4>Oops! Nothing Found</h4>
+                                <p>We couldn't find any products for your current selection. Try adjusting your filters or check back later.</p>
+                            </div>
                         </div>
-                    </div>
-                @endforelse
+                    @endforelse
+                @endif
             </x-livewire-client::product-grid>
 
-            <x-livewire-client::pagination class="mt-4" />
+            <x-livewire-client::pagination class="mt-4" :pagination="$pagination" />
         </div>
     </div>
 </div>

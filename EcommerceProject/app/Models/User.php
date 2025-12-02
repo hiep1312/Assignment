@@ -35,6 +35,10 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
+    protected $appends = [
+        'name'
+    ];
+
     /**
      * The attributes that should be hidden for serialization.
      *

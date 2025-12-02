@@ -31,22 +31,18 @@ Route::name('api.')->group(function() {
 
     /* Data */
     Route::middleware('auth:jwt')->group(function() {
-        /* User */
-        Route::apiSingleton('profile', UserController::class)
-            ->destroyable();
-
         /* Resources accessible only by authenticated users */
         Route::apiResources([
             'user-addresses' => UserAddressController::class,
-            'categories' => CategoryController::class,
             'images' => ImageController::class,
         ]);
 
         /* Resources accessible by guests for index/show but other actions require authentication */
         Route::apiResources([
+            'categories' => CategoryController::class,
             'products' => ProductController::class,
             'banners' => BannerController::class,
-            'blogs' => BlogController::class
+            'blogs' => BlogController::class,
         ], [
             'excluded_middleware_for' => [
                 'index' => ['auth:jwt'],
@@ -54,7 +50,7 @@ Route::name('api.')->group(function() {
             ]
         ]);
 
-        /* Related Products & Blogs */
+        /* Related resources also accessible by guests for index/show */
         Route::apiResources([
             'products.variants' => ProductVariantController::class,
             'products.reviews' => ProductReviewController::class,
@@ -66,6 +62,10 @@ Route::name('api.')->group(function() {
                 'show' => ['auth:jwt']
             ]
         ]);
+
+        /* Profile */
+        Route::apiSingleton('profile', UserController::class)
+            ->destroyable();
 
         /* Orders */
         Route::group([], function() {
@@ -84,14 +84,15 @@ Route::name('api.')->group(function() {
         });
 
         /* Cart & Cart Items */
-        Route::apiResources([
-            'carts' => CartController::class,
-            'carts.items' => CartItemController::class
-        ], [
-            'excluded_middleware' => ['auth:jwt']
-        ]);
-        Route::delete('/carts/{cart}/items', [CartController::class, 'deleteItems'])
-            ->name('carts.items.delete');
+        Route::withoutMiddleware(['auth:jwt'])->group(function() {
+            Route::apiResources([
+                'carts' => CartController::class,
+                'carts.items' => CartItemController::class
+            ]);
+
+            Route::delete('/carts/{cart}/items', [CartController::class, 'deleteItems'])
+                ->name('carts.items.delete');
+        });
 
         /* Checkout */
         Route::prefix('/checkout')->controller(CheckoutController::class)->name('checkout.')->group(function() {

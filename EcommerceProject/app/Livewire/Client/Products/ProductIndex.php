@@ -8,7 +8,10 @@ use Livewire\Component;
 
 class ProductIndex extends Component
 {
+    public array $categories = [];
     public array $products = [];
+    public array $pagination = [];
+    public bool $isCardLoading = true;
 
     #[Title('Explore Books - Bookio')]
     #[Layout('layouts.client')]

@@ -92,3 +92,41 @@ window.copyToClipboard = function(text, button) {
         window.alert('Oops! Something went wrong while copying the link.');
     });
 };
+
+/**
+ * Extracts pagination data from an API response.
+ *
+ * @param {Object} response - The API response containing pagination data.
+ * @param {number} response.current_page - The current page number.
+ * @param {number} response.last_page - The last page number available.
+ * @param {number} response.per_page - The number of items per page.
+ * @param {string} response.first_page_url - The URL of the first page.
+ * @param {string} response.last_page_url - The URL of the last page.
+ * @param {Array<Object>} response.links - An array of link objects for pagination navigation.
+ * @param {string|null} response.next_page_url - The URL of the next page, or null if none.
+ * @param {string|null} response.prev_page_url - The URL of the previous page, or null if none.
+ * @param {string} response.path - The base path for the pagination URLs.
+ * @param {number} response.from - The index of the first item on the current page.
+ * @param {number} response.to - The index of the last item on the current page.
+ * @param {number} response.total - The total number of items across all pages.
+ *
+ * @returns {Object} A structured pagination object containing all relevant pagination properties.
+ */
+window.getPaginationFromApi = function(response) {
+    if(typeof response !== 'object') return {};
+
+    return {
+        current_page: response.current_page,
+        last_page: response.last_page,
+        per_page: response.per_page,
+        first_page_url: response.first_page_url,
+        last_page_url: response.last_page_url,
+        links: response.links,
+        next_page_url: response.next_page_url,
+        prev_page_url: response.prev_page_url,
+        path: response.path,
+        from: response.from,
+        to: response.to,
+        total: response.total
+    };
+}

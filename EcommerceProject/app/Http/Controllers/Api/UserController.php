@@ -63,7 +63,7 @@ class UserController extends BaseApiController
             success: (bool) $isUpdated,
             message: 'Profile updated successfully.',
             code: 200,
-            data: $updatedUser->only(self::PRIVATE_FIELDS),
+            data: $updatedUser->only([...self::PRIVATE_FIELDS, 'name']),
         );
     }
 

@@ -44,6 +44,9 @@ class CategoryController extends BaseApiController
                 })->when(
                     isset($request->created_by),
                     fn($innerQuery) => $innerQuery->where('created_by', $request->created_by)
+                )->when(
+                    isset($request->with_product) && boolval($request->with_product),
+                    fn($innerQuery) => $innerQuery->whereHas('products')
                 );
             },
             perPage: $this->getPerPage($request),

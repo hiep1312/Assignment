@@ -1,7 +1,6 @@
 @assets
     @vite('resources/css/product-card.css')
 @endassets
-
 <div class="product-card">
     <div class="product-image-container">
         <img {{ $img->attributes->merge(['class' => 'product-image']) }}>
@@ -46,10 +45,16 @@
             @endisset
         </div>
 
-        @if($stockQuantity)
-            <p class="product-stock-status text-success mb-0"><i class="fas fa-check-circle me-1"></i>{{ $stockQuantity }} items in stock</p>
-        @else
-            <p class="product-stock-status text-danger mb-0"><i class="fas fa-exclamation-triangle me-1"></i>Sold out</p>
-        @endif
+        <div class="d-flex flex-wrap-reverse justify-content-between align-items-center gap-2">
+            @if($stockQuantity)
+                <p class="product-stock-status text-success mb-0"><i class="fas fa-check-circle me-1"></i>{{ formatNumberCompact($stockQuantity) }} items in stock</p>
+            @else
+                <p class="product-stock-status text-danger mb-0"><i class="fas fa-exclamation-triangle me-1"></i>Sold out</p>
+            @endif
+
+            <span class="product-sold">
+                <i class="fas fa-shopping-bag"></i>{{ formatNumberCompact($soldCount) }} sold
+            </span>
+        </div>
     </div>
 </div>
