@@ -1,6 +1,7 @@
 @assets
     @vite('resources/css/product-card.css')
 @endassets
+
 <div class="product-card placeholder-glow">
     <div class="product-image-container">
         <div class="placeholder" style="width: 100%; aspect-ratio: 1/1; background: rgb(134, 142, 150);"></div>

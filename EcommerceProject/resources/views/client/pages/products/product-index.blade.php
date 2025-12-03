@@ -70,22 +70,28 @@
             },
 
             categoryQueryParams: () => ({
-                with_product: true
+                has_relation: 'products',
+                aggregate: 'count:products'
             })
         },
 
         events: {
             "pagination:changed": (event) => {
-                if(event.detail.page !== $wire.pagination.current_page) return;
+                if(event.detail.page === $wire.pagination?.current_page) return;
 
-                $wire.isCardLoading = true;
-                $wire.$refresh();
+                $wire.$set('isCardLoading', true);
                 PageController.fetchData();
+            },
+
+            "filter:categories": (event) => {
+                const temp = () => {
+                    window.history.pushState({}, '', window.location.pathname);
+                }
             }
         },
 
         registerEvents: () => {
-            for(const [eventName, handler] of Object.entries(PageController.customEvents)) {
+            for(const [eventName, handler] of Object.entries(PageController.events)) {
                 document.addEventListener(eventName, handler);
             }
 
@@ -94,7 +100,7 @@
         },
 
         unregisterEvents: () => {
-            for(const [eventName, handler] of Object.entries(PageController.customEvents)) {
+            for(const [eventName, handler] of Object.entries(PageController.events)) {
                 document.removeEventListener(eventName, handler);
             }
         }
@@ -106,13 +112,108 @@
 
 <div class="container-xl" id="main-component">
     <div class="row">
-        <div class="col-lg-3 mb-4">
-            <x-livewire-client::product-filter>
-            </x-livewire-client::product-filter>
+        <div class="col-lg-3 mb-4 wow fadeInUp" data-wow-delay="0.1s">
+            <x-livewire-client::filter-sidebar>
+                <x-livewire-client::filter-sidebar.section title="Tìm Kiếm Sản Phẩm" icon="fas fa-eye" class="mb-4">
+                    <x-slot:container class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-warning"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" placeholder="Tên sản phẩm...">
+                    </x-slot:container>
+                </x-livewire-client::filter-sidebar.section>
+
+                <x-livewire-client::filter-sidebar.section title="Categories" icon="fas fa-list" class="mb-4" wire:key="categories-section"
+                    x-data="{ checkedCategories: ['all'] }" x-effect="">
+                    <x-slot:container class="category-list">
+                        <div class="form-check" wire:key="all-products">
+                            <input class="form-check-input" type="checkbox" id="all-products" x-model="checkedCategories" value="all">
+                            <label class="form-check-label" for="all-products">
+                                All Products <span class="badge bg-secondary ms-2 text-truncate" style="max-width: 60px;">{{ $pagination['total'] ?? 'N/A' }}</span>
+                            </label>
+                        </div>
+                        @foreach($categories as $category)
+                            <div class="form-check" wire:key="category-{{ $category['id'] }}">
+                                <input class="form-check-input" type="checkbox" id="category-{{ $category['id'] }}" x-model="checkedCategories" value="{{ $category['id'] }}">
+                                <label class="form-check-label" for="category-{{ $category['id'] }}">
+                                    {{ $category['name'] }} <span class="badge bg-secondary ms-2 text-truncate" style="max-width: 60px;">{{ $category['products_count'] }}</span>
+                                </label>
+                            </div>
+                        @endforeach
+                    </x-slot:container>
+                </x-livewire-client::filter-sidebar.section>
+
+                <x-livewire-client::filter-sidebar.section title="Khoảng Giá" icon="fas fa-dollar-sign" class="mb-4">
+                    <x-slot:container>
+                        <div class="price-range-container">
+                            <input type="range" class="price-slider" id="minPrice" min="0" max="10000000" value="0" step="100000">
+                            <input type="range" class="price-slider" id="maxPrice" min="0" max="10000000" value="10000000" step="100000">
+                        </div>
+                        <div class="d-flex gap-2 mt-3">
+                            <div class="flex-grow-1">
+                                <label class="form-label small" for="minPriceInput">Từ</label>
+                                <input type="text" class="form-control form-control-sm" id="minPriceInput" value="0" readonly>
+                            </div>
+                            <div class="flex-grow-1">
+                                <label class="form-label small" for="maxPriceInput">Đến</label>
+                                <input type="text" class="form-control form-control-sm" id="maxPriceInput" value="10.000.000" readonly>
+                            </div>
+                        </div>
+                    </x-slot:container>
+                </x-livewire-client::filter-sidebar.section>
+
+                <x-livewire-client::filter-sidebar.section title="Đánh Giá" icon="fas fa-star" class="mb-4">
+                    <x-slot:container class="rating-list">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rating5">
+                            <label class="form-check-label" for="rating5">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <span class="badge bg-secondary ms-2">45</span>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rating3">
+                            <label class="form-check-label" for="rating3">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-muted"></i>
+                                <i class="fas fa-star text-muted"></i>
+                                <span class="badge bg-secondary ms-2">28</span>
+                            </label>
+                        </div>
+                    </x-slot:container>
+                </x-livewire-client::filter-sidebar.section>
+
+                <x-livewire-client::filter-sidebar.section title="Trạng Thái" icon="fas fa-tag" class="mb-4">
+                    <x-slot:container>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="inStock" checked>
+                            <label class="form-check-label" for="inStock">
+                                <span class="badge badge-status bg-success me-2">Còn Hàng</span>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="new">
+                            <label class="form-check-label" for="new">
+                                <span class="badge badge-status bg-primary me-2">Hàng Mới</span>
+                            </label>
+                        </div>
+                    </x-slot:container>
+                </x-livewire-client::filter-sidebar.section>
+
+                <button class="btn btn-outline-secondary filter-btn w-100" type="button">
+                    <i class="fas fa-redo me-2"></i>Đặt Lại
+                </button>
+            </x-livewire-client::filter-sidebar>
         </div>
 
         <div class="col-lg-9">
-            <div class="top-bar mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="top-bar mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2 wow fadeInUp" data-wow-delay="0.1s">
                 <div>
                     <p class="mb-0 text-muted">
                         <i class="fas fa-list me-2"></i>Showing <strong x-text="$wire.products.length"></strong> out of <strong x-text="$wire.pagination?.total ?? 0"></strong> products
@@ -163,6 +264,44 @@
             </x-livewire-client::product-grid>
 
             <x-livewire-client::pagination class="mt-4" :pagination="$pagination" />
+        </div>
+    </div>
+    <div class="row justify-content-center align-items-center g-4 mt-4">
+        <div class="col-lg-3 col-sm-6 wow fadeInUp rounded" data-wow-delay="0.1s">
+            <div class="service-item rounded pt-3">
+                <div class="p-4">
+                    <i class="fa fa-3x fa-rocket text-primary mb-4"></i>
+                    <h5>Fast Delivery</h5>
+                    <p>We provide quick and reliable shipping to ensure timely book deliveries.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 wow fadeInUp rounded" data-wow-delay="0.3s">
+            <div class="service-item rounded pt-3">
+                <div class="p-4">
+                    <i class="fa fa-3x fa-lock text-primary mb-4"></i>
+                    <h5>Secure Payment</h5>
+                    <p>Shop with confidence using our fully encrypted and protected payment system.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 wow fadeInUp rounded" data-wow-delay="0.5s">
+            <div class="service-item rounded pt-3">
+                <div class="p-4">
+                    <i class="fa fa-3x fa-exchange-alt text-primary mb-4"></i>
+                    <h5>Easy Returns</h5>
+                    <p>Enjoy a simple 30-day return process designed for smooth, hassle free exchanges.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 wow fadeInUp rounded" data-wow-delay="0.7s">
+            <div class="service-item rounded pt-3">
+                <div class="p-4">
+                    <i class="fa fa-3x fa-headset text-primary mb-4"></i>
+                    <h5>24/7 Support</h5>
+                    <p>Our support team is always available to assist you anytime, day or night.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

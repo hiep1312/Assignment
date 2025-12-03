@@ -23,6 +23,13 @@ class CategoryController extends BaseApiController
         ];
     }
 
+    protected function getAllowedAggregateRelations(): array
+    {
+        return [
+            'count' => 'products',
+        ];
+    }
+
     public function __construct(
         protected CategoryRepositoryInterface $repository
     ){}
@@ -34,7 +41,8 @@ class CategoryController extends BaseApiController
     {
         $categories = $this->repository->getAll(
             criteria: function(&$query) use ($request) {
-                $query->with($this->getRequestedRelations($request));
+                $this->getRequestedAggregateRelations($request, $query)
+                    ->with($this->getRequestedRelations($request));
 
                 $query->when(isset($request->search), function($innerQuery) use ($request){
                     $innerQuery->where(function($subQuery) use ($request){
@@ -45,8 +53,8 @@ class CategoryController extends BaseApiController
                     isset($request->created_by),
                     fn($innerQuery) => $innerQuery->where('created_by', $request->created_by)
                 )->when(
-                    isset($request->with_product) && boolval($request->with_product),
-                    fn($innerQuery) => $innerQuery->whereHas('products')
+                    isset($request->has_relation),
+                    fn($innerQuery) => $request->has_relation === 'products' ? $innerQuery->whereHas('products') : $innerQuery->whereHas('blogs')
                 );
             },
             perPage: $this->getPerPage($request),
@@ -88,7 +96,8 @@ class CategoryController extends BaseApiController
     {
         $category = $this->repository->first(
             criteria: function($query) use ($request, $slug){
-                $query->with($this->getRequestedRelations($request))
+                $this->getRequestedAggregateRelations($request, $query)
+                    ->with($this->getRequestedRelations($request))
                     ->where('slug', $slug);
             },
             columns: self::API_FIELDS,

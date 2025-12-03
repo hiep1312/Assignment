@@ -1,6 +1,7 @@
 @assets
     @vite('resources/css/product-card.css')
 @endassets
+
 <div class="product-card">
     <div class="product-image-container">
         <img {{ $img->attributes->merge(['class' => 'product-image']) }}>
