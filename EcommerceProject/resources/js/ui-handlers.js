@@ -1,3 +1,4 @@
+/** @type {Wire} */
 let $wire = null;
 
 document.addEventListener('livewire:initialized', (e) => {
@@ -93,25 +94,6 @@ window.copyToClipboard = function(text, button) {
     });
 };
 
-/**
- * Extracts pagination data from an API response.
- *
- * @param {Object} response - The API response containing pagination data.
- * @param {number} response.current_page - The current page number.
- * @param {number} response.last_page - The last page number available.
- * @param {number} response.per_page - The number of items per page.
- * @param {string} response.first_page_url - The URL of the first page.
- * @param {string} response.last_page_url - The URL of the last page.
- * @param {Array<Object>} response.links - An array of link objects for pagination navigation.
- * @param {string|null} response.next_page_url - The URL of the next page, or null if none.
- * @param {string|null} response.prev_page_url - The URL of the previous page, or null if none.
- * @param {string} response.path - The base path for the pagination URLs.
- * @param {number} response.from - The index of the first item on the current page.
- * @param {number} response.to - The index of the last item on the current page.
- * @param {number} response.total - The total number of items across all pages.
- *
- * @returns {Object} A structured pagination object containing all relevant pagination properties.
- */
 window.getPaginationFromApi = function(response) {
     if(typeof response !== 'object') return {};
 
@@ -129,4 +111,39 @@ window.getPaginationFromApi = function(response) {
         to: response.to,
         total: response.total
     };
+}
+
+window.setQueryParams = function(keyOrObject, value = null) {
+    const params = new URLSearchParams(window.location.search);
+    const applyParam = function(key, value){
+        return value === null ?
+            params.delete(key) :
+            params.set(key, value);
+    };
+
+    if(typeof keyOrObject === "object") {
+        for(const [paramKey, paramValue] of Object.entries(keyOrObject)) {
+            applyParam(paramKey, paramValue);
+        }
+    }else {
+        applyParam(keyOrObject, value);
+    }
+
+    const queryString = params.size ? ('?' + params.toString()) : '';
+    const newUrl = window.location.pathname + queryString;
+    history.pushState({}, '', newUrl);
+
+    return newUrl;
+}
+
+window.getQueryParams = function(fields) {
+    const params = new URLSearchParams(window.location.search);
+
+    if(Array.isArray(fields)) {
+        return fields.map(key => params.get(key));
+    }else if(arguments.length === 0) {
+        return Object.fromEntries(params);
+    }
+
+    return params.get(fields);
 }

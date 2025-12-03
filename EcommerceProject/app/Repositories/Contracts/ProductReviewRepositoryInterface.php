@@ -19,4 +19,15 @@ interface ProductReviewRepositoryInterface extends RepositoryInterface
      * @throws \Illuminate\Database\QueryException If the database operation fails (e.g., constraint violation).
      */
     public function createByProductSlug(array $attributes, $slug, &$createdModel = null);
+
+    /**
+     * Retrieve distribution statistics of products grouped by their rounded average rating.
+     *
+     * @return Collection A collection of objects containing:
+     *                    - rating: The rounded average rating (0-5)
+     *                    - product_ids: A JSON array of product IDs belonging to that rating group
+     *                    - total_products: Number of products with that average rating
+     *                    Ordered by rating in descending order
+     */
+    public function getProductRatingDistribution();
 }

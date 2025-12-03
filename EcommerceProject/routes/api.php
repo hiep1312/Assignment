@@ -30,7 +30,7 @@ Route::name('api.')->group(function() {
     });
 
     /* Data */
-    Route::middleware('auth:jwt')->group(function() {
+    Route::middleware(['auth:jwt', 'throttle:api'])->group(function() {
         /* Resources accessible only by authenticated users */
         Route::apiResources([
             'user-addresses' => UserAddressController::class,
@@ -62,6 +62,11 @@ Route::name('api.')->group(function() {
                 'show' => ['auth:jwt']
             ]
         ]);
+
+        /* Products Review Statistics */
+        Route::get('/products/reviews/statistics', [ProductReviewController::class, 'distribution'])
+            ->name('products.reviews.statistics')
+            ->withoutMiddleware('auth:jwt');
 
         /* Profile */
         Route::apiSingleton('profile', UserController::class)

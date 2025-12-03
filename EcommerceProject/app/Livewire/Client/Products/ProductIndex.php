@@ -9,6 +9,7 @@ use Livewire\Component;
 class ProductIndex extends Component
 {
     public array $categories = [];
+    public array $ratingStatistics = [];
     public array $products = [];
     public array $pagination = [];
     public bool $isCardLoading = true;

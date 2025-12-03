@@ -22,21 +22,30 @@
 <script>
     const PageController = {
         init: () => {
+            /* Clear local storage */
+            for(const key of PageController._filterLocalStorageKeys) {
+                localStorage.removeItem(key);
+            }
+
+            /* Fetch initial data */
             PageController.fetchData();
             PageController.registerEvents();
         },
 
         fetchData: async () => {
             try {
-                const [categoriesResponse, productsResponse] = await Promise.all([
+                const [categoriesResponse, ratingSummaryResponse, productsResponse] = await Promise.all([
                     window.http.get(@js(route('api.categories.index')), { params: PageController._buildApiParams.categoryQueryParams() }),
+                    window.http.get(@js(route('api.products.reviews.statistics'))),
                     window.http.get(@js(route('api.products.index')), { params: PageController._buildApiParams.productQueryParams() })
                 ]);
 
                 const { data: axiosCategoryData } = categoriesResponse;
+                const { data: axiosRatingSummaryData } = ratingSummaryResponse;
                 const { data: axiosProductData } = productsResponse;
 
                 $wire.categories = axiosCategoryData.data;
+                $wire.ratingStatistics = axiosRatingSummaryData.data;
                 $wire.products = axiosProductData.data;
                 $wire.pagination = window.getPaginationFromApi(axiosProductData);
                 $wire.isCardLoading = false;
@@ -50,44 +59,178 @@
             }
         },
 
+        refreshData: () => {
+            $wire.$set('isCardLoading', true);
+            PageController.fetchData();
+        },
+
         _buildApiParams: {
             productQueryParams: () => {
-                const params = new URLSearchParams(window.location.search);
-                const allowedFields = ['page'];
+                const params = window.getQueryParams();
                 const apiParams = {};
 
-                for(const field of allowedFields) {
-                    if(params.has(field)) {
-                        apiParams[field] = params.get(field);
+                const allowedFields = {
+                    search: () => params.search,
+                    category: () => params.category,
+                    filter_categories: () => localStorage.getItem('filter_categories'),
+                    filter_ids: () => {
+                        const filters = {
+                            bySelectedRatings: () => {
+                                const selectedRatings = localStorage.getItem('filter_ratings')?.split(',') ?? [];
+                                const productIds = $wire.ratingStatistics.flatMap(stat => {
+                                    return selectedRatings.includes(stat.rating)
+                                        ? stat.product_ids
+                                        : [];
+                                });
+
+                                return productIds;
+                            },
+                        };
+
+                        let uniqueProductIds = new Set();
+                        for(const [name, fn] of Object.entries(filters)) {
+                            uniqueProductIds = uniqueProductIds.union(new Set(fn()));
+                        };
+
+                        return [...uniqueProductIds].join(',');
+                    },
+                    page: () => params.page,
+                };
+
+                for(const [key, getter] of Object.entries(allowedFields)) {
+                    const value = getter();
+
+                    if(Boolean(value)) {
+                        apiParams[key] = value;
                     }
                 }
 
                 return {
                     aggregate: 'count:reviews, avg:reviews.rating',
                     include: 'primaryVariant',
+                    status: 1,
                     ...apiParams
                 };
             },
 
             categoryQueryParams: () => ({
                 has_relation: 'products',
-                aggregate: 'count:products'
+                aggregate: 'count:products',
+                per_page: 30
             })
         },
 
-        events: {
-            "pagination:changed": (event) => {
-                if(event.detail.page === $wire.pagination?.current_page) return;
+        _filterLocalStorageKeys: ['filter_categories', 'filter_availability', 'filter_ratings'],
 
-                $wire.$set('isCardLoading', true);
-                PageController.fetchData();
+        events: {
+            "filter:search": (event) => {
+                clearTimeout(window.searchDebounceTimer);
+
+                window.searchDebounceTimer = setTimeout(() => {
+                    const searchValue = event.detail.search?.trim();
+
+                    if(searchValue !== undefined && searchValue !== window.getQueryParams('search')) {
+                        window.setQueryParams('search', searchValue || null);
+                        PageController.refreshData();
+                    }
+                }, 400);
             },
 
             "filter:categories": (event) => {
-                const temp = () => {
-                    window.history.pushState({}, '', window.location.pathname);
+                clearTimeout(window.categoriesDebounceTimer);
+
+                window.categoriesDebounceTimer = setTimeout(() => {
+                    const selectedCategories = event.detail.categories;
+                    const storedCategories = localStorage.getItem('filter_categories')?.split(',') ?? [];
+
+                    if(
+                        !(
+                            selectedCategories.length === 1 && selectedCategories.includes('all') && storedCategories.length === 0
+                        ) && (
+                            storedCategories.length !== selectedCategories.length ||
+                            selectedCategories.some(category => !storedCategories.includes(category))
+                        )
+                    ) {
+                        if(selectedCategories.includes('all') || selectedCategories.length === 0) {
+                            localStorage.removeItem('filter_categories')
+                        }else {
+                            localStorage.setItem('filter_categories', selectedCategories.join(','))
+                        }
+
+                        PageController.refreshData();
+                    }
+                }, 600);
+            },
+
+            "filter:ratings": (event) => {
+                clearTimeout(window.ratingsDebounceTimer);
+
+                window.categoriesDebounceTimer = setTimeout(() => {
+                    const selectedRatings = event.detail.ratings;
+                    const storedRatings = localStorage.getItem('filter_ratings')?.split(',') ?? [];
+
+                    if(
+                        !(
+                            selectedRatings.length === 0 && storedRatings.length === 0
+                        ) && (
+                            storedRatings.length !== selectedRatings.length ||
+                            selectedRatings.some(rating => !storedRatings.includes(rating))
+                        )
+                    ) {
+                        if(selectedRatings.length === 0) {
+                            localStorage.removeItem('filter_ratings')
+                        }else {
+                            localStorage.setItem('filter_ratings', selectedRatings.join(','))
+                        }
+
+                        PageController.refreshData();
+                    }
+                }, 600);
+            },
+
+            "filter:reset": () => {
+                const resetParams = ['search', 'page', 'per_page'];
+
+                if(
+                    window.getQueryParams(resetParams).some(paramValue => paramValue !== null) ||
+                    PageController._filterLocalStorageKeys.some(key => localStorage.getItem(key) !== null)
+                ) {
+                    window.setQueryParams(Object.fromEntries(resetParams.map(key => [key, null])));
+                    PageController.init();
                 }
-            }
+            },
+
+            "filter:availability": (event) => {
+                clearTimeout(window.availabilityDebounceTimer);
+
+                window.availabilityDebounceTimer = setTimeout(() => {
+                    const selectedAvailability = event.detail.availability;
+                    const storedAvailability = localStorage.getItem('filter_availability')?.split(',') ?? [];
+
+                    if(
+                        !(
+                            selectedAvailability.length === 0 && storedAvailability.length === 0
+                        ) && (
+                            storedAvailability.length !== selectedAvailability.length ||
+                            selectedAvailability.some(availability => !storedAvailability.includes(availability))
+                        )
+                    ) {
+                        if(selectedAvailability.length === 0) {
+                            localStorage.removeItem('filter_availability')
+                        }else {
+                            localStorage.setItem('filter_availability', selectedAvailability.join(','))
+                        }
+
+                        PageController.refreshData();
+                    }
+                }, 600);
+            },
+
+            "pagination:changed": (event) => {
+                if(event.detail.page === $wire.pagination?.current_page) return;
+
+                PageController.refreshData();
+            },
         },
 
         registerEvents: () => {
@@ -114,34 +257,37 @@
     <div class="row">
         <div class="col-lg-3 mb-4 wow fadeInUp" data-wow-delay="0.1s">
             <x-livewire-client::filter-sidebar>
-                <x-livewire-client::filter-sidebar.section title="Tìm Kiếm Sản Phẩm" icon="fas fa-eye" class="mb-4">
+                <x-livewire-client::filter-sidebar.section title="Search Books" icon="fas fa-eye" class="mb-4" wire:key="search-section"
+                    x-data="{ search: window.getQueryParams('search') }" x-effect="document.dispatchEvent(new CustomEvent('filter:search', { detail: { search } }))">
                     <x-slot:container class="input-group">
                         <span class="input-group-text bg-white border-end-0">
                             <i class="fas fa-search text-warning"></i>
                         </span>
-                        <input type="text" class="form-control border-start-0" placeholder="Tên sản phẩm...">
+                        <input type="search" class="form-control border-start-0" x-model="search" placeholder="Book title...">
                     </x-slot:container>
                 </x-livewire-client::filter-sidebar.section>
 
-                <x-livewire-client::filter-sidebar.section title="Categories" icon="fas fa-list" class="mb-4" wire:key="categories-section"
-                    x-data="{ checkedCategories: ['all'] }" x-effect="">
-                    <x-slot:container class="category-list">
-                        <div class="form-check" wire:key="all-products">
-                            <input class="form-check-input" type="checkbox" id="all-products" x-model="checkedCategories" value="all">
-                            <label class="form-check-label" for="all-products">
-                                All Products <span class="badge bg-secondary ms-2 text-truncate" style="max-width: 60px;">{{ $pagination['total'] ?? 'N/A' }}</span>
-                            </label>
-                        </div>
-                        @foreach($categories as $category)
-                            <div class="form-check" wire:key="category-{{ $category['id'] }}">
-                                <input class="form-check-input" type="checkbox" id="category-{{ $category['id'] }}" x-model="checkedCategories" value="{{ $category['id'] }}">
-                                <label class="form-check-label" for="category-{{ $category['id'] }}">
-                                    {{ $category['name'] }} <span class="badge bg-secondary ms-2 text-truncate" style="max-width: 60px;">{{ $category['products_count'] }}</span>
+                <template x-if="!window.getQueryParams('category')">
+                    <x-livewire-client::filter-sidebar.section title="Categories" icon="fas fa-list" class="mb-4" wire:key="categories-section"
+                        x-data="{ checkedCategories: ['all'] }" x-effect="document.dispatchEvent(new CustomEvent('filter:categories', { detail: { categories: checkedCategories } }))">
+                        <x-slot:container class="category-list">
+                            <div class="form-check" wire:key="all-products">
+                                <input class="form-check-input" type="checkbox" id="all-products" x-model="checkedCategories" value="all">
+                                <label class="form-check-label" for="all-products">
+                                    All Products <span class="badge bg-secondary ms-2 text-truncate" style="max-width: 60px;">{{ $pagination['total'] ?? 0 }}</span>
                                 </label>
                             </div>
-                        @endforeach
-                    </x-slot:container>
-                </x-livewire-client::filter-sidebar.section>
+                            @foreach($categories as $category)
+                                <div class="form-check" wire:key="category-{{ $category['id'] }}">
+                                    <input class="form-check-input" type="checkbox" id="category-{{ $category['id'] }}" x-model="checkedCategories" value="{{ $category['id'] }}">
+                                    <label class="form-check-label" for="category-{{ $category['id'] }}">
+                                        {{ $category['name'] }} <span class="badge bg-secondary ms-2 text-truncate" style="max-width: 60px;">{{ $category['products_count'] }}</span>
+                                    </label>
+                                </div>
+                            @endforeach
+                        </x-slot:container>
+                    </x-livewire-client::filter-sidebar.section>
+                </template>
 
                 <x-livewire-client::filter-sidebar.section title="Khoảng Giá" icon="fas fa-dollar-sign" class="mb-4">
                     <x-slot:container>
@@ -162,52 +308,55 @@
                     </x-slot:container>
                 </x-livewire-client::filter-sidebar.section>
 
-                <x-livewire-client::filter-sidebar.section title="Đánh Giá" icon="fas fa-star" class="mb-4">
+                <x-livewire-client::filter-sidebar.section title="Rating" icon="fas fa-star" class="mb-4" wire:key="rating-section"
+                    x-data="{ checkedRatings: [] }" x-effect="document.dispatchEvent(new CustomEvent('filter:ratings', { detail: { ratings: checkedRatings } }))">
                     <x-slot:container class="rating-list">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="rating5">
-                            <label class="form-check-label" for="rating5">
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <span class="badge bg-secondary ms-2">45</span>
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="rating3">
-                            <label class="form-check-label" for="rating3">
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-muted"></i>
-                                <i class="fas fa-star text-muted"></i>
-                                <span class="badge bg-secondary ms-2">28</span>
-                            </label>
-                        </div>
+                        @php
+                            $ratingCounts = array_column($ratingStatistics, 'total_products', 'rating');
+                        @endphp
+                        @foreach (range(5, 1) as $ratingLevel)
+                            @php
+                                $filledStars = $ratingLevel;
+                                $emptyStars = 5 - $ratingLevel;
+                            @endphp
+                            <div class="form-check @empty($ratingCounts) placeholder-glow @endempty" wire:key="rating-{{ $ratingLevel }}">
+                                <input class="form-check-input" type="checkbox" x-model="checkedRatings" value="{{ $ratingLevel }}" id="rating-{{ $ratingLevel }}">
+                                <label class="form-check-label" for="rating-{{ $ratingLevel }}">
+                                    {!!
+                                        str_repeat('<i class="fas fa-star text-warning"></i>', $filledStars) .
+                                        str_repeat('<i class="fas fa-star text-muted"></i>', $emptyStars)
+                                    !!}
+                                    @empty($ratingCounts)
+                                        <span class="badge bg-secondary ms-2 placeholder"><span class="d-inline-block" style="width: 14px;"></span></span>
+                                    @else
+                                        <span class="badge bg-secondary ms-2">{{ $ratingCounts[$ratingLevel] ?? 0 }}</span>
+                                    @endempty
+                                </label>
+                            </div>
+                        @endforeach
                     </x-slot:container>
                 </x-livewire-client::filter-sidebar.section>
 
-                <x-livewire-client::filter-sidebar.section title="Trạng Thái" icon="fas fa-tag" class="mb-4">
+                <x-livewire-client::filter-sidebar.section title="Status" icon="fas fa-tag" class="mb-4" wire:key="status-section"
+                    x-data="{ checkedStatus: [] }" x-effect="document.dispatchEvent(new CustomEvent('filter:availability', { detail: { availability: checkedStatus } }))">
                     <x-slot:container>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="inStock" checked>
+                            <input class="form-check-input" type="checkbox" id="inStock" x-model="checkedStatus" value="in_stock">
                             <label class="form-check-label" for="inStock">
-                                <span class="badge badge-status bg-success me-2">Còn Hàng</span>
+                                <span class="badge badge-status bg-success me-2">In Stock</span>
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="new">
+                            <input class="form-check-input" type="checkbox" id="new" x-model="checkedStatus" value="new_arrival">
                             <label class="form-check-label" for="new">
-                                <span class="badge badge-status bg-primary me-2">Hàng Mới</span>
+                                <span class="badge badge-status bg-primary me-2">New Arrival</span>
                             </label>
                         </div>
                     </x-slot:container>
                 </x-livewire-client::filter-sidebar.section>
 
-                <button class="btn btn-outline-secondary filter-btn w-100" type="button">
-                    <i class="fas fa-redo me-2"></i>Đặt Lại
+                <button class="btn btn-outline-secondary filter-btn w-100" type="button" x-on:click="document.dispatchEvent(new Event('filter:reset'))">
+                    <i class="fas fa-redo me-2"></i>Reset
                 </button>
             </x-livewire-client::filter-sidebar>
         </div>

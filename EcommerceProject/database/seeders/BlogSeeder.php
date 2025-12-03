@@ -16,17 +16,19 @@ class BlogSeeder extends Seeder
      */
     public function run(): void
     {
-        /* Create random 20 blogs with images and categories */
+        /* Create 7 categories */
+        $categories = Category::factory(15)->create();
+        /* Create random 20 blogs with images */
         $blogs = Blog::factory(20)->has(
             Imageable::factory(1)->blog(),
             'thumbnail'
-        )->has(
-            Category::factory(4),
-            'categories'
         )->create();
 
         /* Create random blog comments */
-        foreach($blogs->pluck('id') as $blogId) {
+        foreach($blogs->keyBy('id') as $blogId => $blog) {
+            /* Attach 2–5 random categories from existing categories */
+            $blog->categories()->attach($categories->random(rand(2, 5))->pluck('id'));
+
             /* Create random root comments */
             $blogComments = BlogComment::factory(rand(5, 40))->create([
                 'blog_id' => $blogId

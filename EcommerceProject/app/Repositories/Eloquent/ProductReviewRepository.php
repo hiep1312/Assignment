@@ -32,4 +32,19 @@ class ProductReviewRepository extends BaseRepository implements ProductReviewRep
 
         return $insertedRows;
     }
+
+    public function getProductRatingDistribution()
+    {
+        return DB::table(DB::raw(<<<SQL
+                (SELECT product_id, TRUNCATE(AVG(rating), 0) AS average_rating
+                FROM {$this->model->getTable()}
+                GROUP BY product_id) AS rating_summary
+            SQL))
+            ->selectRaw(<<<SQL
+                average_rating AS rating, JSON_ARRAYAGG(product_id) AS product_ids, COUNT(*) AS total_products
+            SQL)
+            ->groupBy('average_rating')
+            ->orderByDesc('average_rating')
+            ->get();
+    }
 }

@@ -51,12 +51,7 @@
     window.handlePageChange = function(page){
         if(page === null) return;
 
-        const params = new URLSearchParams(window.location.search);
-        params.set('page', page);
-
-        const newUrl = window.location.pathname + '?' + params.toString();
-        history.pushState({ page }, '', newUrl);
-
+        window.setQueryParams('page', page);
         document.dispatchEvent(new CustomEvent('pagination:changed', { detail: { page } }));
     }
 </script>

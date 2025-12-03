@@ -20,7 +20,9 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        /* Create random 25 products with images and categories */
+        /* Create 7 categories */
+        $categories = Category::factory(7)->create();
+        /* Create random 23 products with images */
         $products = Product::factory(23)->hasAttached(
             Image::factory(4)->product(),
             function() {
@@ -33,12 +35,12 @@ class ProductSeeder extends Seeder
                 ];
             },
             'images'
-        )->has(
-            Category::factory(2),
-            'categories'
         )->create();
 
-        foreach($products->pluck('id') as $productId) {
+        foreach($products->keyBy('id') as $productId => $product) {
+            /* Attach 1–3 random categories from existing categories */
+            $product->categories()->attach($categories->random(rand(1, 3))->pluck('id'));
+
             /* Create random variants with inventory */
             ProductVariant::factory(rand(1, 6))->has(
                 ProductVariantInventory::factory(1),

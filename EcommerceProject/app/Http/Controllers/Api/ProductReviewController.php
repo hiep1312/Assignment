@@ -158,4 +158,15 @@ class ProductReviewController extends BaseApiController
             code: $isDeleted ? 200 : 404
         );
     }
+
+    public function distribution()
+    {
+        $ratingDistribution = $this->repository->getProductRatingDistribution();
+
+        return $this->response(
+            success: true,
+            message: 'Product rating distribution retrieved successfully.',
+            data: $ratingDistribution->map(fn($item) => array_merge((array) $item, ['product_ids' => json_decode($item->product_ids)]))->toArray()
+        );
+    }
 }

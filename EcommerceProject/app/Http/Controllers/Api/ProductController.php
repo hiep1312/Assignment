@@ -54,8 +54,7 @@ class ProductController extends BaseApiController
 
                 $query->when(isset($request->search), function($innerQuery) use ($request){
                     $innerQuery->where(function($subQuery) use ($request){
-                        $subQuery->whereLike('title', '%'. trim($request->search) .'%')
-                            ->orWhereLike('description', '%'. trim($request->search) .'%');
+                        $subQuery->whereLike('title', '%'. trim($request->search) .'%');
                     });
                 })->when(
                     isset($request->status),
@@ -64,9 +63,24 @@ class ProductController extends BaseApiController
                     isset($request->category),
                     function($innerQuery) use ($request){
                         $innerQuery->whereHas('categories', function($subQuery) use ($request){
-                            $subQuery->where('categories.slug', $request->category)
-                                ->orWhere('categories.id', $request->category);
+                            $subQuery->where('categories.slug', $request->category);
                         });
+                    }
+                )->when(
+                    isset($request->filter_categories) && empty($request->category),
+                    function($innerQuery) use ($request){
+                        $categories = is_array($request->filter_categories) ? $request->filter_categories : preg_split('/\s*,\s*/', $request->filter_categories);
+
+                        $innerQuery->whereHas('categories', function($subQuery) use ($categories){
+                            $subQuery->whereIn('categories.id', $categories);
+                        });
+                    }
+                )->when(
+                    isset($request->filter_ids),
+                    function($innerQuery) use ($request){
+                        $productIds = is_array($request->filter_ids) ? $request->filter_ids : preg_split('/\s*,\s*/', $request->filter_ids);
+
+                        $innerQuery->whereIn('id', $productIds);
                     }
                 );
             },
