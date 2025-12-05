@@ -16,6 +16,7 @@ export default defineConfig({
                 'resources/css/filter-sidebar.css',
                 'resources/css/filter-section.css',
                 'resources/css/product-show.css',
+                'resources/css/empty-state-client.css',
                 'resources/js/app.js',
                 'resources/js/image-picker.js',
                 'resources/js/editor-handler.js'

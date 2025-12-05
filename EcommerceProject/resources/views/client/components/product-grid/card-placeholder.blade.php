@@ -9,7 +9,7 @@
     <div class="product-info">
         <h6 class="product-title"><span class="d-inline-block placeholder col-9" style="height: 21px"></span></h6>
         <div class="product-rating" style="margin-bottom: .6rem;">
-             <span class="d-inline-block placeholder" style="width: 85px; height: 18px;"></span>
+            <span class="d-inline-block placeholder" style="width: 85px; height: 18px;"></span>
             <span class="d-inline-block placeholder ms-2" style="width: 70px; height: 18px;"></span>
         </div>
 

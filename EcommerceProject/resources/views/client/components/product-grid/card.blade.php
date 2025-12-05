@@ -9,9 +9,9 @@
             <button {{ $addToCartButton->attributes->merge(['class' => 'btn btn-primary btn-lg w-100 add-to-cart']) }}>
                 <i class="fas fa-shopping-cart me-2"></i>{{ $addToCartButton }}
             </button>
-            <button {{ $viewDetailsButton->attributes->merge(['class' => 'btn btn-light w-100']) }}>
+            <a {{ $viewDetailsButton->attributes->merge(['class' => 'btn btn-light w-100']) }}>
                 <i class="fas fa-eye me-2"></i>{{ $viewDetailsButton }}
-            </button>
+            </a>
         </div>
         @if($discountPercent)
             <span class="badge bg-danger position-absolute top-0 end-0 m-2">{{ -$discountPercent }}%</span>
@@ -35,7 +35,7 @@
                 ($hasHalfStar ? '<i class="fas fa-star-half-alt text-warning"></i>' : '') .
                 str_repeat('<i class="fas fa-star text-muted"></i>', $emptyStars)
             !!}
-            <span class="rating-text ms-2">({{ $totalReviews }} reviews)</span>
+            <span class="rating-text ms-2">({{ formatNumberCompact($totalReviews) }} reviews)</span>
         </div>
 
         <div class="product-price">

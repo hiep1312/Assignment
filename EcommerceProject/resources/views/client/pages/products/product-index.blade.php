@@ -21,48 +21,49 @@
 @script
 <script>
     const PageController = {
-        init: () => {
+        __proto__: window.BasePageController,
+
+        _internal: {
+            localStorageKeys: ['filter_categories', 'filter_availability', 'filter_ratings'],
+            resetParams: ['search', 'page', 'per_page', 'sort_by', 'min_price', 'max_price'],
+            sortOptions: ['price-asc', 'price-desc', 'newest']
+        },
+
+        init() {
             /* Clear local storage */
-            for(const key of PageController._filterLocalStorageKeys) {
+            for(const key of PageController._internal.localStorageKeys) {
                 localStorage.removeItem(key);
             }
 
-            /* Fetch initial data */
-            PageController.fetchData();
-            PageController.registerEvents();
+            super.init();
         },
 
         fetchData: async () => {
             try {
-                const [categoriesResponse, ratingSummaryResponse, productsResponse] = await Promise.all([
+                const [categoriesResponse, productsResponse, ratingSummaryResponse] = await Promise.all([
                     window.http.get(@js(route('api.categories.index')), { params: PageController._buildApiParams.categoryQueryParams() }),
-                    window.http.get(@js(route('api.products.reviews.distribution'))),
-                    window.http.get(@js(route('api.products.index')), { params: PageController._buildApiParams.productQueryParams() })
+                    window.http.get(@js(route('api.products.index')), { params: PageController._buildApiParams.productQueryParams() }),
+                    window.http.get(@js(route('api.products.reviews.distribution')))
                 ]);
 
                 const { data: axiosCategoryData } = categoriesResponse;
-                const { data: axiosRatingSummaryData } = ratingSummaryResponse;
                 const { data: axiosProductData } = productsResponse;
+                const { data: axiosRatingSummaryData } = ratingSummaryResponse;
 
                 $wire.categories = axiosCategoryData.data;
                 $wire.ratingStatistics = axiosRatingSummaryData.data;
                 $wire.products = axiosProductData.data;
                 $wire.pagination = window.getPaginationFromApi(axiosProductData);
                 $wire.priceRange = axiosProductData.price_range;
-                $wire.isCardLoading = false;
+                $wire.isDataLoading = false;
                 $wire.$refresh();
 
-                return [axiosCategoryData, axiosProductData];
+                return [axiosCategoryData, axiosProductData, axiosRatingSummaryData];
             }catch(axiosError) {
-                const message = axiosError.response.data?.message ?? axiosError.message;
+                const message = axiosError.response?.data?.message ?? axiosError.message;
 
                 console.error("Failed to fetch: ", message);
             }
-        },
-
-        refreshData: () => {
-            $wire.$set('isCardLoading', true);
-            PageController.fetchData();
         },
 
         _buildApiParams: {
@@ -103,7 +104,7 @@
                     },
                     page: () => params.page,
                     per_page: () => params.per_page,
-                    sort_by: () => Array.of('price-asc', 'price-desc', 'newest').includes(params.sort_by) && params.sort_by
+                    sort_by: () => PageController._internal.sortOptions.includes(params.sort_by) && params.sort_by
                 };
 
                 for(const [key, getter] of Object.entries(allowedFields)) {
@@ -129,8 +130,6 @@
                 per_page: 30
             })
         },
-
-        _filterLocalStorageKeys: ['filter_categories', 'filter_availability', 'filter_ratings'],
 
         events: {
             "filter:search": (event) => {
@@ -220,11 +219,9 @@
             },
 
             "filter:reset": () => {
-                const resetParams = ['search', 'page', 'per_page', 'sort_by', 'min_price', 'max_price'];
-
                 if(
-                    window.getQueryParams(resetParams).some(paramValue => paramValue !== null) ||
-                    PageController._filterLocalStorageKeys.some(key => localStorage.getItem(key) !== null)
+                    window.getQueryParams(PageController._internal.resetParams).some(paramValue => paramValue !== null) ||
+                    PageController._internal.localStorageKeys.some(key => localStorage.getItem(key) !== null)
                 ) {
                     window.setQueryParams(Object.fromEntries(resetParams.map(key => [key, null])));
 
@@ -281,7 +278,7 @@
 
                 window.sortByDebounceTimer = setTimeout(() => {
                     const sortBy = event.detail.sortBy;
-                    const isValidSortBy = Array.of('price-asc', 'price-desc', 'newest').includes(sortBy);
+                    const isValidSortBy = PageController._internal.sortOptions.includes(sortBy);
 
                     if(sortBy !== window.getQueryParams('sort_by') && isValidSortBy) {
                         window.setQueryParams({
@@ -302,21 +299,6 @@
                 PageController.refreshData();
             },
         },
-
-        registerEvents: () => {
-            for(const [eventName, handler] of Object.entries(PageController.events)) {
-                document.addEventListener(eventName, handler);
-            }
-
-            /* Register default events and ensure cleanup on page unload */
-            window.addEventListener('beforeunload', PageController.unregisterEvents);
-        },
-
-        unregisterEvents: () => {
-            for(const [eventName, handler] of Object.entries(PageController.events)) {
-                document.removeEventListener(eventName, handler);
-            }
-        }
     };
 
     PageController.init();
@@ -518,7 +500,7 @@
             </div>
 
             <x-livewire-client::product-grid>
-                @if($isCardLoading)
+                @if($isDataLoading)
                     @for($i = 0; $i < 12; $i++)
                         <x-livewire-client::product-grid.card-placeholder wire:key="product-placeholder-{{ $i }}"></x-livewire-client::product-grid.card-placeholder>
                     @endfor
@@ -533,16 +515,12 @@
                             <x-slot:img :src="asset('storage/' . (isset($mainImage['image_url']) ? $mainImage['image_url'] : DefaultImage::PRODUCT->value))" :alt="'Product image of' . $product['title']"></x-slot:img>
 
                             <x-slot:add-to-cart-button>Add to Cart</x-slot:add-to-cart-button>
-                            <x-slot:view-details-button>View Details</x-slot:view-details-button>
+                            <x-slot:view-details-button href="{{ route('client.products.show', $product['slug']) }}">View Details</x-slot:view-details-button>
                         </x-livewire-client::product-grid.card>
                     @empty
-                        <div class="no-data-placeholder">
-                            <div class="no-data-content">
-                                <i class="fas fa-ghost"></i>
-                                <h4>Oops! Nothing Found</h4>
-                                <p>We couldn't find any products for your current selection. Try adjusting your filters or check back later.</p>
-                            </div>
-                        </div>
+                        <x-livewire-client::empty-state icon="fas fa-ghost" title="Oops! Nothing Found">
+                            We couldn't find any products for your current selection. Try adjusting your filters or check back later.
+                        </x-livewire-client::empty-state>
                     @endforelse
                 @endif
             </x-livewire-client::product-grid>
@@ -550,7 +528,7 @@
             <x-livewire-client::pagination class="mt-4" :pagination="$pagination" />
         </div>
     </div>
-    <div class="row justify-content-center align-items-center g-4 mt-4">
+    <div class="row justify-content-center align-items-center g-4 mt-4 wow fadeIn" data-wow-delay="10s" wire:ignore>
         <div class="col-lg-3 col-sm-6 wow fadeInUp rounded" data-wow-delay="0.1s">
             <div class="service-item rounded pt-3">
                 <div class="p-4">

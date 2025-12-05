@@ -59,6 +59,19 @@ interface Window {
     getQueryParams(
         fields?: string | string[]
     ): string | null | Record<string, string>;
+
+    BasePageController: {
+        init(): void;
+        fetchData(): Promise<any>;
+        refreshData(): void;
+
+        _buildApiParams: Record<string, Function>;
+        _internal: Record<string, any>;
+        events: Record<string, (event: any) => void>;
+
+        registerEvents(): void;
+        unregisterEvents(): void;
+    }
 }
 
 interface Wire {

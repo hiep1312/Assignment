@@ -131,7 +131,7 @@ window.setQueryParams = function(keyOrObject, value = null) {
 
     const queryString = params.size ? ('?' + params.toString()) : '';
     const newUrl = window.location.pathname + queryString;
-    history.pushState({}, '', newUrl);
+    history.replaceState({}, '', newUrl);
 
     return newUrl;
 }
@@ -147,3 +147,39 @@ window.getQueryParams = function(fields) {
 
     return params.get(fields);
 }
+
+window.BasePageController = {
+    init() {
+        /* Fetch initial data */
+        this.fetchData();
+        this.registerEvents();
+    },
+
+    fetchData: async () => {},
+
+    refreshData() {
+        $wire.$set('isDataLoading', true);
+        this.fetchData();
+    },
+
+    _buildApiParams: {},
+
+    _internal: {},
+
+    events: {},
+
+    registerEvents() {
+        for(const [eventName, handler] of Object.entries(this.events)) {
+            document.addEventListener(eventName, handler);
+        }
+
+        /* Register default events and ensure cleanup on page unload */
+        window.addEventListener('beforeunload', this.unregisterEvents);
+    },
+
+    unregisterEvents() {
+        for(const [eventName, handler] of Object.entries(this.events)) {
+            document.removeEventListener(eventName, handler);
+        }
+    }
+};
