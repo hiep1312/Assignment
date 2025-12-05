@@ -13,6 +13,7 @@ class ProductIndex extends Component
     public array $products = [];
     public array $pagination = [];
     public bool $isCardLoading = true;
+    public array $priceRange = [];
 
     #[Title('Explore Books - Bookio')]
     #[Layout('layouts.client')]

@@ -109,7 +109,7 @@
 
 .price-slider {
     position: absolute;
-    width: 100%;
+    width: 101%;
     height: 4px;
     top: 50%;
     transform: translateY(-50%);

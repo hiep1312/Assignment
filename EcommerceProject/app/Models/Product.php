@@ -20,10 +20,6 @@ class Product extends Model
         'status',
     ];
 
-    protected $appends = [
-        'inventory_summary'
-    ];
-
     protected $casts = [
         'status' => 'integer',
     ];
@@ -68,17 +64,8 @@ class Product extends Model
             ->limit(1);
     }
 
-    public function inventorySummary(): Attribute
+    public function inventories()
     {
-        return Attribute::get(function(): ?stdClass {
-            return DB::table('product_variants', 'pv')
-                ->join('product_variant_inventories as pvi', 'pvi.variant_id', '=', 'pv.id')
-                ->selectRaw('pv.product_id, SUM(pvi.stock) AS total_stock, SUM(pvi.reserved) AS total_reserved, SUM(pvi.sold_number) AS total_sold')
-                ->where('pv.product_id', $this->id)
-                ->where('pv.status', 1)
-                ->where('pvi.stock', '>', 0)
-                ->groupBy('pv.product_id')
-                ->first();
-        });
+        return $this->hasManyThrough(ProductVariantInventory::class, ProductVariant::class, 'product_id', 'variant_id');
     }
 }

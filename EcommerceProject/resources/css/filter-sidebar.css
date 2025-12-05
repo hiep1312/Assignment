@@ -30,7 +30,7 @@
     scrollbar-width: thin;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .filter-card {
         position: static;
         margin-bottom: 20px;

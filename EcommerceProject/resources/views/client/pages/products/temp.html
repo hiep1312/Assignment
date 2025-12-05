@@ -1,0 +1,2571 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chi tiết sản phẩm</title>
+        <!-- Bootstrap CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <!-- FontAwesome -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <style>
+        :root {
+            --pdp-primary-orange: #ff8c00;
+            --pdp-orange-light: #ffb84d;
+            --pdp-orange-dark: #e67e00;
+            --pdp-gray-light: #f5f5f5;
+            --pdp-gray-medium: #e8e8e8;
+            --pdp-gray-dark: #333333;
+            --pdp-text-primary: #1a1a1a;
+            --pdp-text-secondary: #666666;
+            --pdp-border-color: #dddddd;
+            --pdp-success: #27ae60;
+            --pdp-danger: #e74c3c;
+            --pdp-warning: #f39c12;
+            --pdp-info: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--pdp-text-primary);
+            background-color: #ffffff;
+        }
+
+        /* Navbar */
+        .pdp-navbar {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .pdp-brand {
+            font-size: 1.5rem;
+            color: var(--pdp-primary-orange) !important;
+        }
+
+        .pdp-brand-icon {
+            margin-right: 0.5rem;
+        }
+
+        .pdp-navbar .nav-link {
+            color: var(--pdp-text-secondary) !important;
+            font-weight: 500;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-navbar .nav-link:hover {
+            color: var(--pdp-primary-orange) !important;
+        }
+
+        .pdp-cart-link {
+            color: var(--pdp-primary-orange) !important;
+            background-color: var(--pdp-gray-light);
+            border-radius: 20px;
+            padding: 0.5rem 1rem !important;
+        }
+
+        /* Main Layout */
+        .pdp-main {
+            background-color: #ffffff;
+        }
+
+        /* Image Gallery */
+        .pdp-gallery-container {
+            position: relative;
+        }
+
+        .pdp-main-image-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            background-color: var(--pdp-gray-light);
+        }
+
+        .pdp-main-image {
+            display: block;
+            max-height: 600px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .pdp-main-image-wrapper:hover .pdp-main-image {
+            transform: scale(1.05);
+        }
+
+        .pdp-badge-new,
+        .pdp-badge-discount {
+            position: absolute;
+            top: 1rem;
+        }
+
+        .pdp-badge-new {
+            left: 1rem;
+        }
+
+        .pdp-badge-discount {
+            right: 1rem;
+        }
+
+        .pdp-badge-content,
+        .pdp-badge-discount-content {
+            background-color: var(--pdp-primary-orange) !important;
+            color: white !important;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: 0.5rem;
+        }
+
+        .pdp-badge-discount-content {
+            background-color: var(--pdp-danger) !important;
+        }
+
+        .pdp-thumbnail {
+            cursor: pointer;
+            border: 2px solid var(--pdp-border-color);
+            transition: all 0.3s ease;
+            object-fit: cover;
+            height: 100px;
+        }
+
+        .pdp-thumbnail:hover {
+            border-color: var(--pdp-primary-orange);
+        }
+
+        .pdp-thumbnail-active {
+            border-color: var(--pdp-primary-orange) !important;
+            box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.2);
+        }
+
+        /* Product Info */
+        .pdp-breadcrumb {
+            font-size: 0.9rem;
+        }
+
+        .pdp-breadcrumb a {
+            color: var(--pdp-primary-orange);
+            text-decoration: none;
+        }
+
+        .pdp-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .pdp-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--pdp-text-primary);
+            line-height: 1.3;
+        }
+
+        /* Rating Section */
+        .pdp-rating-section {
+            font-size: 0.95rem;
+        }
+
+        .pdp-star {
+            color: var(--pdp-warning);
+            margin-right: 0.2rem;
+        }
+
+        .pdp-star-half {
+            color: var(--pdp-warning);
+            margin-right: 0.2rem;
+        }
+
+        .pdp-rating-score {
+            color: var(--pdp-text-secondary);
+            font-weight: 500;
+        }
+
+        .pdp-sold-count {
+            color: var(--pdp-success);
+            font-weight: 500;
+        }
+
+        /* Price Section */
+        .pdp-price-section {
+            background-color: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+        }
+
+        .pdp-price-current {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--pdp-primary-orange);
+        }
+
+        .pdp-price-original {
+            font-size: 1.2rem;
+            color: var(--pdp-text-secondary);
+            text-decoration: line-through;
+        }
+
+        .pdp-discount-percent {
+            background-color: var(--pdp-danger);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .pdp-price-note {
+            color: var(--pdp-success) !important;
+        }
+
+        /* Variants */
+        .pdp-variants-section {
+            margin: 1.5rem 0;
+        }
+
+        .pdp-variant-label {
+            display: block;
+            font-weight: 600;
+            color: var(--pdp-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .pdp-color-options {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .pdp-color-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid var(--pdp-border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: var(--pdp-gray-light);
+        }
+
+        .pdp-color-btn:hover {
+            border-color: var(--pdp-primary-orange);
+            transform: scale(1.1);
+        }
+
+        .pdp-color-btn-active {
+            border-color: var(--pdp-primary-orange) !important;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px var(--pdp-primary-orange);
+        }
+
+        .pdp-size-options {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .pdp-size-btn {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--pdp-border-color);
+            background-color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: var(--pdp-text-primary);
+        }
+
+        .pdp-size-btn:hover {
+            border-color: var(--pdp-primary-orange);
+            color: var(--pdp-primary-orange);
+        }
+
+        .pdp-size-btn-active {
+            background-color: var(--pdp-primary-orange);
+            border-color: var(--pdp-primary-orange);
+            color: white;
+        }
+
+        .pdp-selected-variant {
+            font-size: 0.9rem;
+            color: var(--pdp-text-secondary);
+        }
+
+        /* Warranty */
+        .pdp-warranty {
+            background-color: var(--pdp-gray-light);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+
+        .pdp-warranty-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--pdp-text-primary);
+        }
+
+        .pdp-warranty-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .pdp-warranty-icon {
+            color: var(--pdp-primary-orange);
+            font-size: 1.2rem;
+        }
+
+        /* Cart Section */
+        .pdp-cart-section {
+            margin: 2rem 0;
+        }
+
+        .pdp-quantity-control {
+            display: flex;
+            align-items: center;
+            border: 2px solid var(--pdp-border-color);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .pdp-qty-btn {
+            background-color: var(--pdp-gray-light);
+            border: none;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            color: var(--pdp-text-primary);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-qty-btn:hover {
+            background-color: var(--pdp-gray-medium);
+        }
+
+        .pdp-qty-input {
+            flex: 1;
+            border: none;
+            text-align: center;
+            padding: 0.5rem;
+            font-weight: 600;
+            width: 60px;
+        }
+
+        .pdp-qty-input:focus {
+            outline: none;
+        }
+
+        .pdp-btn-add-to-cart {
+            background-color: var(--pdp-primary-orange);
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-btn-add-to-cart:hover {
+            background-color: var(--pdp-orange-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+        }
+
+        .pdp-btn-wishlist {
+            border: 2px solid var(--pdp-border-color);
+            background-color: white;
+            color: var(--pdp-text-primary);
+            padding: 0.75rem 1.2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-btn-wishlist:hover {
+            border-color: var(--pdp-primary-orange);
+            color: var(--pdp-primary-orange);
+        }
+
+        .pdp-btn-buy-now {
+            background-color: var(--pdp-success);
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-btn-buy-now:hover {
+            background-color: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        /* Contact Support */
+        .pdp-contact-support {
+            background-color: var(--pdp-gray-light);
+            border-left: 4px solid var(--pdp-primary-orange);
+            color: var(--pdp-text-secondary);
+        }
+
+        .pdp-contact-support p {
+            margin: 0;
+        }
+
+        /* Details Section */
+        .pdp-details-section {
+            padding: 3rem 0;
+            border-top: 2px solid var(--pdp-border-color);
+        }
+
+        .pdp-nav-tabs {
+            border-bottom: 2px solid var(--pdp-border-color);
+            gap: 0;
+        }
+
+        .pdp-tab-link {
+            color: var(--pdp-text-secondary) !important;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .pdp-tab-link:hover {
+            color: var(--pdp-primary-orange) !important;
+        }
+
+        .pdp-tab-link.active {
+            color: var(--pdp-primary-orange) !important;
+            background-color: transparent;
+            border-bottom-color: var(--pdp-primary-orange) !important;
+        }
+
+        .pdp-tab-content {
+            padding: 2rem 0;
+        }
+
+        .pdp-description-content {
+            color: var(--pdp-text-secondary);
+            line-height: 1.8;
+        }
+
+        .pdp-description-content h3,
+        .pdp-description-content h4 {
+            color: var(--pdp-text-primary);
+        }
+
+        .pdp-feature-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .pdp-feature-list li {
+            padding: 0.75rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--pdp-text-secondary);
+        }
+
+        .pdp-feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--pdp-primary-orange);
+            font-weight: 700;
+        }
+
+        .pdp-spec-label {
+            font-weight: 600;
+            color: var(--pdp-text-primary);
+            width: 35%;
+        }
+
+        .pdp-specs-table table {
+            border-collapse: collapse;
+        }
+
+        .pdp-specs-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--pdp-border-color);
+            color: var(--pdp-text-secondary);
+        }
+
+        /* Reviews */
+        .pdp-reviews-section {
+            background-color: var(--pdp-gray-light);
+            padding: 2rem;
+            border-radius: 1rem;
+        }
+
+        .pdp-reviews-summary {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+
+        .pdp-average-rating {
+            color: var(--pdp-primary-orange);
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+
+        .pdp-rating-breakdown {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+
+        .pdp-rating-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .pdp-rating-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .pdp-progress-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--pdp-gray-medium);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .pdp-progress {
+            height: 100%;
+            background-color: var(--pdp-primary-orange);
+            border-radius: 10px;
+        }
+
+        .pdp-btn-add-review {
+            background-color: var(--pdp-primary-orange);
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-btn-add-review:hover {
+            background-color: var(--pdp-orange-dark);
+        }
+
+        .pdp-reviews-list {
+            margin-top: 2rem;
+        }
+
+        .pdp-review-item {
+            background-color: white;
+            border: 1px solid var(--pdp-border-color);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-review-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .pdp-review-item h5 {
+            color: var(--pdp-text-primary);
+            font-weight: 600;
+        }
+
+        .pdp-review-item h6 {
+            color: var(--pdp-text-primary);
+            font-weight: 600;
+        }
+
+        .pdp-review-content {
+            color: var(--pdp-text-secondary);
+            line-height: 1.6;
+        }
+
+        .pdp-review-meta {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .pdp-review-helpful,
+        .pdp-review-unhelpful {
+            background: none;
+            border: none;
+            color: var(--pdp-text-secondary);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+
+        .pdp-review-helpful:hover {
+            color: var(--pdp-success);
+        }
+
+        .pdp-review-unhelpful:hover {
+            color: var(--pdp-danger);
+        }
+
+        .pdp-btn-load-more {
+            background-color: var(--pdp-primary-orange);
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-btn-load-more:hover {
+            background-color: var(--pdp-orange-dark);
+        }
+
+        /* Related Products */
+        .pdp-related-section {
+            padding: 2rem 0;
+            border-top: 2px solid var(--pdp-border-color);
+        }
+
+        .pdp-product-card {
+            border: 1px solid var(--pdp-border-color);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .pdp-product-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+        }
+
+        .pdp-card-image {
+            position: relative;
+            overflow: hidden;
+            background-color: var(--pdp-gray-light);
+            height: 250px;
+        }
+
+        .pdp-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .pdp-product-card:hover .pdp-card-image img {
+            transform: scale(1.05);
+        }
+
+        .pdp-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .pdp-product-card:hover .pdp-card-overlay {
+            opacity: 1;
+        }
+
+        .pdp-btn-quick-view {
+            background-color: var(--pdp-primary-orange);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-btn-quick-view:hover {
+            background-color: var(--pdp-orange-dark);
+        }
+
+        .pdp-card-body {
+            background-color: white;
+        }
+
+        .pdp-card-title {
+            color: var(--pdp-text-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .pdp-card-price {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .pdp-card-price-current {
+            color: var(--pdp-primary-orange);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .pdp-card-price-original {
+            color: var(--pdp-text-secondary);
+            text-decoration: line-through;
+            font-size: 0.9rem;
+        }
+
+        /* Modal */
+        .pdp-modal-content {
+            border-radius: 1rem;
+            border: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        .pdp-modal-header {
+            background-color: rgba(255, 140, 0, 0.05);
+            border-bottom: 2px solid var(--pdp-border-color);
+            padding: 1.5rem;
+        }
+
+        .pdp-modal-header .modal-title {
+            color: var(--pdp-text-primary);
+            font-weight: 700;
+        }
+
+        .pdp-modal-body {
+            padding: 2rem;
+        }
+
+        .pdp-modal-footer {
+            border-top: 1px solid var(--pdp-border-color);
+            padding: 1.5rem;
+            background-color: var(--pdp-gray-light);
+        }
+
+        .pdp-form-input,
+        .pdp-form-textarea {
+            border: 2px solid var(--pdp-border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-form-input:focus,
+        .pdp-form-textarea:focus {
+            border-color: var(--pdp-primary-orange);
+            box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+            outline: none;
+        }
+
+        .pdp-rating-input {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .pdp-star-input {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--pdp-gray-medium);
+            transition: all 0.3s ease;
+        }
+
+        .pdp-star-input:hover,
+        .pdp-star-input.active {
+            color: var(--pdp-warning);
+            transform: scale(1.2);
+        }
+
+        .pdp-btn-submit-review {
+            background-color: var(--pdp-primary-orange);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-btn-submit-review:hover {
+            background-color: var(--pdp-orange-dark);
+        }
+
+        /* Footer */
+        .pdp-footer {
+            background-color: var(--pdp-text-primary);
+            color: white;
+            margin-top: 5rem;
+        }
+
+        .pdp-footer-title {
+            color: var(--pdp-primary-orange);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .pdp-footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pdp-footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .pdp-footer-links a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-footer-links a:hover {
+            color: var(--pdp-primary-orange);
+            text-decoration: underline;
+        }
+
+        .pdp-social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .pdp-social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 140, 0, 0.1);
+            border-radius: 50%;
+            color: var(--pdp-primary-orange);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .pdp-social-links a:hover {
+            background-color: var(--pdp-primary-orange);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .pdp-footer-divider {
+            border-color: rgba(255, 255, 255, 0.1);
+            margin: 2rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pdp-title {
+                font-size: 1.5rem;
+            }
+
+            .pdp-price-current {
+                font-size: 1.5rem;
+            }
+
+            .pdp-cart-section {
+                flex-direction: column;
+            }
+
+            .pdp-color-options,
+            .pdp-size-options {
+                flex-wrap: wrap;
+            }
+
+            .pdp-nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .pdp-tab-link {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .pdp-reviews-section {
+                flex-direction: column;
+            }
+
+            .pdp-tab-link {
+                flex: 0 0 calc(33.333% - 1rem);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .pdp-title {
+                font-size: 1.25rem;
+            }
+
+            .pdp-price-current {
+                font-size: 1.25rem;
+            }
+
+            .pdp-rating-section {
+                flex-direction: column;
+                gap: 0.5rem !important;
+            }
+
+            .pdp-nav-tabs {
+                flex-direction: column;
+                border-bottom: none;
+            }
+
+            .pdp-tab-link {
+                border-bottom: none;
+                border-left: 3px solid transparent;
+                flex: 1;
+            }
+
+            .pdp-tab-link.active {
+                border-left-color: var(--pdp-primary-orange) !important;
+                border-bottom-color: transparent !important;
+            }
+
+            .pdp-breadcrumb {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Utility Classes */
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .pdp-star {
+            font-size: 1.1rem;
+        }
+
+        .pdp-star-icon {
+            color: var(--pdp-warning);
+        }
+
+        /* Stock Info */
+        .pdp-stock-info {
+            color: var(--pdp-success) !important;
+            font-weight: 500;
+        }
+
+        .pdp-stock-info strong {
+            color: var(--pdp-success);
+        }
+
+        /* Updated Reviews Section */
+        .pdp-reviews-section {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        .pdp-reviews-header {
+            background-color: var(--pdp-gray-light);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .pdp-reviews-summary-box {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .pdp-average-rating-large {
+            color: var(--pdp-primary-orange);
+            font-weight: 700;
+            font-size: 3rem;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .pdp-stars-large {
+            font-size: 1.3rem;
+        }
+
+        .pdp-review-count {
+            color: var(--pdp-text-secondary);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .pdp-rating-breakdown-new {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .pdp-rating-row-new {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .pdp-rating-row-new:last-child {
+            margin-bottom: 0;
+        }
+
+        .pdp-rating-label {
+            min-width: 40px;
+            font-weight: 600;
+            color: var(--pdp-text-primary);
+            font-size: 0.9rem;
+        }
+
+        .pdp-star-icon-small {
+            color: var(--pdp-warning);
+            font-size: 0.8rem;
+            margin-left: 0.3rem;
+        }
+
+        .pdp-progress-bar-new {
+            flex: 1;
+            height: 6px;
+            background-color: var(--pdp-gray-medium);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .pdp-progress-new {
+            height: 100%;
+            background-color: var(--pdp-primary-orange);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .pdp-rating-count {
+            min-width: 30px;
+            text-align: right;
+            color: var(--pdp-text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Write Review Button - Matching Image Style */
+        .pdp-btn-write-review {
+            background-color: var(--pdp-primary-orange);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pdp-btn-write-review:hover {
+            background-color: var(--pdp-orange-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+        }
+
+        .pdp-btn-write-review i {
+            font-size: 1rem;
+        }
+
+        /* Review Cards - Matching Image Design */
+        .pdp-reviews-list {
+            margin-top: 2rem;
+        }
+
+        .pdp-review-card {
+            background-color: white;
+            border: 1px solid var(--pdp-border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .pdp-review-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .pdp-review-header {
+            margin-bottom: 1rem;
+        }
+
+        .pdp-review-user {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .pdp-review-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: var(--pdp-gray-light);
+        }
+
+        .pdp-review-user-info {
+            flex: 1;
+        }
+
+        .pdp-review-user-name {
+            font-weight: 600;
+            color: var(--pdp-text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .pdp-review-stars {
+            display: flex;
+            gap: 0.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .pdp-star-filled {
+            color: var(--pdp-warning);
+            font-size: 0.85rem;
+        }
+
+        .pdp-star-empty {
+            color: var(--pdp-gray-medium);
+            font-size: 0.85rem;
+        }
+
+        .pdp-review-time {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--pdp-text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .pdp-review-title {
+            font-weight: 600;
+            color: var(--pdp-text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .pdp-review-text {
+            color: var(--pdp-text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .pdp-review-actions {
+            display: flex;
+            gap: 1.5rem;
+            border-top: 1px solid var(--pdp-gray-medium);
+            padding-top: 1rem;
+        }
+
+        .pdp-review-helpful-btn,
+        .pdp-review-unhelpful-btn {
+            background: none;
+            border: none;
+            color: var(--pdp-text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0;
+        }
+
+        .pdp-review-helpful-btn:hover {
+            color: var(--pdp-success);
+        }
+
+        .pdp-review-unhelpful-btn:hover {
+            color: var(--pdp-danger);
+        }
+
+        .pdp-review-helpful-btn i,
+        .pdp-review-unhelpful-btn i {
+            font-size: 0.9rem;
+        }
+
+        .pdp-btn-load-more {
+            background-color: var(--pdp-primary-orange);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pdp-btn-load-more:hover {
+            background-color: var(--pdp-orange-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+        }
+
+        /* Updated Tab Styling */
+        .pdp-nav-tabs {
+            background-color: white;
+            border-bottom: 2px solid var(--pdp-border-color);
+            gap: 0;
+            padding: 0;
+        }
+
+        .pdp-tab-link {
+            color: var(--pdp-text-secondary) !important;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 1rem;
+            border-radius: 0;
+        }
+
+        .pdp-tab-link:hover {
+            color: var(--pdp-primary-orange) !important;
+            background-color: rgba(255, 140, 0, 0.03);
+        }
+
+        .pdp-tab-link.active {
+            color: var(--pdp-primary-orange) !important;
+            background-color: transparent;
+            border-bottom-color: var(--pdp-primary-orange) !important;
+        }
+
+        .pdp-tab-link i {
+            margin-right: 0.5rem;
+        }
+
+        .pdp-tab-content {
+            padding: 2rem 0;
+            background-color: white;
+        }
+    </style>
+    <body>
+        <!-- Navbar -->
+        <nav
+            class="pdp-navbar navbar navbar-expand-lg navbar-light bg-white border-bottom"
+        >
+            <div class="container-lg">
+                <a class="navbar-brand fw-bold pdp-brand" href="#">
+                    <i class="fas fa-shopping-bag pdp-brand-icon"></i> ShopHub
+                </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"
+                                ><i class="fas fa-home"></i> Trang chủ</a
+                            >
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"
+                                ><i class="fas fa-th"></i> Danh mục</a
+                            >
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"
+                                ><i class="fas fa-heart"></i> Yêu thích</a
+                            >
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link pdp-cart-link" href="#"
+                                ><i class="fas fa-shopping-cart"></i> Giỏ hàng
+                                (0)</a
+                            >
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="pdp-main py-5">
+            <div class="container-lg">
+                <div class="row g-5">
+                    <!-- Product Images Gallery -->
+                    <div class="col-lg-6">
+                        <div class="pdp-gallery-container">
+                            <!-- Main Image -->
+                            <div class="pdp-main-image-wrapper mb-3">
+                                <img
+                                    id="mainImage"
+                                    src="https://via.placeholder.com/500x600?text=Sản+Phẩm"
+                                    alt="Ảnh sản phẩm"
+                                    class="pdp-main-image w-100 rounded-3"
+                                />
+                                <div class="pdp-badge-new">
+                                    <span class="badge pdp-badge-content"
+                                        >Mới</span
+                                    >
+                                </div>
+                                <div class="pdp-badge-discount">
+                                    <span
+                                        class="badge pdp-badge-discount-content"
+                                        >-30%</span
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Thumbnail Gallery -->
+                            <div class="pdp-thumbnails-wrapper">
+                                <div class="row g-2">
+                                    <div class="col-3">
+                                        <img
+                                            src="https://via.placeholder.com/100x120?text=Ảnh+1"
+                                            class="pdp-thumbnail pdp-thumbnail-active w-100 rounded-2 cursor-pointer"
+                                            onclick="changeImage(this)"
+                                        />
+                                    </div>
+                                    <div class="col-3">
+                                        <img
+                                            src="https://via.placeholder.com/100x120?text=Ảnh+2"
+                                            class="pdp-thumbnail w-100 rounded-2 cursor-pointer"
+                                            onclick="changeImage(this)"
+                                        />
+                                    </div>
+                                    <div class="col-3">
+                                        <img
+                                            src="https://via.placeholder.com/100x120?text=Ảnh+3"
+                                            class="pdp-thumbnail w-100 rounded-2 cursor-pointer"
+                                            onclick="changeImage(this)"
+                                        />
+                                    </div>
+                                    <div class="col-3">
+                                        <img
+                                            src="https://via.placeholder.com/100x120?text=Ảnh+4"
+                                            class="pdp-thumbnail w-100 rounded-2 cursor-pointer"
+                                            onclick="changeImage(this)"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="col-lg-6">
+                        <div class="pdp-product-info">
+                            <!-- Breadcrumb -->
+                            <nav
+                                class="pdp-breadcrumb mb-3"
+                                aria-label="breadcrumb"
+                            >
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item">
+                                        <a href="#"
+                                            ><i class="fas fa-home"></i> Trang
+                                            chủ</a
+                                        >
+                                    </li>
+                                    <li class="breadcrumb-item">
+                                        <a href="#">Điện tử</a>
+                                    </li>
+                                    <li class="breadcrumb-item active">
+                                        Sản phẩm
+                                    </li>
+                                </ol>
+                            </nav>
+
+                            <!-- Product Title & Rating -->
+                            <h1 class="pdp-title mb-2">
+                                Tai nghe không dây chất lượng cao
+                            </h1>
+
+                            <div
+                                class="pdp-rating-section d-flex align-items-center gap-3 mb-3"
+                            >
+                                <div class="pdp-stars">
+                                    <span class="pdp-star"
+                                        ><i class="fas fa-star"></i
+                                    ></span>
+                                    <span class="pdp-star"
+                                        ><i class="fas fa-star"></i
+                                    ></span>
+                                    <span class="pdp-star"
+                                        ><i class="fas fa-star"></i
+                                    ></span>
+                                    <span class="pdp-star"
+                                        ><i class="fas fa-star"></i
+                                    ></span>
+                                    <span class="pdp-star-half"
+                                        ><i class="fas fa-star-half"></i
+                                    ></span>
+                                </div>
+                                <span class="pdp-rating-score"
+                                    >4.5/5 (128 đánh giá)</span
+                                >
+                                <span class="pdp-sold-count"
+                                    ><i class="fas fa-check-circle"></i> Đã bán
+                                    1.2k</span
+                                >
+                            </div>
+
+                            <!-- Price Section -->
+                            <div class="pdp-price-section mb-4 p-3 rounded-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="pdp-price-current"
+                                        >1.299.000đ</span
+                                    >
+                                    <span class="pdp-price-original"
+                                        >1.856.000đ</span
+                                    >
+                                    <span class="pdp-discount-percent"
+                                        >-30%</span
+                                    >
+                                </div>
+                                <p class="pdp-price-note mb-0 small mt-2">
+                                    <i class="fas fa-gift"></i> Tiết kiệm:
+                                    557.000đ
+                                </p>
+                                <p class="pdp-stock-info mb-0 small mt-2">
+                                    <i class="fas fa-box"></i> Còn
+                                    <strong>245 sản phẩm</strong> trong kho
+                                </p>
+                            </div>
+
+                            <!-- Color Variant -->
+                            <div class="pdp-variants-section mb-4">
+                                <label class="pdp-variant-label mb-2">
+                                    <i class="fas fa-palette"></i> Chọn màu sắc:
+                                </label>
+                                <div class="pdp-color-options d-flex gap-2">
+                                    <button
+                                        class="pdp-color-btn pdp-color-btn-active"
+                                        style="background-color: #000"
+                                        data-color="Đen"
+                                        title="Đen"
+                                    ></button>
+                                    <button
+                                        class="pdp-color-btn"
+                                        style="background-color: #cccccc"
+                                        data-color="Bạc"
+                                        title="Bạc"
+                                    ></button>
+                                    <button
+                                        class="pdp-color-btn"
+                                        style="background-color: #ffb400"
+                                        data-color="Vàng"
+                                        title="Vàng"
+                                    ></button>
+                                    <button
+                                        class="pdp-color-btn"
+                                        style="background-color: #ff6b6b"
+                                        data-color="Đỏ"
+                                        title="Đỏ"
+                                    ></button>
+                                </div>
+                                <p class="pdp-selected-variant mt-2">
+                                    Màu đã chọn:
+                                    <strong id="selectedColor">Đen</strong>
+                                </p>
+                            </div>
+
+                            <!-- Size/Capacity Variant -->
+                            <div class="pdp-variants-section mb-4">
+                                <label class="pdp-variant-label mb-2">
+                                    <i class="fas fa-cube"></i> Chọn dung lượng
+                                    pin:
+                                </label>
+                                <div class="pdp-size-options d-flex gap-2">
+                                    <button
+                                        class="pdp-size-btn pdp-size-btn-active"
+                                        data-size="8 giờ"
+                                    >
+                                        8 giờ
+                                    </button>
+                                    <button
+                                        class="pdp-size-btn"
+                                        data-size="12 giờ"
+                                    >
+                                        12 giờ
+                                    </button>
+                                    <button
+                                        class="pdp-size-btn"
+                                        data-size="24 giờ"
+                                    >
+                                        24 giờ
+                                    </button>
+                                </div>
+                                <p class="pdp-selected-variant mt-2">
+                                    Dung lượng:
+                                    <strong id="selectedSize">8 giờ</strong>
+                                </p>
+                            </div>
+
+                            <!-- Warranty -->
+                            <div class="pdp-warranty mb-4">
+                                <div class="pdp-warranty-item">
+                                    <i
+                                        class="fas fa-shield-alt pdp-warranty-icon"
+                                    ></i>
+                                    <span>Bảo hành chính hãng 12 tháng</span>
+                                </div>
+                                <div class="pdp-warranty-item">
+                                    <i
+                                        class="fas fa-truck pdp-warranty-icon"
+                                    ></i>
+                                    <span>Miễn phí vận chuyển toàn quốc</span>
+                                </div>
+                                <div class="pdp-warranty-item">
+                                    <i
+                                        class="fas fa-undo pdp-warranty-icon"
+                                    ></i>
+                                    <span>Hoàn tiền nếu không hài lòng</span>
+                                </div>
+                            </div>
+
+                            <!-- Quantity & Cart -->
+                            <div class="pdp-cart-section d-flex gap-3 mb-4">
+                                <div class="pdp-quantity-control">
+                                    <button
+                                        class="pdp-qty-btn"
+                                        onclick="decreaseQty()"
+                                    >
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input
+                                        type="number"
+                                        id="quantity"
+                                        value="1"
+                                        min="1"
+                                        class="pdp-qty-input"
+                                    />
+                                    <button
+                                        class="pdp-qty-btn"
+                                        onclick="increaseQty()"
+                                    >
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <button
+                                    class="btn pdp-btn-add-to-cart flex-grow-1"
+                                >
+                                    <i class="fas fa-shopping-cart"></i> Thêm
+                                    vào giỏ hàng
+                                </button>
+                                <button class="btn pdp-btn-wishlist">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+
+                            <!-- Buy Now Button -->
+                            <button class="btn pdp-btn-buy-now w-100 mb-3">
+                                <i class="fas fa-bolt"></i> Mua ngay
+                            </button>
+
+                            <!-- Contact Support -->
+                            <div class="pdp-contact-support p-3 rounded-2">
+                                <p class="mb-2">
+                                    <i class="fas fa-phone"></i>
+                                    <strong>Liên hệ hỗ trợ:</strong>
+                                    1900.123.456
+                                </p>
+                                <p class="mb-0">
+                                    <i class="fas fa-clock"></i>
+                                    <strong>Giờ làm việc:</strong> 8:00 - 22:00
+                                    (Thứ 2 - CN)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Details Tabs -->
+                <div class="pdp-details-section mt-5">
+                    <ul class="nav pdp-nav-tabs" id="pdpTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button
+                                class="nav-link pdp-tab-link active"
+                                id="description-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#description"
+                            >
+                                <i class="fas fa-file-alt"></i> Mô tả sản phẩm
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button
+                                class="nav-link pdp-tab-link"
+                                id="specs-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#specs"
+                            >
+                                <i class="fas fa-list"></i> Thông số kỹ thuật
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button
+                                class="nav-link pdp-tab-link"
+                                id="reviews-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#reviews"
+                            >
+                                <i class="fas fa-comments"></i> Đánh giá (128)
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content pdp-tab-content" id="pdpTabContent">
+                        <!-- Description Tab -->
+                        <div
+                            class="tab-pane fade show active"
+                            id="description"
+                            role="tabpanel"
+                        >
+                            <div class="pdp-description-content">
+                                <h3 class="mb-3">Mô tả chi tiết</h3>
+                                <p>
+                                    Tai nghe không dây này được thiết kế với
+                                    công nghệ tiên tiến, mang lại trải nghiệm âm
+                                    thanh tuyệt vời. Với pin dài 8-24 giờ, bạn
+                                    có thể sử dụng cả ngày mà không lo hết pin.
+                                </p>
+                                <h4 class="mt-4 mb-2">Đặc điểm nổi bật:</h4>
+                                <ul class="pdp-feature-list">
+                                    <li>
+                                        <strong>Công nghệ âm thanh:</strong>
+                                        Noise Cancelling cao cấp, âm bass mạnh
+                                        mẽ
+                                    </li>
+                                    <li>
+                                        <strong>Kết nối:</strong> Bluetooth 5.3,
+                                        kết nối ổn định tới 10m
+                                    </li>
+                                    <li>
+                                        <strong>Thời lượng pin:</strong> 8 - 24
+                                        giờ tùy theo dung lượng chọn
+                                    </li>
+                                    <li>
+                                        <strong>Trọng lượng:</strong> Chỉ 180g,
+                                        rất nhẹ và thoải mái
+                                    </li>
+                                    <li>
+                                        <strong>Màu sắc:</strong> Đen, Bạc,
+                                        Vàng, Đỏ
+                                    </li>
+                                    <li>
+                                        <strong>Kết nối đa thiết bị:</strong>
+                                        Kết nối tới 2 thiết bị cùng lúc
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Specs Tab -->
+                        <div class="tab-pane fade" id="specs" role="tabpanel">
+                            <div class="pdp-specs-table">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <td class="pdp-spec-label">
+                                                Kết nối
+                                            </td>
+                                            <td>Bluetooth 5.3</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pdp-spec-label">
+                                                Thời lượng pin
+                                            </td>
+                                            <td>8 - 24 giờ</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pdp-spec-label">
+                                                Trọng lượng
+                                            </td>
+                                            <td>180g</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pdp-spec-label">
+                                                Phạm vi Bluetooth
+                                            </td>
+                                            <td>Tới 10m</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pdp-spec-label">
+                                                Âm thanh
+                                            </td>
+                                            <td>
+                                                Noise Cancelling, 40Hz - 20kHz
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pdp-spec-label">
+                                                Bảo hành
+                                            </td>
+                                            <td>12 tháng chính hãng</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Reviews Tab -->
+                        <div class="tab-pane fade" id="reviews" role="tabpanel">
+                            <div class="pdp-reviews-section">
+                                <!-- Redesigned reviews summary and button styling -->
+                                <!-- Reviews Summary -->
+                                <div class="pdp-reviews-header mb-4">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-4">
+                                            <div
+                                                class="pdp-reviews-summary-box"
+                                            >
+                                                <div
+                                                    class="pdp-average-rating-large"
+                                                >
+                                                    4.5
+                                                </div>
+                                                <div
+                                                    class="pdp-stars-large mb-2"
+                                                >
+                                                    <span class="pdp-star"
+                                                        ><i
+                                                            class="fas fa-star"
+                                                        ></i
+                                                    ></span>
+                                                    <span class="pdp-star"
+                                                        ><i
+                                                            class="fas fa-star"
+                                                        ></i
+                                                    ></span>
+                                                    <span class="pdp-star"
+                                                        ><i
+                                                            class="fas fa-star"
+                                                        ></i
+                                                    ></span>
+                                                    <span class="pdp-star"
+                                                        ><i
+                                                            class="fas fa-star"
+                                                        ></i
+                                                    ></span>
+                                                    <span class="pdp-star-half"
+                                                        ><i
+                                                            class="fas fa-star-half"
+                                                        ></i
+                                                    ></span>
+                                                </div>
+                                                <p class="pdp-review-count">
+                                                    Dựa trên
+                                                    <strong
+                                                        >128 đánh giá</strong
+                                                    >
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div
+                                                class="pdp-rating-breakdown-new"
+                                            >
+                                                <div class="pdp-rating-row-new">
+                                                    <span
+                                                        class="pdp-rating-label"
+                                                        >5<i
+                                                            class="fas fa-star pdp-star-icon-small"
+                                                        ></i
+                                                    ></span>
+                                                    <div
+                                                        class="pdp-progress-bar-new"
+                                                    >
+                                                        <div
+                                                            class="pdp-progress-new"
+                                                            style="width: 65%"
+                                                        ></div>
+                                                    </div>
+                                                    <span
+                                                        class="pdp-rating-count"
+                                                        >83</span
+                                                    >
+                                                </div>
+                                                <div class="pdp-rating-row-new">
+                                                    <span
+                                                        class="pdp-rating-label"
+                                                        >4<i
+                                                            class="fas fa-star pdp-star-icon-small"
+                                                        ></i
+                                                    ></span>
+                                                    <div
+                                                        class="pdp-progress-bar-new"
+                                                    >
+                                                        <div
+                                                            class="pdp-progress-new"
+                                                            style="width: 20%"
+                                                        ></div>
+                                                    </div>
+                                                    <span
+                                                        class="pdp-rating-count"
+                                                        >26</span
+                                                    >
+                                                </div>
+                                                <div class="pdp-rating-row-new">
+                                                    <span
+                                                        class="pdp-rating-label"
+                                                        >3<i
+                                                            class="fas fa-star pdp-star-icon-small"
+                                                        ></i
+                                                    ></span>
+                                                    <div
+                                                        class="pdp-progress-bar-new"
+                                                    >
+                                                        <div
+                                                            class="pdp-progress-new"
+                                                            style="width: 10%"
+                                                        ></div>
+                                                    </div>
+                                                    <span
+                                                        class="pdp-rating-count"
+                                                        >13</span
+                                                    >
+                                                </div>
+                                                <div class="pdp-rating-row-new">
+                                                    <span
+                                                        class="pdp-rating-label"
+                                                        >2<i
+                                                            class="fas fa-star pdp-star-icon-small"
+                                                        ></i
+                                                    ></span>
+                                                    <div
+                                                        class="pdp-progress-bar-new"
+                                                    >
+                                                        <div
+                                                            class="pdp-progress-new"
+                                                            style="width: 3%"
+                                                        ></div>
+                                                    </div>
+                                                    <span
+                                                        class="pdp-rating-count"
+                                                        >4</span
+                                                    >
+                                                </div>
+                                                <div class="pdp-rating-row-new">
+                                                    <span
+                                                        class="pdp-rating-label"
+                                                        >1<i
+                                                            class="fas fa-star pdp-star-icon-small"
+                                                        ></i
+                                                    ></span>
+                                                    <div
+                                                        class="pdp-progress-bar-new"
+                                                    >
+                                                        <div
+                                                            class="pdp-progress-new"
+                                                            style="width: 2%"
+                                                        ></div>
+                                                    </div>
+                                                    <span
+                                                        class="pdp-rating-count"
+                                                        >2</span
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- New write review button styling matching image -->
+                                <button
+                                    class="pdp-btn-write-review mb-4"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#reviewModal"
+                                >
+                                    <i class="fas fa-pen"></i> Viết đánh giá
+                                </button>
+
+                                <!-- Reviews List -->
+                                <div class="pdp-reviews-list">
+                                    <!-- Review Item 1 -->
+                                    <div class="pdp-review-card mb-3">
+                                        <div class="pdp-review-header">
+                                            <div class="pdp-review-user">
+                                                <img
+                                                    src="https://via.placeholder.com/50x50?text=Avatar"
+                                                    class="pdp-review-avatar"
+                                                    alt="Avatar"
+                                                />
+                                                <div
+                                                    class="pdp-review-user-info"
+                                                >
+                                                    <h6
+                                                        class="pdp-review-user-name"
+                                                    >
+                                                        Nguyễn Văn A
+                                                    </h6>
+                                                    <div
+                                                        class="pdp-review-stars"
+                                                    >
+                                                        <i
+                                                            class="fas fa-star pdp-star-filled"
+                                                        ></i>
+                                                        <i
+                                                            class="fas fa-star pdp-star-filled"
+                                                        ></i>
+                                                        <i
+                                                            class="fas fa-star pdp-star-filled"
+                                                        ></i>
+                                                        <i
+                                                            class="fas fa-star pdp-star-filled"
+                                                        ></i>
+                                                        <i
+                                                            class="fas fa-star pdp-star-filled"
+                                                        ></i>
+                                                    </div>
+                                                </div>
+                                                <span class="pdp-review-time"
+                                                    >2 tuần trước</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <h5 class="pdp-review-title">
+                                            Sản phẩm rất tốt, chất lượng cao
+                                        </h5>
+                                        <p class="pdp-review-text">
+                                            Áo sơ mi này chất lượng thật sự
+                                            tuyệt vời. Cotton mềm mại, không khó
+                                            chịu khi mặc. Khâu may chắc chắn,
+                                            màu sắc bền. Giao hàng nhanh và đóng
+                                            gói cần thận. Rất hài lòng với mua
+                                            sắm này!
+                                        </p>
+                                        <div class="pdp-review-actions">
+                                            <button
+                                                class="pdp-review-helpful-btn"
+                                            >
+                                                <i class="fas fa-thumbs-up"></i>
+                                                Hữu ích <span>(15)</span>
+                                            </button>
+                                            <button
+                                                class="pdp-review-unhelpful-btn"
+                                            >
+                                                <i
+                                                    class="fas fa-thumbs-down"
+                                                ></i>
+                                                Không hữu ích <span>(2)</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Review Item 2 -->
+                                    <div class="pdp-review-card mb-3">
+                                        <div class="pdp-review-header">
+                                            <div class="pdp-review-user">
+                                                <img
+                                                    src="https://via.placeholder.com/50x50?text=Avatar2"
+                                                    class="pdp-review-avatar"
+                                                    alt="Avatar"
+                                                />
+                                                <div
+                                                    class="pdp-review-user-info"
+                                                >
+                                                    <h6
+                                                        class="pdp-review-user-name"
+                                                    >
+                                                        Trần Thị B
+                                                    </h6>
+                                                    <div
+                                                        class="pdp-review-stars"
+                                                    >
+                                                        <i
+                                                            class="fas fa-star pdp-star-filled"
+                                                        ></i>
+                                                        <i
+                                                            class="fas fa-star pdp-star-filled"
+                                                        ></i>
+                                                        <i
+                                                            class="fas fa-star pdp-star-filled"
+                                                        ></i>
+                                                        <i
+                                                            class="fas fa-star pdp-star-filled"
+                                                        ></i>
+                                                        <i
+                                                            class="fas fa-star pdp-star-empty"
+                                                        ></i>
+                                                    </div>
+                                                </div>
+                                                <span class="pdp-review-time"
+                                                    >1 tháng trước</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <h5 class="pdp-review-title">
+                                            Tốt nhưng hơi nhỏ
+                                        </h5>
+                                        <p class="pdp-review-text">
+                                            Áo đẹp lắm, nhưng kích thuôc hơi nhỏ
+                                            so với mô tả. Tôi đã đổi size L sang
+                                            XL. Cảm ơn dịch vụ đổi hàng rất
+                                            nhanh.
+                                        </p>
+                                        <div class="pdp-review-actions">
+                                            <button
+                                                class="pdp-review-helpful-btn"
+                                            >
+                                                <i class="fas fa-thumbs-up"></i>
+                                                Hữu ích <span>(8)</span>
+                                            </button>
+                                            <button
+                                                class="pdp-review-unhelpful-btn"
+                                            >
+                                                <i
+                                                    class="fas fa-thumbs-down"
+                                                ></i>
+                                                Không hữu ích <span>(1)</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Load More -->
+                                <div class="text-center mt-4">
+                                    <button class="pdp-btn-load-more">
+                                        <i class="fas fa-chevron-down"></i> Xem
+                                        thêm đánh giá
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Related Products -->
+                <div class="pdp-related-section mt-5">
+                    <h2 class="mb-4">
+                        <i class="fas fa-cubes"></i> Sản phẩm liên quan
+                    </h2>
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="pdp-product-card">
+                                <div class="pdp-card-image">
+                                    <img
+                                        src="https://via.placeholder.com/250x300?text=Sản+phẩm+1"
+                                        alt="Sản phẩm"
+                                    />
+                                    <div class="pdp-card-overlay">
+                                        <button class="btn pdp-btn-quick-view">
+                                            <i class="fas fa-eye"></i> Xem nhanh
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="pdp-card-body p-3">
+                                    <h5 class="pdp-card-title">
+                                        Loa Bluetooth mini
+                                    </h5>
+                                    <div class="pdp-card-rating mb-2">
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star-half"></i
+                                        ></span>
+                                        <span class="small ms-1">(45)</span>
+                                    </div>
+                                    <div class="pdp-card-price">
+                                        <span class="pdp-card-price-current"
+                                            >599.000đ</span
+                                        >
+                                        <span class="pdp-card-price-original"
+                                            >799.000đ</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="pdp-product-card">
+                                <div class="pdp-card-image">
+                                    <img
+                                        src="https://via.placeholder.com/250x300?text=Sản+phẩm+2"
+                                        alt="Sản phẩm"
+                                    />
+                                    <div class="pdp-card-overlay">
+                                        <button class="btn pdp-btn-quick-view">
+                                            <i class="fas fa-eye"></i> Xem nhanh
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="pdp-card-body p-3">
+                                    <h5 class="pdp-card-title">
+                                        Cáp sạc nhanh
+                                    </h5>
+                                    <div class="pdp-card-rating mb-2">
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="small ms-1">(89)</span>
+                                    </div>
+                                    <div class="pdp-card-price">
+                                        <span class="pdp-card-price-current"
+                                            >199.000đ</span
+                                        >
+                                        <span class="pdp-card-price-original"
+                                            >299.000đ</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="pdp-product-card">
+                                <div class="pdp-card-image">
+                                    <img
+                                        src="https://via.placeholder.com/250x300?text=Sản+phẩm+3"
+                                        alt="Sản phẩm"
+                                    />
+                                    <div class="pdp-card-overlay">
+                                        <button class="btn pdp-btn-quick-view">
+                                            <i class="fas fa-eye"></i> Xem nhanh
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="pdp-card-body p-3">
+                                    <h5 class="pdp-card-title">
+                                        Bao đựng tai nghe
+                                    </h5>
+                                    <div class="pdp-card-rating mb-2">
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star-half"></i
+                                        ></span>
+                                        <span class="small ms-1">(67)</span>
+                                    </div>
+                                    <div class="pdp-card-price">
+                                        <span class="pdp-card-price-current"
+                                            >149.000đ</span
+                                        >
+                                        <span class="pdp-card-price-original"
+                                            >199.000đ</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="pdp-product-card">
+                                <div class="pdp-card-image">
+                                    <img
+                                        src="https://via.placeholder.com/250x300?text=Sản+phẩm+4"
+                                        alt="Sản phẩm"
+                                    />
+                                    <div class="pdp-card-overlay">
+                                        <button class="btn pdp-btn-quick-view">
+                                            <i class="fas fa-eye"></i> Xem nhanh
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="pdp-card-body p-3">
+                                    <h5 class="pdp-card-title">
+                                        Bộ chuyển đổi âm thanh
+                                    </h5>
+                                    <div class="pdp-card-rating mb-2">
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="pdp-star small"
+                                            ><i class="fas fa-star"></i
+                                        ></span>
+                                        <span class="small ms-1">(112)</span>
+                                    </div>
+                                    <div class="pdp-card-price">
+                                        <span class="pdp-card-price-current"
+                                            >299.000đ</span
+                                        >
+                                        <span class="pdp-card-price-original"
+                                            >399.000đ</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Review Modal -->
+        <div class="modal fade" id="reviewModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content pdp-modal-content">
+                    <div class="modal-header pdp-modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-pen-fancy"></i> Viết đánh giá
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                        ></button>
+                    </div>
+                    <div class="modal-body pdp-modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Đánh giá sao</label>
+                                <div class="pdp-rating-input">
+                                    <button
+                                        type="button"
+                                        class="pdp-star-input"
+                                        data-rating="1"
+                                    >
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="pdp-star-input"
+                                        data-rating="2"
+                                    >
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="pdp-star-input"
+                                        data-rating="3"
+                                    >
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="pdp-star-input"
+                                        data-rating="4"
+                                    >
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="pdp-star-input"
+                                        data-rating="5"
+                                    >
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reviewTitle" class="form-label"
+                                    >Tiêu đề đánh giá</label
+                                >
+                                <input
+                                    type="text"
+                                    class="form-control pdp-form-input"
+                                    id="reviewTitle"
+                                    placeholder="Nhập tiêu đề đánh giá"
+                                />
+                            </div>
+                            <div class="mb-3">
+                                <label for="reviewContent" class="form-label"
+                                    >Nội dung đánh giá</label
+                                >
+                                <textarea
+                                    class="form-control pdp-form-textarea"
+                                    id="reviewContent"
+                                    rows="5"
+                                    placeholder="Chia sẻ trải nghiệm của bạn..."
+                                ></textarea>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    id="verifiedPurchase"
+                                />
+                                <label
+                                    class="form-check-label"
+                                    for="verifiedPurchase"
+                                >
+                                    <i class="fas fa-check"></i> Tôi đã mua sản
+                                    phẩm này
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer pdp-modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Hủy
+                        </button>
+                        <button type="button" class="btn pdp-btn-submit-review">
+                            Gửi đánh giá
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="pdp-footer mt-5">
+            <div class="container-lg py-5">
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <h5 class="pdp-footer-title">ShopHub</h5>
+                        <p class="small">
+                            Chúng tôi cung cấp các sản phẩm điện tử chất lượng
+                            cao với giá tốt nhất.
+                        </p>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="pdp-footer-title">Về chúng tôi</h5>
+                        <ul class="pdp-footer-links">
+                            <li><a href="#">Về ShopHub</a></li>
+                            <li><a href="#">Tuyển dụng</a></li>
+                            <li><a href="#">Bảo mật</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="pdp-footer-title">Hỗ trợ</h5>
+                        <ul class="pdp-footer-links">
+                            <li><a href="#">Liên hệ</a></li>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Chính sách hoàn trả</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="pdp-footer-title">Theo dõi chúng tôi</h5>
+                        <div class="pdp-social-links">
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                            <a href="#"><i class="fab fa-youtube"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="pdp-footer-divider" />
+                <div class="text-center">
+                    <p class="small mb-0">
+                        &copy; 2025 ShopHub. Tất cả quyền được bảo lưu.
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Custom JS -->
+        <script src="script.js"></script>
+        <script>
+            // Color Selection
+            document.querySelectorAll(".pdp-color-btn").forEach((btn) => {
+                btn.addEventListener("click", function () {
+                    document
+                        .querySelectorAll(".pdp-color-btn")
+                        .forEach((b) =>
+                            b.classList.remove("pdp-color-btn-active")
+                        );
+                    this.classList.add("pdp-color-btn-active");
+                    document.getElementById("selectedColor").textContent =
+                        this.getAttribute("data-color");
+                });
+            });
+
+            // Size Selection
+            document.querySelectorAll(".pdp-size-btn").forEach((btn) => {
+                btn.addEventListener("click", function () {
+                    document
+                        .querySelectorAll(".pdp-size-btn")
+                        .forEach((b) =>
+                            b.classList.remove("pdp-size-btn-active")
+                        );
+                    this.classList.add("pdp-size-btn-active");
+                    document.getElementById("selectedSize").textContent =
+                        this.getAttribute("data-size");
+                });
+            });
+
+            // Image Gallery
+            function changeImage(img) {
+                document.getElementById("mainImage").src = img.src;
+                document
+                    .querySelectorAll(".pdp-thumbnail")
+                    .forEach((t) => t.classList.remove("pdp-thumbnail-active"));
+                img.classList.add("pdp-thumbnail-active");
+            }
+
+            // Quantity Control
+            function increaseQty() {
+                const qty = document.getElementById("quantity");
+                qty.value = Number.parseInt(qty.value) + 1;
+            }
+
+            function decreaseQty() {
+                const qty = document.getElementById("quantity");
+                if (Number.parseInt(qty.value) > 1) {
+                    qty.value = Number.parseInt(qty.value) - 1;
+                }
+            }
+
+            // Add to Cart
+            document
+                .querySelector(".pdp-btn-add-to-cart")
+                .addEventListener("click", () => {
+                    const qty = document.getElementById("quantity").value;
+                    const color =
+                        document.getElementById("selectedColor").textContent;
+                    const size =
+                        document.getElementById("selectedSize").textContent;
+                    alert(
+                        `Đã thêm ${qty} sản phẩm (${color}, ${size}) vào giỏ hàng!`
+                    );
+                });
+
+            // Buy Now
+            document
+                .querySelector(".pdp-btn-buy-now")
+                .addEventListener("click", () => {
+                    const qty = document.getElementById("quantity").value;
+                    alert(
+                        `Mua ngay ${qty} sản phẩm. Chuyển hướng đến thanh toán...`
+                    );
+                });
+
+            // Wishlist
+            document
+                .querySelector(".pdp-btn-wishlist")
+                .addEventListener("click", function () {
+                    this.classList.toggle("active");
+                    if (this.classList.contains("active")) {
+                        this.style.color = "#FF6B6B";
+                        alert("Đã thêm vào yêu thích!");
+                    } else {
+                        this.style.color = "";
+                        alert("Đã xóa khỏi yêu thích!");
+                    }
+                });
+
+            // Star Rating in Modal
+            document.querySelectorAll(".pdp-star-input").forEach((star) => {
+                star.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const rating = this.getAttribute("data-rating");
+                    document
+                        .querySelectorAll(".pdp-star-input")
+                        .forEach((s, index) => {
+                            if (index < rating) {
+                                s.classList.add("active");
+                            } else {
+                                s.classList.remove("active");
+                            }
+                        });
+                });
+            });
+
+            // Submit Review
+            document
+                .querySelector(".pdp-btn-submit-review")
+                .addEventListener("click", () => {
+                    const title = document.getElementById("reviewTitle").value;
+                    const content =
+                        document.getElementById("reviewContent").value;
+
+                    if (!title || !content) {
+                        alert("Vui lòng nhập tiêu đề và nội dung đánh giá!");
+                        return;
+                    }
+
+                    alert("Cảm ơn bạn đã gửi đánh giá!");
+                    document.getElementById("reviewTitle").value = "";
+                    document.getElementById("reviewContent").value = "";
+                    document
+                        .querySelectorAll(".pdp-star-input")
+                        .forEach((s) => s.classList.remove("active"));
+
+                    // Đóng modal
+                    const modal = window.bootstrap.Modal.getInstance(
+                        document.getElementById("reviewModal")
+                    );
+                    modal.hide();
+                });
+
+            // Helpful Review
+            document.querySelectorAll(".pdp-review-helpful").forEach((btn) => {
+                btn.addEventListener("click", function () {
+                    const currentCount = Number.parseInt(
+                        this.textContent.match(/\d+/)[0]
+                    );
+                    this.innerHTML = `<i class="fas fa-thumbs-up"></i> Hữu ích (${
+                        currentCount + 1
+                    })`;
+                    this.style.color = "#27AE60";
+                });
+            });
+
+            // Initialize
+            console.log("Script loaded successfully!");
+        </script>
+    </body>
+</html>

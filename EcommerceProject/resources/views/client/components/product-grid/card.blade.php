@@ -14,7 +14,7 @@
             </button>
         </div>
         @if($discountPercent)
-            <span class="badge bg-danger position-absolute top-0 end-0 m-2">{{ $discountPercent }}%</span>
+            <span class="badge bg-danger position-absolute top-0 end-0 m-2">{{ -$discountPercent }}%</span>
         @endif
 
         @if($isNew)

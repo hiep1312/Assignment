@@ -36,7 +36,7 @@
             try {
                 const [categoriesResponse, ratingSummaryResponse, productsResponse] = await Promise.all([
                     window.http.get(@js(route('api.categories.index')), { params: PageController._buildApiParams.categoryQueryParams() }),
-                    window.http.get(@js(route('api.products.reviews.statistics'))),
+                    window.http.get(@js(route('api.products.reviews.distribution'))),
                     window.http.get(@js(route('api.products.index')), { params: PageController._buildApiParams.productQueryParams() })
                 ]);
 
@@ -48,6 +48,7 @@
                 $wire.ratingStatistics = axiosRatingSummaryData.data;
                 $wire.products = axiosProductData.data;
                 $wire.pagination = window.getPaginationFromApi(axiosProductData);
+                $wire.priceRange = axiosProductData.price_range;
                 $wire.isCardLoading = false;
                 $wire.$refresh();
 
@@ -73,6 +74,12 @@
                     search: () => params.search,
                     category: () => params.category,
                     filter_categories: () => localStorage.getItem('filter_categories'),
+                    price_range: () => {
+                        if(params.min_price || params.max_price) {
+                            return `${params.min_price ?? $wire.priceRange?.min_price ?? 0} - ${params.max_price ?? $wire.priceRange?.max_price ?? Number.MAX_SAFE_INTEGER}`;
+                        }
+                    },
+                    filter_availability: () => localStorage.getItem('filter_availability'),
                     filter_ids: () => {
                         const filters = {
                             bySelectedRatings: () => {
@@ -95,6 +102,8 @@
                         return [...uniqueProductIds].join(',');
                     },
                     page: () => params.page,
+                    per_page: () => params.per_page,
+                    sort_by: () => Array.of('price-asc', 'price-desc', 'newest').includes(params.sort_by) && params.sort_by
                 };
 
                 for(const [key, getter] of Object.entries(allowedFields)) {
@@ -106,9 +115,10 @@
                 }
 
                 return {
-                    aggregate: 'count:reviews, avg:reviews.rating',
+                    aggregate: 'count:reviews, avg:reviews.rating, sum:inventories.stock, sum:inventories.sold_number',
                     include: 'primaryVariant',
                     status: 1,
+                    with_price_range: 1,
                     ...apiParams
                 };
             },
@@ -162,8 +172,29 @@
                 }, 600);
             },
 
+            "filter:price": (event) => {
+                clearTimeout(window.priceDebounceTimer);
+
+                window.priceDebounceTimer = setTimeout(() => {
+                    const { minPrice, maxPrice } = event.detail;
+                    const [minPriceParam, maxPriceParam] = window.getQueryParams(['min_price', 'max_price']);
+
+                    if(
+                        Number(minPrice) !== Number(minPriceParam ?? $wire.priceRange?.min_price ?? null) ||
+                        Number(maxPrice) !== Number(maxPriceParam ?? $wire.priceRange?.max_price ?? null)
+                    ) {
+                        window.setQueryParams({
+                            min_price: minPrice,
+                            max_price: maxPrice
+                        });
+
+                        PageController.refreshData();
+                    }
+                }, 600);
+            },
+
             "filter:ratings": (event) => {
-                clearTimeout(window.ratingsDebounceTimer);
+                clearTimeout(window.categoriesDebounceTimer);
 
                 window.categoriesDebounceTimer = setTimeout(() => {
                     const selectedRatings = event.detail.ratings;
@@ -189,13 +220,15 @@
             },
 
             "filter:reset": () => {
-                const resetParams = ['search', 'page', 'per_page'];
+                const resetParams = ['search', 'page', 'per_page', 'sort_by', 'min_price', 'max_price'];
 
                 if(
                     window.getQueryParams(resetParams).some(paramValue => paramValue !== null) ||
                     PageController._filterLocalStorageKeys.some(key => localStorage.getItem(key) !== null)
                 ) {
                     window.setQueryParams(Object.fromEntries(resetParams.map(key => [key, null])));
+
+                    document.dispatchEvent(new Event('reset:filters'));
                     PageController.init();
                 }
             },
@@ -224,6 +257,43 @@
                         PageController.refreshData();
                     }
                 }, 600);
+            },
+
+            "filter:perPage": (event) => {
+                clearTimeout(window.perPageDebounceTimer);
+
+                window.perPageDebounceTimer = setTimeout(() => {
+                    const perPage = Number(event.detail.perPage);
+
+                    if(perPage != (window.getQueryParams('per_page') ?? 20)) {
+                        window.setQueryParams({
+                            per_page: perPage === 20 ? null : perPage,
+                            page: null
+                        });
+
+                        PageController.refreshData();
+                    }
+                }, 500);
+            },
+
+            "filter:sortBy": (event) => {
+                clearTimeout(window.sortByDebounceTimer);
+
+                window.sortByDebounceTimer = setTimeout(() => {
+                    const sortBy = event.detail.sortBy;
+                    const isValidSortBy = Array.of('price-asc', 'price-desc', 'newest').includes(sortBy);
+
+                    if(sortBy !== window.getQueryParams('sort_by') && isValidSortBy) {
+                        window.setQueryParams({
+                            sort_by: sortBy,
+                            page: null
+                        });
+
+                        PageController.refreshData();
+                    }else {
+                        window.setQueryParams('sort_by', isValidSortBy ? sortBy : null);
+                    }
+                }, 500);
             },
 
             "pagination:changed": (event) => {
@@ -258,7 +328,8 @@
         <div class="col-lg-3 mb-4 wow fadeInUp" data-wow-delay="0.1s">
             <x-livewire-client::filter-sidebar>
                 <x-livewire-client::filter-sidebar.section title="Search Books" icon="fas fa-eye" class="mb-4" wire:key="search-section"
-                    x-data="{ search: window.getQueryParams('search') }" x-effect="document.dispatchEvent(new CustomEvent('filter:search', { detail: { search } }))">
+                    x-data="{ search: window.getQueryParams('search') }" x-init="document.addEventListener('reset:filters', () => { search = '' })"
+                    x-effect="document.dispatchEvent(new CustomEvent('filter:search', { detail: { search } }))">
                     <x-slot:container class="input-group">
                         <span class="input-group-text bg-white border-end-0">
                             <i class="fas fa-search text-warning"></i>
@@ -269,7 +340,8 @@
 
                 <template x-if="!window.getQueryParams('category')">
                     <x-livewire-client::filter-sidebar.section title="Categories" icon="fas fa-list" class="mb-4" wire:key="categories-section"
-                        x-data="{ checkedCategories: ['all'] }" x-effect="document.dispatchEvent(new CustomEvent('filter:categories', { detail: { categories: checkedCategories } }))">
+                        x-data="{ checkedCategories: ['all'] }" x-init="document.addEventListener('reset:filters', () => { checkedCategories = ['all'] })"
+                        x-effect="document.dispatchEvent(new CustomEvent('filter:categories', { detail: { categories: checkedCategories } }))">
                         <x-slot:container class="category-list">
                             <div class="form-check" wire:key="all-products">
                                 <input class="form-check-input" type="checkbox" id="all-products" x-model="checkedCategories" value="all">
@@ -289,27 +361,75 @@
                     </x-livewire-client::filter-sidebar.section>
                 </template>
 
-                <x-livewire-client::filter-sidebar.section title="Khoảng Giá" icon="fas fa-dollar-sign" class="mb-4">
-                    <x-slot:container>
+                <x-livewire-client::filter-sidebar.section title="Price Range" icon="fas fa-dollar-sign" class="mb-4">
+                    <x-slot:container x-data="{
+                        priceRange: $wire.$entangle('priceRange'),
+                        minValue: null,
+                        maxValue: null,
+                        init() {
+                            document.addEventListener('reset:filters', () => {
+                                this.minValue = this.priceRange?.min_price ?? 0;
+                                this.maxValue = this.priceRange?.max_price ?? 0;
+                            });
+
+                            this.$watch('priceRange', value => {
+                                if(Object.keys(value).length) {
+                                    if(this.minValue === null && this.maxValue === null) {
+                                        this.minValue = value.min_price;
+                                        this.maxValue = value.max_price;
+                                    }else if(value.min_price > this.minValue) {
+                                        this.minValue = value.min_price;
+                                    }else if(value.max_price < this.maxValue) {
+                                        this.maxValue = value.max_price;
+                                    }
+                                }
+                            });
+
+                            this.$watch('minValue', value => {
+                                if(Number(value) > Number(this.maxValue)) {
+                                    this.maxValue = value;
+                                }
+                            });
+
+                            this.$watch('maxValue', value => {
+                                if(Number(value) < Number(this.minValue)) {
+                                    this.minValue = value;
+                                }
+                            });
+                        }
+                    }" x-effect="document.dispatchEvent(new CustomEvent('filter:price', { detail: { minPrice: minValue, maxPrice: maxValue } }))">
                         <div class="price-range-container">
-                            <input type="range" class="price-slider" id="minPrice" min="0" max="10000000" value="0" step="100000">
-                            <input type="range" class="price-slider" id="maxPrice" min="0" max="10000000" value="10000000" step="100000">
+                            <input type="range" class="price-slider" id="minPrice" x-model="minValue" step="1000" wire:key="min-price"
+                                :min="priceRange?.min_price ?? 0" :max="priceRange?.max_price ?? 0">
+                            <input type="range" class="price-slider" id="maxPrice" x-model="maxValue" step="1000" wire:key="max-price"
+                                :min="priceRange?.min_price ?? 0" :max="priceRange?.max_price ?? 0">
                         </div>
-                        <div class="d-flex gap-2 mt-3">
+                        <div class="d-flex gap-2 mt-3 @unless(count($priceRange)) placeholder-glow @endunless">
                             <div class="flex-grow-1">
-                                <label class="form-label small" for="minPriceInput">Từ</label>
-                                <input type="text" class="form-control form-control-sm" id="minPriceInput" value="0" readonly>
+                                <label class="form-label small" for="minPriceInput">From</label>
+                                @unless(count($priceRange))
+                                    <input type="text" class="form-control form-control-sm placeholder" id="minPriceInput" readonly wire:key="min-price-input">
+                                @else
+                                    <input type="text" class="form-control form-control-sm" id="minPriceInput" readonly wire:key="min-price-input"
+                                        :value="new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(minValue ?? priceRange?.min_price)">
+                                @endunless
                             </div>
                             <div class="flex-grow-1">
-                                <label class="form-label small" for="maxPriceInput">Đến</label>
-                                <input type="text" class="form-control form-control-sm" id="maxPriceInput" value="10.000.000" readonly>
+                                <label class="form-label small" for="maxPriceInput">To</label>
+                                @unless(count($priceRange))
+                                    <input type="text" class="form-control form-control-sm placeholder" id="maxPriceInput" readonly wire:key="max-price-input">
+                                @else
+                                    <input type="text" class="form-control form-control-sm" id="maxPriceInput" readonly wire:key="max-price-input"
+                                        :value="new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(maxValue ?? priceRange?.max_price)">
+                                @endunless
                             </div>
                         </div>
                     </x-slot:container>
                 </x-livewire-client::filter-sidebar.section>
 
                 <x-livewire-client::filter-sidebar.section title="Rating" icon="fas fa-star" class="mb-4" wire:key="rating-section"
-                    x-data="{ checkedRatings: [] }" x-effect="document.dispatchEvent(new CustomEvent('filter:ratings', { detail: { ratings: checkedRatings } }))">
+                    x-data="{ checkedRatings: [] }" x-init="document.addEventListener('reset:filters', () => { checkedRatings = [] })"
+                    x-effect="document.dispatchEvent(new CustomEvent('filter:ratings', { detail: { ratings: checkedRatings } }))">
                     <x-slot:container class="rating-list">
                         @php
                             $ratingCounts = array_column($ratingStatistics, 'total_products', 'rating');
@@ -338,7 +458,8 @@
                 </x-livewire-client::filter-sidebar.section>
 
                 <x-livewire-client::filter-sidebar.section title="Status" icon="fas fa-tag" class="mb-4" wire:key="status-section"
-                    x-data="{ checkedStatus: [] }" x-effect="document.dispatchEvent(new CustomEvent('filter:availability', { detail: { availability: checkedStatus } }))">
+                    x-data="{ checkedStatus: [] }" x-effect="document.dispatchEvent(new CustomEvent('filter:availability', { detail: { availability: checkedStatus } }))"
+                    x-init="document.addEventListener('reset:filters', () => { checkedStatus = [] })">
                     <x-slot:container>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="inStock" x-model="checkedStatus" value="in_stock">
@@ -362,22 +483,37 @@
         </div>
 
         <div class="col-lg-9">
-            <div class="top-bar mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2 wow fadeInUp" data-wow-delay="0.1s">
+            <div class="top-bar mb-4 d-flex justify-content-center justify-content-md-between align-items-center flex-wrap gap-3 wow fadeInUp" data-wow-delay="0.1s">
                 <div>
                     <p class="mb-0 text-muted">
                         <i class="fas fa-list me-2"></i>Showing <strong x-text="$wire.products.length"></strong> out of <strong x-text="$wire.pagination?.total ?? 0"></strong> products
                     </p>
                 </div>
-                <div class="sort-container">
-                    <label for="sortBy" class="form-label me-2 mb-0">Sắp xếp:</label>
-                    <select id="sortBy" class="form-select form-select-sm" style="border-radius: var(--border-radius-input-group); padding-top: .35rem; padding-bottom: .35rem;">
-                        <option value="">Mặc Định</option>
-                        <option value="price-asc">Giá: Thấp Đến Cao</option>
-                        <option value="price-desc">Giá: Cao Đến Thấp</option>
-                        <option value="rating">Đánh Giá Cao Nhất</option>
-                        <option value="newest">Mới Nhất</option>
-                        <option value="popular">Phổ Biến Nhất</option>
-                    </select>
+                <div class="d-flex justify-content-center justify-content-md-end gap-3 flex-wrap align-items-center">
+                    <div class="sort-container" x-data="{ perPage: window.getQueryParams('per_page') ?? 20 }"
+                        x-effect="document.dispatchEvent(new CustomEvent('filter:perPage', { detail: { perPage } }))"
+                        x-init="document.addEventListener('reset:filters', () => { perPage = 20 })">
+                        <label for="sortBy" class="form-label me-2 mb-0">Per Page:</label>
+                        <select id="sortBy" class="form-select form-select-sm" x-model="perPage"
+                            style="border-radius: var(--border-radius-input-group); padding-top: .35rem; padding-bottom: .35rem;">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="sort-container" x-data="{ sortBy: window.getQueryParams('sort_by') ?? '' }"
+                        x-effect="document.dispatchEvent(new CustomEvent('filter:sortBy', { detail: { sortBy } }))"
+                        x-init="document.addEventListener('reset:filters', () => { sortBy = '' })">
+                        <label for="sortBy" class="form-label me-2 mb-0">Sort By:</label>
+                        <select id="sortBy" class="form-select form-select-sm" x-model="sortBy"
+                            style="border-radius: var(--border-radius-input-group); padding-top: .35rem; padding-bottom: .35rem;">
+                            <option value="">Default</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="newest">Newest</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -391,10 +527,9 @@
                         @php
                             $primaryVariant = $product['primary_variant'] ?? ['price' => 0, 'discount' => null];
                             $mainImage = $product['main_image'];
-                            $inventoryStats = $product['inventory_summary'] ?? ['total_stock' => 0, 'total_sold' => 0];
                         @endphp
-                        <x-livewire-client::product-grid.card :title="$product['title']" :price="$primaryVariant['discount'] ?? $primaryVariant['price']" :original-price="$primaryVariant['discount']" :stock-quantity="$inventoryStats['total_stock']" :sold-count="$inventoryStats['total_sold']"
-                            :avg-rating="(float) $product['reviews_avg_rating']" :total-reviews="$product['reviews_count']" wire:key="product-{{ $product['id'] }}">
+                        <x-livewire-client::product-grid.card :title="$product['title']" :price="$primaryVariant['discount'] ?? $primaryVariant['price']" :original-price="isset($primaryVariant['discount']) ? $primaryVariant['price'] : null" :stock-quantity="(int) $product['inventories_sum_stock']" :sold-count="(int) $product['inventories_sum_sold_number']"
+                            :avg-rating="(float) $product['reviews_avg_rating']" :total-reviews="$product['reviews_count']" wire:key="product-{{ $product['id'] }}" :isNew="now()->diffInDays($product['created_at'], true) <= 7" :discount-percent="isset($primaryVariant['discount']) ? floor((($primaryVariant['price'] - $primaryVariant['discount']) / $primaryVariant['price']) * 100) : 0">
                             <x-slot:img :src="asset('storage/' . (isset($mainImage['image_url']) ? $mainImage['image_url'] : DefaultImage::PRODUCT->value))" :alt="'Product image of' . $product['title']"></x-slot:img>
 
                             <x-slot:add-to-cart-button>Add to Cart</x-slot:add-to-cart-button>

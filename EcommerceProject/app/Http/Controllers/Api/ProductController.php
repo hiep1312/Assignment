@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\ProductRequest;
 use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 
@@ -33,12 +34,14 @@ class ProductController extends BaseApiController
     {
         return [
             'count' => 'reviews',
+            'sum' => ['inventories.stock', 'inventories.reserved', 'inventories.sold_number'],
             'avg' => 'reviews.rating'
         ];
     }
 
     public function __construct(
         protected ProductRepositoryInterface $repository,
+        protected ProductVariantRepositoryInterface $variantRepository,
         protected ProductService $service
     ){}
 
@@ -76,11 +79,60 @@ class ProductController extends BaseApiController
                         });
                     }
                 )->when(
+                    isset($request->filter_availability),
+                    function($innerQuery) use ($request){
+                        $availabilityFilters = is_array($request->filter_availability) ? $request->filter_availability : preg_split('/\s*,\s*/', $request->filter_availability);
+                        $availabilityConditions = [
+                            'in_stock' => fn($subQuery) => $subQuery->havingRaw("COALESCE(inventories_sum_stock, 0) > 0"),
+                            'new_arrival' => fn($subQuery) => $subQuery->where('created_at', '>=', now()->subDays(7)),
+                        ];
+
+                        foreach($availabilityFilters as $availabilityKey) {
+                            if(isset($availabilityConditions[$availabilityKey])) {
+                                $availabilityConditions[$availabilityKey]($innerQuery);
+                            }
+                        }
+                    }
+                )->when(
                     isset($request->filter_ids),
                     function($innerQuery) use ($request){
                         $productIds = is_array($request->filter_ids) ? $request->filter_ids : preg_split('/\s*,\s*/', $request->filter_ids);
 
                         $innerQuery->whereIn('id', $productIds);
+                    }
+                );
+
+                $primaryPriceSubquery = <<<SQL
+                    (SELECT MIN(COALESCE(discount, price))
+                    FROM product_variants
+                    WHERE product_variants.product_id = products.id
+                    AND deleted_at IS NULL
+                    AND status = 1)
+                SQL;
+
+                $sortOptions = [
+                    'PRICE_ASC' => 'price-asc',
+                    'PRICE_DESC' => 'price-desc',
+                    'NEWEST' => 'newest'
+                ];
+
+                $query->when(
+                    isset($request->price_range),
+                    function($innerQuery) use ($request, $primaryPriceSubquery){
+                        $priceRange = is_array($request->price_range) ? $request->price_range : preg_split('/\s*-\s*/', $request->price_range, 2);
+                        $minPrice = is_numeric($priceRange[0]) ? (int) $priceRange[0] : 0;
+                        $maxPrice = is_numeric($priceRange[1] ?? null) ? (int) $priceRange[1] : PHP_INT_MAX;
+
+                        $innerQuery->whereRaw("{$primaryPriceSubquery} BETWEEN ? AND ?", [$minPrice, $maxPrice]);
+                    }
+                )->when(
+                    isset($request->sort_by) && in_array($request->sort_by, array_values($sortOptions), true),
+                    function($innerQuery) use ($request, $primaryPriceSubquery, $sortOptions){
+                        match($request->sort_by) {
+                            $sortOptions['PRICE_ASC'] => $innerQuery->orderByRaw("{$primaryPriceSubquery} ASC"),
+                            $sortOptions['PRICE_DESC'] => $innerQuery->orderByRaw("{$primaryPriceSubquery} DESC"),
+                            $sortOptions['NEWEST'] => $innerQuery->orderBy('created_at', 'DESC')
+                        };
                     }
                 );
             },
@@ -92,7 +144,10 @@ class ProductController extends BaseApiController
         return $this->response(
             success: true,
             message: 'Product list retrieved successfully.',
-            additionalData: $products->withQueryString()->toArray()
+            additionalData: array_merge(
+                $products->withQueryString()->toArray(),
+                $request->boolean('with_price_range') ? ['price_range' => $this->variantRepository->getPriceRange()] : []
+            ),
         );
     }
 

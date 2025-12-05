@@ -19,4 +19,11 @@ interface ProductVariantRepositoryInterface extends RepositoryInterface
      * @throws \Illuminate\Database\QueryException If the database operation fails (e.g., constraint violation).
      */
     public function createByProductSlug(array $attributes, $slug, &$createdModel = null);
+
+    /**
+     * Get the minimum and maximum price range for active products.
+     *
+     * @return \App\Models\ProductVariant|null Returns a ProductVariant model instance containing min_price and max_price properties, or null if no records match the criteria.
+     */
+    public function getPriceRange();
 }

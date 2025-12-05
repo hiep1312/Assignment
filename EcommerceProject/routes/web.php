@@ -32,6 +32,7 @@ use App\Livewire\Admin\Users\UserCreate;
 use App\Livewire\Admin\Users\UserEdit;
 use App\Livewire\Admin\Users\UserIndex;
 use App\Livewire\Client\Products\ProductIndex as ProductIndexClient;
+use App\Livewire\Client\Products\ProductShow;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->middleware('auth', 'role:admin')->group(function() {
@@ -134,6 +135,7 @@ Route::name('client.')->group(function() {
     /* Products */
     Route::prefix('products')->name('products.')->group(function(){
         Route::get('/', ProductIndexClient::class)->name('index');
+        Route::get('/{product}', ProductShow::class)->name('show');
     });
 });
 

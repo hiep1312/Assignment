@@ -44,9 +44,13 @@
 
     @section('body')
         <div class="container-fluid position-relative p-0">
-            @include('client.partials.header')
+            @hasSection('hero')
+                @include('client.partials.header', ['hasBreadcrumb' => true])
 
-            @yield('hero', '')
+                @yield('hero', '')
+            @else
+                @include('client.partials.header', ['hasBreadcrumb' => false])
+            @endif
         </div>
 
         <main class="content-wrapper">

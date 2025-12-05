@@ -169,6 +169,11 @@
         background: transparent !important;
     }
 
+    .navbar-no-breadcrumb {
+        position: relative;
+        background: var(--dark) !important;
+    }
+
     .sticky-top.navbar-dark {
         position: fixed;
         background: var(--dark) !important;

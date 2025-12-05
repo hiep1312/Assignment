@@ -63,9 +63,9 @@ Route::name('api.')->group(function() {
             ]
         ]);
 
-        /* Products Review Statistics */
-        Route::get('/products/reviews/statistics', [ProductReviewController::class, 'distribution'])
-            ->name('products.reviews.statistics')
+        /* Products Reviews Distribution */
+        Route::get('/products/reviews/distribution', [ProductReviewController::class, 'distribution'])
+            ->name('products.reviews.distribution')
             ->withoutMiddleware('auth:jwt');
 
         /* Profile */
