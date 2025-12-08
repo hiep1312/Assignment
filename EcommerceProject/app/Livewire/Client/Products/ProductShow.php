@@ -30,9 +30,9 @@ class ProductShow extends Component
             ]
         ];
 
-        $reviewsApiUrl = json_encode(route('api.products.reviews.index', $this->currentProduct['id'] ?? 0), JSON_HEX_TAG);
+        $reviewsApiUrl = route('api.products.reviews.index', $this->currentProduct['id'] ?? 0);
         $this->js(<<<JS
-            window.reviewsApiUrl = {$reviewsApiUrl};
+            window.reviewsApiUrl = "{$reviewsApiUrl}";
         JS);
     }
 

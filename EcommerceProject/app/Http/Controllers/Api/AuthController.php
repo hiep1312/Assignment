@@ -83,4 +83,32 @@ class AuthController extends BaseApiController
             code: 401
         );
     }
+
+    public function refresh(Request $request)
+    {
+        $newToken = Auth::guard('jwt')->refresh();
+        $user = $request->user('jwt');
+
+        return $this->response(
+            success: true,
+            code: 200,
+            message: 'Token refreshed successfully.',
+            additionalData: [
+                'user' => $user->only(self::PRIVATE_FIELDS),
+                'token' => $newToken
+            ]
+        );
+    }
+
+    public function me(Request $request)
+    {
+        $user = $request->user('jwt');
+
+        return $this->response(
+            success: true,
+            code: 200,
+            message: 'User information retrieved successfully.',
+            additionalData: ['user' => $user->only(self::PRIVATE_FIELDS)]
+        );
+    }
 }

@@ -183,3 +183,52 @@ window.BasePageController = {
         }
     }
 };
+
+window.getCookie = function(key = null, defaultValue = null) {
+    const cookies = document.cookie.split(';').reduce((accumulator, cookie) => {
+        const [name, ...rest] = cookie.trim().split('=');
+        accumulator[decodeURIComponent(name)] = decodeURIComponent(rest.join('='));
+        return accumulator;
+    }, {});
+
+    if(key === null) {
+        return cookies;
+    }else if(Array.isArray(key)) {
+        return key.map(cookieName => cookies[cookieName]);
+    }
+
+    return cookies[key] ?? defaultValue;
+}
+
+window.setCookie = function(key, value = '', options = {}) {
+    const buildCookieString = (name, cookieValue) => {
+        let cookieStr = `${encodeURIComponent(name)}=${encodeURIComponent(cookieValue)}`;
+
+        if(typeof options.expires !== "undefined") {
+            if(options.expires instanceof Date) {
+                cookieStr += `; expires=${options.expires.toUTCString()}`;
+            }else {
+                cookieStr += `; max-age=${options.expires}`;
+            }
+        }
+
+        if(options.domain) cookieStr += `; domain=${options.domain}`;
+        if(options.path) cookieStr += `; path=${options.path}`;
+        if(options.secure) cookieStr += `; secure`;
+        if(options.sameSite) cookieStr += `; samesite=${options.sameSite}`;
+
+        return cookieStr;
+    };
+
+    if(typeof key === 'object' && key !== null) {
+        if(typeof value === "object" && value !== null && !Object.keys(options).length) {
+            [options, value] = [value, ''];
+        }
+
+        for(const cookieName in key) {
+            document.cookie = buildCookieString(cookieName, key[cookieName]);
+        }
+    }else {
+        document.cookie = buildCookieString(key, value);
+    }
+}

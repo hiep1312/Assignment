@@ -5,17 +5,15 @@
 <div class="container-xxl">
     <div class="authentication-wrapper authentication-basic container-p-y">
         <div class="authentication-inner">
-            <!-- Register -->
             <div class="card">
                 <div class="card-body">
-                    <!-- Logo -->
                     <div class="app-brand justify-content-center" style="margin-bottom: 2rem;">
                         <a href="{{ route('template.admin.index') }}" class="app-brand-link gap-2">
                             <img src="{{ asset("storage/logo-bookio.webp") }}" alt="Logo website" width="45" height="45">
                             <span class="app-brand-text demo text-body fw-bolder" style="text-transform: none">Bookio</span>
                         </a>
                     </div>
-                    <!-- /Logo -->
+
                     <h4 class="mb-2">Welcome to Bookio! 👋</h4>
                     <p class="mb-4">Please log in to access the website’s admin dashboard.</p>
 
@@ -66,7 +64,6 @@
                     @enderror
                 </div>
             </div>
-            <!-- /Register -->
         </div>
     </div>
 </div>

@@ -5,14 +5,14 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 Object.defineProperty(window, 'http', {
     configurable: false,
-    enumerable: true, 
+    enumerable: true,
     value: axios.create({
         baseURL: import.meta.env.VITE_APP_URL,
         allowAbsoluteUrls: true,
         headers: {
             common: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Authorization': `Bearer ${localStorage.getItem('auth_token') ?? ''}`,
+                'Authorization': `Bearer ${window.getCookie('auth_token', localStorage.getItem('auth_token')) ?? ''}`,
                 'Content-Type': 'application/json'
             }
         },
@@ -28,14 +28,3 @@ Object.defineProperty(window, 'http', {
         }
     })
 });
-
-/* 
-url
-method
-headers
-params
-data
-timeout
-onUploadProgress
-onDownloadProgress
-*/

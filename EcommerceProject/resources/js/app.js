@@ -1,3 +1,3 @@
-import './bootstrap';
 import './ui-handlers';
+import './bootstrap';
 import './scSortable';

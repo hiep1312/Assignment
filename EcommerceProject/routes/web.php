@@ -31,6 +31,8 @@ use App\Livewire\Admin\Reviews\ReviewIndex;
 use App\Livewire\Admin\Users\UserCreate;
 use App\Livewire\Admin\Users\UserEdit;
 use App\Livewire\Admin\Users\UserIndex;
+use App\Livewire\Client\Auth\Login as LoginClient;
+use App\Livewire\Client\Auth\Register;
 use App\Livewire\Client\Products\ProductIndex as ProductIndexClient;
 use App\Livewire\Client\Products\ProductShow;
 use Illuminate\Support\Facades\Route;
@@ -127,11 +129,14 @@ Route::group([], function() {
 
     /* Client */
     Route::group([], function(){
-        Route::get('/login', Login::class)->name('login');
+        Route::get('/login', LoginClient::class)->name('login');
+        Route::get('/register', Register::class)->name('register');
     });
 });
 
 Route::name('client.')->group(function() {
+    Route::get('/', fn() => view('client.template.index'))->name('index');
+
     /* Products */
     Route::prefix('products')->name('products.')->group(function(){
         Route::get('/', ProductIndexClient::class)->name('index');
