@@ -1,0 +1,104 @@
+.pdp-review-card {
+    background-color: white;
+    border: 1px solid var(--pdp-border-color);
+    border-radius: 0.65rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.pdp-review-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.pdp-review-user {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.pdp-review-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--pdp-gray-light);
+}
+
+.pdp-review-user-info {
+    flex: 1;
+}
+
+.pdp-review-user-name {
+    font-weight: 600;
+    color: var(--pdp-text-primary);
+    margin-bottom: 0.45rem;
+}
+
+.pdp-review-stars {
+    display: flex;
+    gap: 0.2rem;
+    font-size: 0.85rem;
+}
+
+.pdp-star-filled {
+    color: var(--pdp-warning);
+}
+
+.pdp-star-empty {
+    color: var(--pdp-gray-medium);
+}
+
+.pdp-review-time {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--pdp-text-secondary);
+    margin-top: 0.25rem;
+}
+
+.pdp-review-text {
+    color: var(--pdp-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.pdp-review-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    border-top: 1px solid var(--pdp-gray-medium);
+    padding-top: 1rem;
+}
+
+.pdp-review-helpful-btn,
+.pdp-review-unhelpful-btn,
+.pdp-review-delete-btn {
+    background: none;
+    border: none;
+    color: var(--pdp-text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0;
+}
+
+.pdp-review-helpful-btn:hover {
+    color: var(--pdp-success);
+}
+
+.pdp-review-unhelpful-btn:hover {
+    color: var(--pdp-danger);
+}
+
+.pdp-review-delete-btn {
+    color: var(--pdp-danger);
+    margin-left: auto;
+}
+
+.pdp-review-delete-btn:hover {
+    color: #c92a2a;
+}

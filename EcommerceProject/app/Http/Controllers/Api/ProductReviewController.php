@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\ProductReviewRequest;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
+use App\Services\ProductReviewService;
 use Illuminate\Http\Request;
 
 class ProductReviewController extends BaseApiController
@@ -23,15 +24,16 @@ class ProductReviewController extends BaseApiController
 
     public function __construct(
         protected ProductReviewRepositoryInterface $repository,
+        protected ProductReviewService $service
     ){}
 
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, string $slugProduct)
+    public function index(Request $request, string $productId)
     {
         $reviews = $this->repository->getAll(
-            criteria: function(&$query) use ($request, $slugProduct) {
+            criteria: function(&$query) use ($request, $productId) {
                 $query->with($this->getRequestedRelations($request));
 
                 $query->when(isset($request->search), function($innerQuery) use ($request){
@@ -49,10 +51,7 @@ class ProductReviewController extends BaseApiController
                     }
                 );
 
-                $query->whereHas(
-                    'product',
-                    fn($subQuery) => $subQuery->where('slug', $slugProduct)
-                );
+                $query->where('product_id', $productId);
             },
             perPage: $this->getPerPage($request),
             columns: self::API_FIELDS,
@@ -62,21 +61,21 @@ class ProductReviewController extends BaseApiController
         return $this->response(
             success: true,
             message: 'Product review list retrieved successfully.',
-            additionalData: $reviews->withQueryString()->toArray()
+            additionalData: array_merge(
+                $reviews->withQueryString()->toArray(),
+                $request->boolean('with_rating_stats') ? ['rating_distribution' => $this->repository->getRatingDistribution($productId)] : [],
+                $request->boolean('with_can_review') ? ['can_review' => $this->repository->hasUserPurchasedProduct($productId)] : [],
+            )
         );
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductReviewRequest $request, string $slugProduct)
+    public function store(ProductReviewRequest $request, string $productId)
     {
         $validatedData = $request->validated();
-        $isCreated = $this->repository->createByProductSlug(
-            attributes: $validatedData + ['user_id' => authPayload('sub')],
-            slug: $slugProduct,
-            createdModel: $createdReview
-        );
+        [$isCreated, $createdReview] = $this->service->create($validatedData, $productId);
 
         return $this->response(
             success: (bool) $isCreated,

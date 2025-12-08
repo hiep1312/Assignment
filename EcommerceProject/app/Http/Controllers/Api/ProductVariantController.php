@@ -21,10 +21,10 @@ class ProductVariantController extends BaseApiController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, string $slugProduct)
+    public function index(Request $request, string $productId)
     {
         $variants = $this->repository->getAll(
-            criteria: function(&$query) use ($request, $slugProduct) {
+            criteria: function(&$query) use ($request, $productId) {
                 $query->with('inventory:' . implode(',', self::INVENTORY_FIELDS));
 
                 $query->when(isset($request->search), function($innerQuery) use ($request){
@@ -46,10 +46,7 @@ class ProductVariantController extends BaseApiController
                     }
                 );
 
-                $query->whereHas(
-                    'product',
-                    fn($subQuery) => $subQuery->where('slug', $slugProduct)
-                );
+                $query->where('product_id', $productId);
             },
             perPage: $this->getPerPage($request),
             columns: self::API_FIELDS,
@@ -66,12 +63,12 @@ class ProductVariantController extends BaseApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductVariantRequest $request, string $slugProduct)
+    public function store(ProductVariantRequest $request, string $productId)
     {
         if(!$this->authorizeRole()) return $this->forbiddenResponse();
 
         $validatedData = $request->validated();
-        [$isCreated, $createdVariant, $createdInventory] = $this->service->create($validatedData, $slugProduct);
+        [$isCreated, $createdVariant, $createdInventory] = $this->service->create($validatedData, $productId);
 
         return $this->response(
             success: (bool) $isCreated,

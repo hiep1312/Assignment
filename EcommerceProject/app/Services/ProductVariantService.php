@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -12,20 +13,23 @@ class ProductVariantService
         protected ProductVariantRepositoryInterface $repository,
     ){}
 
-    public function create(array $data, string $slugProduct): array
+    public function create(array $data, string $productId): array
     {
-        $isCreated = $this->repository->createByProductSlug(
-            attributes: array_merge($data, ['status' => $data['stock'] > 0 ? $data['status'] : 0]),
-            slug: $slugProduct,
-            createdModel: $createdVariant
-        );
+        try {
+            $createdVariant = $this->repository->create(
+                attributes: array_merge(
+                    $data,
+                    ['product_id' => $productId, 'status' => $data['stock'] > 0 ? $data['status'] : 0]
+                )
+            );
 
-        $createdInventory = null;
-        if($isCreated){
             $createdInventory = $createdVariant->inventory()->create(['stock' => $data['stock']]);
-        }
 
-        return [$isCreated, $createdVariant, $createdInventory];
+            return [true, $createdVariant, $createdInventory];
+
+        }catch(QueryException $queryException) {
+            return [false, null, null];
+        }
     }
 
     public function update(array $data, string $sku): array

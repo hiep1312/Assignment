@@ -5,20 +5,26 @@ namespace App\Repositories\Contracts;
 interface ProductReviewRepositoryInterface extends RepositoryInterface
 {
     /**
-     * Create a new record by product slug with associated attributes.
+     * Check if a user has purchased a specific product.
      *
-     * @param array $attributes The attributes for the new record. Only fillable fields are used.
-     *                         The 'product_id' key is explicitly excluded if present.
-     * @param string $slug The unique slug identifier of the product to associate with.
-     * @param \Illuminate\Database\Eloquent\Model|null $createdModel Optional reference parameter.
-     *                         If provided, it will be populated with the newly created
-     *                         model instance retrieved by user_id and latest primary key.
+     * @param int $productId The ID of the product to check for purchase history
+     * @param int|null $userId Optional user ID to check. If null, uses the currently authenticated user's ID
      *
-     * @return int The number of rows inserted (typically 1 on success, 0 if product not found).
-     *
-     * @throws \Illuminate\Database\QueryException If the database operation fails (e.g., constraint violation).
+     * @return bool Returns true if the user has purchased the product, false otherwise
      */
-    public function createByProductSlug(array $attributes, $slug, &$createdModel = null);
+    public function hasUserPurchasedProduct($productId, $userId = null);
+
+    /**
+     * Get the distribution of ratings for a specific product.
+     *
+     * @param int $productId The ID of the product to get rating distribution for
+     *
+     * @return \Illuminate\Support\Collection A collection of objects containing:
+     *                         - rating: The rating value
+     *                         - total: The count of reviews with that rating
+     *                         Results are ordered by rating in descending order
+     */
+    public function getRatingDistribution($productId);
 
     /**
      * Retrieve distribution statistics of products grouped by their rounded average rating.

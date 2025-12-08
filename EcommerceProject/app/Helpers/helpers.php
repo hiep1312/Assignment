@@ -262,3 +262,26 @@ if(!function_exists('authPayload')){
         }
     }
 }
+
+if(!function_exists('parseRatingStars')){
+    /**
+     * Parse an average rating into full, half, and empty star counts.
+     *
+     * @param float $avgRating The average rating value (typically between 0 and 5)
+     *
+     * @return array An array containing four values in the following order:
+     *               - [0] float The rounded review score (rounded to nearest 0.5)
+     *               - [1] int Number of full stars
+     *               - [2] int Number of half stars (0 or 1)
+     *               - [3] int Number of empty stars
+     */
+    function parseRatingStars(float $avgRating): array
+    {
+        $reviewScore = round($avgRating * 2) / 2;
+        $fullStars = floor($reviewScore);
+        $halfStar = (int) (($reviewScore - $fullStars) === 0.5);
+        $emptyStars = 5 - $fullStars - $halfStar;
+
+        return [$reviewScore, $fullStars, $halfStar, $emptyStars];
+    }
+}

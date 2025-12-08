@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Helpers\ApiQueryRelation;
 use App\Http\Requests\Client\BlogCommentRequest;
 use App\Repositories\Contracts\BlogCommentRepositoryInterface;
+use App\Services\BlogCommentService;
 use Illuminate\Http\Request;
 
 class BlogCommentController extends BaseApiController
@@ -32,15 +33,16 @@ class BlogCommentController extends BaseApiController
 
     public function __construct(
         protected BlogCommentRepositoryInterface $repository,
+        protected BlogCommentService $service
     ){}
 
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, string $slugBlog)
+    public function index(Request $request, string $blogId)
     {
         $comments = $this->repository->getAll(
-            criteria: function(&$query) use ($request, $slugBlog) {
+            criteria: function(&$query) use ($request, $blogId) {
                 $query->with($this->getRequestedRelations($request));
 
                 $query->when(isset($request->search), function($innerQuery) use ($request){
@@ -53,10 +55,7 @@ class BlogCommentController extends BaseApiController
                     fn($innerQuery) => $innerQuery->withTrashed()
                 );
 
-                $query->whereHas(
-                    'blog',
-                    fn($subQuery) => $subQuery->where('slug', $slugBlog)
-                );
+                $query->where('blog_id', $blogId);
             },
             perPage: $this->getPerPage($request),
             columns: self::API_FIELDS,
@@ -73,14 +72,10 @@ class BlogCommentController extends BaseApiController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(BlogCommentRequest $request, string $slugBlog)
+    public function store(BlogCommentRequest $request, string $blogId)
     {
         $validatedData = $request->validated();
-        $isCreated = $this->repository->createByBlogSlug(
-            attributes: $validatedData + ['user_id' => authPayload('sub')],
-            slug: $slugBlog,
-            createdModel: $createdComment
-        );
+        [$isCreated, $createdComment] = $this->service->create($validatedData, $blogId);
 
         return $this->response(
             success: (bool) $isCreated,

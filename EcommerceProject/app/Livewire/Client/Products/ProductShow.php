@@ -10,10 +10,30 @@ class ProductShow extends Component
     public bool $isDataLoading = true;
     public string $routeSlug;
     public array $currentProduct = [];
+    public ?array $selectedVariant = [];
+    public bool $isReviewsLoaded = false;
+    public array $reviewsData = [];
+    public array $ratingDistribution = [];
+    public bool $canReview = false;
 
     public function mount(string $product)
     {
         $this->routeSlug = $product;
+    }
+
+    public function updatedCurrentProduct()
+    {
+        $this->selectedVariant = $this->currentProduct['variants'][0] ?? [
+            'price' => 0,
+            'inventory' => [
+                'stock' => 0
+            ]
+        ];
+
+        $reviewsApiUrl = json_encode(route('api.products.reviews.index', $this->currentProduct['id'] ?? 0), JSON_HEX_TAG);
+        $this->js(<<<JS
+            window.reviewsApiUrl = {$reviewsApiUrl};
+        JS);
     }
 
     #[Layout('layouts.client')]
@@ -23,3 +43,4 @@ class ProductShow extends Component
             ->title($this->routeSlug . " - Bookio");
     }
 }
+;

@@ -25,14 +25,11 @@
         <h6 class="product-title">{{ $title }}</h6>
         <div class="product-rating mb-2">
             @php
-                $reviewScore = round($avgRating * 2) / 2;
-                $fullStars = floor($reviewScore);
-                $hasHalfStar = ($reviewScore - $fullStars) === 0.5;
-                $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                [, $fullStars, $halfStar, $emptyStars] = parseRatingStars($avgRating);
             @endphp
             {!!
                 str_repeat('<i class="fas fa-star text-warning"></i>', $fullStars) .
-                ($hasHalfStar ? '<i class="fas fa-star-half-alt text-warning"></i>' : '') .
+                str_repeat('<i class="fas fa-star-half-alt text-warning"></i>', $halfStar) .
                 str_repeat('<i class="fas fa-star text-muted"></i>', $emptyStars)
             !!}
             <span class="rating-text ms-2">({{ formatNumberCompact($totalReviews) }} reviews)</span>

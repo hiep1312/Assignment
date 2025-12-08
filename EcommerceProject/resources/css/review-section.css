@@ -1,0 +1,135 @@
+.pdp-reviews-section {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+.pdp-reviews-header {
+    background-color: var(--pdp-gray-light);
+    padding: 2rem;
+    border-radius: 0.5rem;
+}
+
+.pdp-reviews-summary-box {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pdp-average-rating-large {
+    color: var(--pdp-primary-orange);
+    font-weight: 700;
+    font-size: 3rem;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.pdp-stars-large {
+    font-size: 1.1rem;
+}
+
+.pdp-review-count {
+    color: var(--pdp-text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.pdp-star {
+    color: var(--pdp-warning);
+    margin-right: 0.1rem;
+}
+
+.pdp-star-empty {
+    color: var(--pdp-gray-medium);
+}
+
+.pdp-rating-breakdown {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pdp-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.pdp-rating-row:last-child {
+    margin-bottom: 0;
+}
+
+.pdp-rating-label {
+    min-width: 40px;
+    font-weight: 600;
+    color: var(--pdp-text-primary);
+    font-size: 0.9rem;
+}
+
+.pdp-progress-bar {
+    flex: 1;
+    height: 6px;
+    background-color: var(--pdp-gray-medium);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pdp-progress {
+    height: 100%;
+    background-color: var(--pdp-primary-orange);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.pdp-rating-count {
+    min-width: 30px;
+    text-align: right;
+    color: var(--pdp-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.pdp-star-icon-small {
+    color: var(--pdp-warning);
+    font-size: 0.8rem;
+    margin-left: 0.3rem;
+}
+
+.pdp-btn-write-review {
+    background-color: var(--pdp-primary-orange);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pdp-btn-write-review:hover {
+    background-color: var(--pdp-orange-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+    .pdp-reviews-section {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 400px) {
+    .pdp-rating-label {
+        min-width: 32px;
+    }
+
+    .pdp-review-count {
+        min-width: 25px;
+    }
+}

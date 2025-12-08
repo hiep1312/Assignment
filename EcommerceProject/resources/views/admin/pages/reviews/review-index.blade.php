@@ -291,10 +291,10 @@
                     <div class="d-inline-block rating-stars text-nowrap">
                         {!! str_repeat('<i class="fas fa-star"></i>', $selectedReview->rating) . str_repeat('<i class="far fa-star"></i>', 5 - $selectedReview->rating) !!}
                     </div>
-                    <span class="ms-1" style="font-size: 1.1rem;">{{ $selectedReview->rating }} / 5 Stars</span>
+                    <span class="ms-1" style="font-size: 1.05rem;">{{ $selectedReview->rating }} / 5 Stars</span>
                 </div>
                 <p style="margin-bottom: 0.6rem;"><strong>Review Content:</strong></p>
-                <p class="mb-0">{{ $selectedReview->content ?? 'No review content provided' }}</p>
+                <p @class(["mb-0", "text-muted" => !$selectedReview->content])>{{ $selectedReview->content ?? 'No review content provided' }}</p>
                 <p class="text-muted mt-3 mb-0"><i class="fas fa-calendar me-1"></i>Review Date: {{ $selectedReview->created_at->format('m/d/Y H:i A') }}</p>
             </div>
         @else

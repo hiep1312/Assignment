@@ -1,23 +1,3 @@
-:root {
-    --pdp-primary-orange: #ff8c00;
-    --pdp-orange-light: #ffb84d;
-    --pdp-orange-dark: #e67e00;
-    --pdp-gray-light: #f5f5f5;
-    --pdp-gray-medium: #e8e8e8;
-    --pdp-gray-dark: #333333;
-    --pdp-text-primary: #1a1a1a;
-    --pdp-text-secondary: #666666;
-    --pdp-border-color: #dddddd;
-    --pdp-success: #27ae60;
-    --pdp-danger: #e74c3c;
-    --pdp-warning: #f39c12;
-    --pdp-info: #3498db;
-    --pdp-dark: #1a1a1a;
-    --pdp-gray-feature-200: #e9ecef;
-    --pdp-gray-feature-500: #6c757d;
-    --pdp-border-radius-feature: 6px;
-}
-
 /* Image Gallery */
 .pdp-gallery-container {
     position: relative;
@@ -214,13 +194,24 @@
 .pdp-size-btn-active {
     background-color: var(--pdp-primary-orange);
     border-color: var(--pdp-primary-orange);
-    color: white;
+    color: white !important;
 }
 
 .pdp-size-btn-active:hover {
     background-color: var(--pdp-danger);
     border-color: var(--pdp-danger);
     color: white;
+}
+
+.pdp-size-btn:disabled {
+    color: var(--pdp-text-secondary);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pdp-size-btn:not(.pdp-size-btn-active):disabled:hover {
+    border-color: var(--pdp-gray-medium);
+    background-color: var(--pdp-gray-light);
 }
 
 .pdp-selected-variant {
@@ -273,29 +264,48 @@
     border: 2px solid var(--pdp-border-color);
     border-radius: 0.5rem;
     overflow: hidden;
+    background-color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.pdp-quantity-control:hover {
+    border-color: var(--pdp-primary-orange);
+    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.15);
 }
 
 .pdp-qty-btn {
-    background-color: var(--pdp-gray-light);
+    background-color: transparent;
     border: none;
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem;
     cursor: pointer;
     color: var(--pdp-text-primary);
     font-weight: 600;
     transition: all 0.3s ease;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.pdp-qty-input::-webkit-inner-spin-button,
+.pdp-qty-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .pdp-qty-btn:hover {
-    background-color: var(--pdp-gray-medium);
+    background-color: rgba(255, 140, 0, 0.1);
+    color: var(--pdp-primary-orange);
 }
 
 .pdp-qty-input {
     flex: 1;
     border: none;
     text-align: center;
-    padding: 0.5rem;
+    padding: 0.75rem 0.5rem;
     font-weight: 600;
-    width: 60px;
+    width: 50px;
+    background-color: transparent;
+    color: var(--pdp-text-primary);
 }
 
 .pdp-qty-input:focus {
@@ -397,6 +407,10 @@
     border-bottom-color: var(--pdp-primary-orange);
 }
 
+.pdp-tab-link:disabled {
+    cursor: not-allowed;
+}
+
 .pdp-tab-content {
     padding: 1.5rem 1rem;
     background-color: white;
@@ -417,225 +431,13 @@
 }
 
 /* Reviews */
-.pdp-reviews-section {
-    background-color: transparent;
-    padding: 0;
-    border-radius: 0;
-}
-
-.pdp-reviews-header {
-    background-color: var(--pdp-gray-light);
-    padding: 2rem;
-    border-radius: 0.5rem;
-}
-
-.pdp-reviews-summary-box {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 0.75rem;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.pdp-average-rating-large {
-    color: var(--pdp-primary-orange);
-    font-weight: 700;
-    font-size: 3rem;
-    line-height: 1;
-    margin-bottom: 0.5rem;
-}
-
-.pdp-stars-large {
-    font-size: 1.1rem;
-}
-
-.pdp-review-count {
-    color: var(--pdp-text-secondary);
-    font-size: 0.95rem;
-    margin: 0;
-}
-
 .pdp-star {
     color: var(--pdp-warning);
     margin-right: 0.1rem;
 }
 
-
-.pdp-rating-breakdown {
-    background-color: white;
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.pdp-rating-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-}
-
-.pdp-rating-row:last-child {
-    margin-bottom: 0;
-}
-
-.pdp-rating-label {
-    min-width: 40px;
-    font-weight: 600;
-    color: var(--pdp-text-primary);
-    font-size: 0.9rem;
-}
-
-.pdp-progress-bar {
-    flex: 1;
-    height: 6px;
-    background-color: var(--pdp-gray-medium);
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.pdp-progress {
-    height: 100%;
-    background-color: var(--pdp-primary-orange);
-    border-radius: 10px;
-    transition: width 0.3s ease;
-}
-
-.pdp-rating-count {
-    min-width: 30px;
-    text-align: right;
-    color: var(--pdp-text-secondary);
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.pdp-star-icon-small {
-    color: var(--pdp-warning);
-    font-size: 0.8rem;
-    margin-left: 0.3rem;
-}
-
-.pdp-btn-write-review {
-    background-color: var(--pdp-primary-orange);
-    color: white;
-    border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.pdp-btn-write-review:hover {
-    background-color: var(--pdp-orange-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
-}
-
-.pdp-reviews-list {
-    margin-top: 1.75rem;
-}
-
-.pdp-review-card {
-    background-color: white;
-    border: 1px solid var(--pdp-border-color);
-    border-radius: 0.65rem;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.pdp-review-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-.pdp-review-user {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.pdp-review-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    background-color: var(--pdp-gray-light);
-}
-
-.pdp-review-user-info {
-    flex: 1;
-}
-
-.pdp-review-user-name {
-    font-weight: 600;
-    color: var(--pdp-text-primary);
-    margin-bottom: 0.45rem;
-}
-
-.pdp-review-stars {
-    display: flex;
-    gap: 0.2rem;
-    font-size: 0.85rem;
-}
-
-.pdp-star-filled {
-    color: var(--pdp-warning);
-}
-
 .pdp-star-empty {
     color: var(--pdp-gray-medium);
-}
-
-.pdp-review-time {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--pdp-text-secondary);
-    margin-top: 0.25rem;
-}
-
-.pdp-review-title {
-    font-weight: 600;
-    color: var(--pdp-text-primary);
-    margin-bottom: 0.5rem;
-}
-
-.pdp-review-text {
-    color: var(--pdp-text-secondary);
-    line-height: 1.6;
-    margin-bottom: 1rem;
-    font-size: 0.95rem;
-}
-
-.pdp-review-actions {
-    display: flex;
-    gap: 1.2rem;
-    border-top: 1px solid var(--pdp-gray-medium);
-    padding-top: 1rem;
-}
-
-.pdp-review-helpful-btn,
-.pdp-review-unhelpful-btn {
-    background: none;
-    border: none;
-    color: var(--pdp-text-secondary);
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0;
-}
-
-.pdp-review-helpful-btn:hover {
-    color: var(--pdp-success);
-}
-
-.pdp-review-unhelpful-btn:hover {
-    color: var(--pdp-danger);
 }
 
 .pdp-btn-load-more {
@@ -726,6 +528,11 @@
     outline: none;
 }
 
+.pdp-icon-label {
+  margin-right: 0.1rem;
+  color: var(--pdp-primary-orange);
+}
+
 .pdp-modal-footer .btn {
     border: none;
     border-radius: 0.5rem;
@@ -773,10 +580,6 @@
         padding: 0.75rem 1.2rem;
         font-size: 0.9rem;
     }
-
-    .pdp-reviews-section {
-        flex-direction: column;
-    }
 }
 
 @media (max-width: 576px) {
@@ -795,10 +598,6 @@
     .pdp-cart-section {
         flex-wrap: wrap;
         justify-content: center;
-    }
-
-    .pdp-quantity-control {
-        flex-basis: 100%;
     }
 
     .pdp-features {
@@ -831,24 +630,137 @@
     }
 }
 
+@media (max-width: 460px) {
+    .pdp-wishlist-text {
+        display: inline-block;
+    }
+
+    .pdp-review-delete-btn {
+        margin-left: initial;
+    }
+}
+
 @media (max-width: 400px) {
     .pdp-price-row {
         justify-content: center;
         gap: .5rem !important;
         margin-bottom: calc(.5rem + .25rem) !important;
     }
-
-    .pdp-rating-label {
-        min-width: 32px;
-    }
-
-    .pdp-review-count {
-        min-width: 25px;
-    }
 }
 
-@media (max-width: 360px) {
-    .pdp-wishlist-text {
-        display: inline-block;
-    }
+
+.pdp-review-card {
+    background-color: white;
+    border: 1px solid var(--pdp-border-color);
+    border-radius: 0.65rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
 }
+
+.pdp-review-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.pdp-review-user {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.pdp-review-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--pdp-gray-light);
+}
+
+.pdp-review-user-info {
+    flex: 1;
+}
+
+.pdp-review-user-name {
+    font-weight: 600;
+    color: var(--pdp-text-primary);
+    margin-bottom: 0.45rem;
+}
+
+.pdp-review-stars {
+    display: flex;
+    gap: 0.2rem;
+    font-size: 0.85rem;
+}
+
+.pdp-star-filled {
+    color: var(--pdp-warning);
+}
+
+.pdp-star-empty {
+    color: var(--pdp-gray-medium);
+}
+
+.pdp-review-time {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--pdp-text-secondary);
+    margin-top: 0.25rem;
+}
+
+.pdp-review-title {
+    font-weight: 600;
+    color: var(--pdp-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.pdp-review-text {
+    color: var(--pdp-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.pdp-review-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    border-top: 1px solid var(--pdp-gray-medium);
+    padding-top: 1rem;
+}
+
+.pdp-review-helpful-btn,
+.pdp-review-unhelpful-btn,
+.pdp-review-delete-btn {
+    background: none;
+    border: none;
+    color: var(--pdp-text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0;
+}
+
+.pdp-review-helpful-btn:hover {
+    color: var(--pdp-success);
+}
+
+.pdp-review-unhelpful-btn:hover {
+    color: var(--pdp-danger);
+}
+
+.pdp-review-delete-btn {
+    color: var(--pdp-danger);
+    margin-left: auto;
+}
+
+.pdp-review-delete-btn:hover {
+    color: #c92a2a;
+}
+
+.pdp-reviews-list {
+    margin-top: 1.75rem;
+}
+

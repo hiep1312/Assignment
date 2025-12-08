@@ -11,8 +11,6 @@ use stdClass;
 
 abstract class BaseApiController extends Controller
 {
-    const INVALID_ID = -1;
-
     protected int $defaultPerPage = 20;
     protected int $maxPerPage = 50;
 

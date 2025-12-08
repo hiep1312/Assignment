@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Livewire\Client\Components\ReviewSection\ReviewList;
+
+use Closure;
+use Illuminate\Contracts\View\View;
+use Illuminate\View\Component;
+
+class CardPlaceholder extends Component
+{
+    /**
+     * Create a new component instance.
+     */
+    public function __construct(
+        public bool $showDeleteButton = false,
+    ){}
+
+    /**
+     * Get the view / contents that represent the component.
+     */
+    public function render(): View|Closure|string
+    {
+        return view('client.components.review-section.review-list.card-placeholder');
+    }
+}

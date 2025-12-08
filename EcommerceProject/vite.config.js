@@ -17,6 +17,9 @@ export default defineConfig({
                 'resources/css/filter-section.css',
                 'resources/css/product-show.css',
                 'resources/css/empty-state-client.css',
+                'resources/css/review-section.css',
+                'resources/css/review-list.css',
+                'resources/css/review-card.css',
                 'resources/js/app.js',
                 'resources/js/image-picker.js',
                 'resources/js/editor-handler.js'

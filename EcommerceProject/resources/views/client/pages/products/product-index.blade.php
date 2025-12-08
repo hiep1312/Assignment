@@ -508,11 +508,11 @@
                     @forelse($products as $product)
                         @php
                             $primaryVariant = $product['primary_variant'] ?? ['price' => 0, 'discount' => null];
-                            $mainImage = $product['main_image'];
                         @endphp
-                        <x-livewire-client::product-grid.card :title="$product['title']" :price="$primaryVariant['discount'] ?? $primaryVariant['price']" :original-price="isset($primaryVariant['discount']) ? $primaryVariant['price'] : null" :stock-quantity="(int) $product['inventories_sum_stock']" :sold-count="(int) $product['inventories_sum_sold_number']"
-                            :avg-rating="(float) $product['reviews_avg_rating']" :total-reviews="$product['reviews_count']" wire:key="product-{{ $product['id'] }}" :isNew="now()->diffInDays($product['created_at'], true) <= 7" :discount-percent="isset($primaryVariant['discount']) ? floor((($primaryVariant['price'] - $primaryVariant['discount']) / $primaryVariant['price']) * 100) : 0">
-                            <x-slot:img :src="asset('storage/' . (isset($mainImage['image_url']) ? $mainImage['image_url'] : DefaultImage::PRODUCT->value))" :alt="'Product image of' . $product['title']"></x-slot:img>
+                        <x-livewire-client::product-grid.card :title="$product['title']" :price="$primaryVariant['discount'] ?? $primaryVariant['price']" :original-price="isset($primaryVariant['discount']) ? $primaryVariant['price'] : null"
+                            :avg-rating="(float) $product['reviews_avg_rating']" :total-reviews="$product['reviews_count']" wire:key="product-{{ $product['id'] }}" :stock-quantity="(int) $product['inventories_sum_stock']" :sold-count="(int) $product['inventories_sum_sold_number']"
+                            :isNew="now()->diffInDays($product['created_at'], true) <= 7" :discount-percent="isset($primaryVariant['discount']) ? floor((($primaryVariant['price'] - $primaryVariant['discount']) / $primaryVariant['price']) * 100) : 0">
+                            <x-slot:img :src="asset('storage/' . ($product['main_image']['image_url'] ?? DefaultImage::PRODUCT->value))" :alt="'Product image of' . $product['title']"></x-slot:img>
 
                             <x-slot:add-to-cart-button>Add to Cart</x-slot:add-to-cart-button>
                             <x-slot:view-details-button href="{{ route('client.products.show', $product['slug']) }}">View Details</x-slot:view-details-button>
@@ -528,7 +528,7 @@
             <x-livewire-client::pagination class="mt-4" :pagination="$pagination" />
         </div>
     </div>
-    <div class="row justify-content-center align-items-center g-4 mt-4 wow fadeIn" data-wow-delay="10s" wire:ignore>
+    <div class="row justify-content-center align-items-center g-4 mt-4" wire:ignore>
         <div class="col-lg-3 col-sm-6 wow fadeInUp rounded" data-wow-delay="0.1s">
             <div class="service-item rounded pt-3">
                 <div class="p-4">
