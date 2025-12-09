@@ -8,7 +8,7 @@
         __proto__: window.BasePageController,
 
         init() {
-            window.http.post(@js(route('api.auth.me'))).then(response => {
+            window.http.get(@js(route('api.auth.me')), {}).then(response => {
                 if(response.data.user) {
                     window.location = @json(route('client.index'));
                 }
@@ -35,9 +35,20 @@
                     document.dispatchEvent(new Event('login:success'));
 
                 }catch(axiosError) {
-                    const message = axiosError.response?.data?.message ?? axiosError.message;
+                    if(axiosError.status === 422) {
+                        const errors = axiosError.response?.data?.errors ?? {};
+                        const formattedErrors = {};
 
-                    document.dispatchEvent(new CustomEvent('login:failed', { detail: { message } }));
+                        for(const field in errors) {
+                            formattedErrors[field] = errors[field][0];
+                        }
+
+                        document.dispatchEvent(new CustomEvent('login:errors', { detail: { errors }}));
+                    }else {
+                        const message = axiosError.response?.data?.message ?? axiosError.message;
+
+                        document.dispatchEvent(new CustomEvent('login:failed', { detail: { message } }));
+                    }
                 }
             },
         }
@@ -48,7 +59,7 @@
 @endscript
 <div class="container-xl my-5" id="main-component">
     <div class="auth-wrapper">
-        <div class="auth-left-side">
+        <div class="auth-left-side auth-left-side-login wow fadeInUp" data-wow-delay="0.5s">
             <div class="auth-brand">
                 <div class="auth-logo-icon">
                     <img src="{{ asset("storage/logo-bookio.webp") }}" alt="Logo website" style="width: 100%; height: 100%;">
@@ -72,7 +83,7 @@
             </div>
         </div>
 
-        <div class="auth-right-side">
+        <div class="auth-right-side wow fadeInUp" data-wow-delay="0.1s">
             <div class="auth-form-wrapper">
                 <div class="auth-form-header">
                     <h2>Login</h2>
@@ -115,25 +126,41 @@
                     remember: false,
                     errors: {},
                     init() {
+                        if(localStorage.getItem('_username')){
+                            this.username = localStorage.getItem('_username');
+                            localStorage.removeItem('_username');
+                        }
+
+                        if(localStorage.getItem('_password')) {
+                            this.password = localStorage.getItem('_password');
+                            localStorage.removeItem('_password');
+                        }
+
+                        document.addEventListener('login:errors', event => {
+                            this.errors = event.detail.errors;
+                        });
+
                         document.forms['loginForm'].addEventListener('submit', (event) => {
                             event.preventDefault();
                             this.errors = {};
 
-                            const trimmedUsername = this.username.trim();
-                            const trimmedPassword = this.password.trim();
+                            const normalizedForm = {
+                                username: this.username.trim(),
+                                password: this.password.trim(),
+                            };
 
-                            if(!trimmedUsername.length) {
+                            if(!normalizedForm.username.length) {
                                 this.errors.username = 'Username is required.';
                             }
 
-                            if(!trimmedPassword.length) {
+                            if(!normalizedForm.password.length) {
                                 this.errors.password = 'Password is required.';
-                            }else if(trimmedPassword.length < 8) {
+                            }else if(normalizedForm.password.length < 8) {
                                 this.errors.password = 'Password must be at least 8 characters.';
                             }
 
                             if(!Object.keys(this.errors).length) {
-                                document.dispatchEvent(new CustomEvent('login:submit', { detail: { username: trimmedUsername, password: trimmedPassword, remember: Boolean(this.remember) } }));
+                                document.dispatchEvent(new CustomEvent('login:submit', { detail: { ...normalizedForm, remember: Boolean(this.remember) } }));
                             }
                         });
                     }

@@ -64,6 +64,16 @@
     --color-primary-light-product: #ffa500;
     --color-primary-dark-product: #e67e00;
 
+    /* Register Page - Coral Orange Gradient */
+    --color-register-start: #ff6b35;
+    --color-register-mid: #ff8c42;
+    --color-register-end: #ffa552;
+
+    /* Login Page - Deep Orange Gradient */
+    --color-login-start: #ff6f00;
+    --color-login-mid: #ff8f00;
+    --color-login-end: #ffa726;
+
     /* Neutrals */
     --color-white-product: #ffffff;
     --color-light-gray-product: #f8f9fa;
@@ -78,6 +88,12 @@
     --color-danger-product: #dc3545;
     --color-warning-product: #ffc107;
     --color-info-product: #17a2b8;
+
+    /* Additional Colors */
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #666666;
+    --color-border: #dddddd;
+    --color-shadow: rgba(0, 0, 0, 0.1);
 
     /* Spacing */
     --spacing-unit-product: 8px;

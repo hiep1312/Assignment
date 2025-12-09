@@ -1,32 +1,3 @@
-:root {
-    /* Primary Color - Orange */
-    --color-primary-product: #ff8c00;
-    --color-primary-light-product: #ffa500;
-    --color-primary-dark-product: #e67e00;
-
-    /* Neutrals */
-    --color-white-product: #ffffff;
-    --color-light-gray-product: #f8f9fa;
-    --color-gray-product: #e9ecef;
-    --color-dark-gray-product: #6c757d;
-    --color-black-product: #212529;
-
-    /* Accents */
-    --color-success-product: #28a745;
-    --color-danger-product: #dc3545;
-    --color-warning-product: #ffc107;
-    --color-info-product: #17a2b8;
-
-    /* Additional Colors */
-    --color-text-primary: #1a1a1a;
-    --color-text-secondary: #666666;
-    --color-border: #dddddd;
-    --color-shadow: rgba(0, 0, 0, 0.1);
-
-    /* Spacing */
-    --spacing-unit-product: 8px;
-}
-
 .auth-wrapper {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     display: flex;
@@ -42,7 +13,6 @@
 /* Left Side - Branding */
 .auth-left-side {
     flex: 1;
-    background: linear-gradient(135deg, var(--color-primary-product) 0%, var(--color-primary-dark-product) 100%);
     padding: 60px 40px;
     display: flex;
     flex-direction: column;
@@ -53,25 +23,56 @@
     overflow: hidden;
 }
 
-.auth-left-side::before {
+.auth-left-side-register {
+    background: linear-gradient(135deg, var(--color-register-start) 0%, var(--color-register-mid) 50%, var(--color-register-end) 100%);
+}
+
+.left-side-login {
+    background: linear-gradient(135deg, var(--color-login-start) 0%, var(--color-login-mid) 50%, var(--color-login-end) 100%);
+}
+
+.auth-left-side::before,
+.auth-left-side::after {
     content: '';
     position: absolute;
-    top: -50%;
+    border-radius: 50%;
+}
+
+.auth-left-side::before {
+    top: -20%;
     right: -10%;
     width: 500px;
     height: 500px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
+    background: rgba(255, 255, 255, 0.08);
+    animation: float 8s ease-in-out infinite;
+}
+
+.auth-left-side::after {
+    bottom: -15%;
+    left: -15%;
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.06);
+    animation: float 10s ease-in-out infinite reverse;
 }
 
 @keyframes float {
     0%, 100% {
-        transform: translateY(0px);
+        transform: translateY(0px) translateX(0px) scale(1);
     }
-    50% {
-        transform: translateY(20px);
+    33% {
+        transform: translateY(-30px) translateX(20px) scale(1.05);
     }
+    66% {
+        transform: translateY(20px) translateX(-15px) scale(0.95);
+    }
+}
+
+.auth-left-side::after {
+    box-shadow: 100px 100px 0 -20px rgba(255, 255, 255, 0.1),
+        200px 50px 0 -25px rgba(255, 255, 255, 0.08),
+        -50px 150px 0 -15px rgba(255, 255, 255, 0.12),
+        150px -50px 0 -30px rgba(255, 255, 255, 0.07);
 }
 
 .auth-brand {
@@ -331,6 +332,19 @@
     color: var(--color-primary-product);
 }
 
+.avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px dashed #ddd;
+    margin: 0 auto;
+    overflow: hidden;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .auth-avatar-upload, .auth-avatar-remove {
     position: absolute;
     bottom: 0;
@@ -348,6 +362,7 @@
 
 .auth-avatar-upload {
     background: #007bff;
+    font-size: 14px;
 }
 
 .auth-avatar-remove {
@@ -356,6 +371,7 @@
     height: 30px;
     right: 0;
     border: none;
+    font-size: 12px;
 }
 
 

@@ -30,7 +30,7 @@ Route::name('api.')->group(function() {
 
         Route::middleware('auth:jwt')->group(function() {
             Route::post('/refresh', 'refresh')->name('refresh');
-            Route::post('/me', 'me')->name('me');
+            Route::get('/me', 'me')->name('me');
         });
     });
 

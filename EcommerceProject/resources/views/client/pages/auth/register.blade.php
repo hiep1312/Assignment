@@ -8,11 +8,11 @@
         __proto__: window.BasePageController,
 
         init() {
-            /* window.http.post(@js(route('api.auth.me'))).then(response => {
+            window.http.get(@js(route('api.auth.me'))).then(response => {
                 if(response.data.user) {
                     window.location = @json(route('client.index'));
                 }
-            }); */
+            });
 
             super.init();
         },
@@ -37,15 +37,23 @@
                         }
                     });
 
-                    document.dispatchEvent(new Event('register:success'));
+                    document.dispatchEvent(new CustomEvent('register:success', { detail: { email, password } }));
 
                 }catch(axiosError) {
-                    const message = axiosError.response?.data?.message ?? axiosError.message;
-                    const errors = axiosError.response?.data?.errors ?? {};
+                    if(axiosError.status === 422) {
+                        const errors = axiosError.response?.data?.errors ?? {};
+                        const formattedErrors = {};
 
-                    document.dispatchEvent(new CustomEvent('register:failed', {
-                        detail: { message, errors }
-                    }));
+                        for(const field in errors) {
+                            formattedErrors[field] = errors[field][0];
+                        }
+
+                        document.dispatchEvent(new CustomEvent('register:errors', { detail: { errors }}));
+                    }else {
+                        const message = axiosError.response?.data?.message ?? axiosError.message;
+
+                        document.dispatchEvent(new CustomEvent('register:failed', { detail: { message }}));
+                    }
                 }
             },
         }
@@ -56,31 +64,7 @@
 @endscript
 <div class="container-xl my-5" id="main-component">
     <div class="auth-wrapper">
-        <div class="auth-left-side">
-            <div class="auth-brand">
-                <div class="auth-logo-icon">
-                    <img src="{{ asset("storage/logo-bookio.webp") }}" alt="Logo website" style="width: 100%; height: 100%;">
-                </div>
-                <h1 class="auth-brand-title">Bookio</h1>
-                <p class="auth-brand-subtitle">Your Modern Bookstore Platform</p>
-            </div>
-            <div class="auth-benefits">
-                <div class="auth-benefit-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Secure & Reliable</span>
-                </div>
-                <div class="auth-benefit-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>User-Friendly Interface</span>
-                </div>
-                <div class="auth-benefit-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>24/7 Customer Support</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="auth-right-side">
+        <div class="auth-right-side wow fadeInUp" data-wow-delay="0.1s">
             <div class="auth-form-wrapper">
                 <div class="auth-form-header">
                     <h2>Sign Up</h2>
@@ -95,12 +79,14 @@
                             message = 'Account created successfully. Redirecting to login...';
 
                             setTimeout(() => {
+                                const { email, password } = event.detail;
+                                localStorage.setItem('_username', email);
+                                localStorage.setItem('_password', password);
                                 window.location = '{{ route('login') }}';
                             }, 3000);
                         });
                     "
-                    x-show="showAlert" wire:transition
-                    style="margin-top: -15px;" wire:key="register-success-alert">
+                    x-show="showAlert" wire:transition style="margin-top: -15px;" wire:key="register-success-alert">
 
                     <span x-text="message"></span>
 
@@ -124,62 +110,83 @@
                     password_confirmation: '',
                     first_name: '',
                     last_name: '',
-                    birthday: '',
+                    birthday: null,
                     avatar: null,
                     avatarPreview: null,
                     errors: {},
                     init() {
-                        document.forms['registerForm'].addEventListener('submit', (event) => {
+                        document.addEventListener('register:errors', event => {
+                            this.errors = event.detail.errors;
+                        });
+
+                        document.forms['registerForm'].addEventListener('submit', event => {
                             event.preventDefault();
                             this.errors = {};
 
-                            // Validation
-                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            const normalizedForm = {
+                                email: this.email.trim(),
+                                username: this.username.trim(),
+                                password: this.password.trim(),
+                                password_confirmation: this.password_confirmation.trim(),
+                                first_name: this.first_name.trim(),
+                                last_name: this.last_name.trim(),
+                                birthday: this.birthday || null,
+                                avatar: this.avatar
+                            };
 
-                            if(!this.email.trim()) {
+                            const regexRules = {
+                                email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                birthday: /^\d{4}-\d{2}-\d{2}$/,
+                            };
+
+                            if(!normalizedForm.email) {
                                 this.errors.email = 'Email is required.';
-                            } else if(!emailRegex.test(this.email.trim())) {
+                            }else if(!regexRules.email.test(normalizedForm.email)) {
                                 this.errors.email = 'Please enter a valid email address.';
                             }
 
-                            if(!this.username.trim()) {
+                            if(!normalizedForm.username) {
                                 this.errors.username = 'Username is required.';
-                            } else if(this.username.trim().length < 3) {
-                                this.errors.username = 'Username must be at least 3 characters.';
+                            }else if(normalizedForm.username.length < 5) {
+                                this.errors.username = 'Username must be at least 5 characters.';
                             }
 
-                            if(!this.password.trim()) {
+                            if(!normalizedForm.password) {
                                 this.errors.password = 'Password is required.';
-                            } else if(this.password.trim().length < 8) {
+                            }else if(normalizedForm.password.length < 8) {
                                 this.errors.password = 'Password must be at least 8 characters.';
                             }
 
-                            if(!this.password_confirmation.trim()) {
+                            if(!normalizedForm.password_confirmation) {
                                 this.errors.password_confirmation = 'Please confirm your password.';
-                            } else if(this.password !== this.password_confirmation) {
+                            }else if(normalizedForm.password !== normalizedForm.password_confirmation) {
                                 this.errors.password_confirmation = 'Passwords do not match.';
                             }
 
-                            if(!this.first_name.trim()) {
+                            if(!normalizedForm.first_name) {
                                 this.errors.first_name = 'First name is required.';
                             }
 
-                            if(!this.last_name.trim()) {
+                            if(!normalizedForm.last_name) {
                                 this.errors.last_name = 'Last name is required.';
                             }
 
+                            if(normalizedForm.birthday !== null && !regexRules.birthday.test(normalizedForm.birthday)) {
+                                this.errors.birthday = 'Please enter a valid date in the format YYYY-MM-DD.';
+                            }
+
+                            if(normalizedForm.avatar !== null) {
+                                const maxSize = 10 * 1024 * 1024;
+
+                                if(!normalizedForm.avatar.type.includes('image/')) {
+                                    this.errors.avatar = 'Please upload a valid image file.';
+                                }else if(normalizedForm.avatar.size > maxSize) {
+                                    this.errors.avatar = 'Image size must be less than 10MB.';
+                                }
+                            }
+
                             if(!Object.keys(this.errors).length) {
-                                document.dispatchEvent(new CustomEvent('register:submit', {
-                                    detail: {
-                                        email: this.email.trim(),
-                                        username: this.username.trim(),
-                                        password: this.password.trim(),
-                                        first_name: this.first_name.trim(),
-                                        last_name: this.last_name.trim(),
-                                        birthday: this.birthday || null,
-                                        avatar: this.avatar
-                                    }
-                                }));
+                                document.dispatchEvent(new CustomEvent('register:submit', { detail: normalizedForm }));
                             }
                         });
                     },
@@ -201,31 +208,35 @@
                         this.avatarPreview = null;
                         document.getElementById('avatar').value = '';
                     }
-                }" novalidate>
-
-                    <div class="auth-form-group text-center mb-4">
-                        <div class="avatar-upload-wrapper" style="display: inline-block; position: relative;">
-                            <div class="avatar-preview" style="width: 100px; height: 100px; border-radius: 50%; border: 3px dashed #ddd; margin: 0 auto; overflow: hidden; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                }" novalidate enctype="multipart/form-data">
+                    <div class="auth-form-group text-center">
+                        <div class="d-inline-block position-relative">
+                            <div class="avatar-preview">
                                 <template x-if="avatarPreview">
                                     <img :src="avatarPreview" id="avatarPreview" alt="Avatar preview" style="width: 100%; height: 100%; object-fit: cover;">
                                 </template>
+
                                 <template x-if="!avatarPreview">
                                     <i class="fas fa-user" style="font-size: 40px; color: #ccc;"></i>
                                 </template>
                             </div>
+
                             <label for="avatar" x-show="!avatarPreview" class="auth-avatar-upload">
-                                <i class="fas fa-camera" style="font-size: 14px;"></i>
+                                <i class="fas fa-camera"></i>
                             </label>
+
                             <button type="button" x-show="avatarPreview" @click="removeAvatar" class="auth-avatar-remove">
-                                <i class="fas fa-times" style="font-size: 12px;"></i>
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
+
                         <input type="file" id="avatar" accept="image/*" @change="handleAvatarChange" style="display: none;">
+                        <small :class="`invalid-feedback mt-2 ${errors.avatar ? 'd-block text-center' : ''}`" :style="{ marginBottom: '-.25rem' }" x-text="errors.avatar"></small>
                         <small class="text-muted d-block mt-2">Optional: Upload your profile picture</small>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-sm-6 col-md-12 col-lg-6">
                             <div class="auth-form-group">
                                 <label for="email" class="auth-label">
                                     <i class="fas fa-envelope"></i> Email <span class="text-danger">*</span>
@@ -235,7 +246,7 @@
                                 <small :class="`invalid-feedback ${errors.email ? 'd-block' : ''}`" x-text="errors.email"></small>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-6 col-md-12 col-lg-6">
                             <div class="auth-form-group">
                                 <label for="username" class="auth-label">
                                     <i class="fas fa-user"></i> Username <span class="text-danger">*</span>
@@ -248,7 +259,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-sm-6 col-md-12 col-lg-6">
                             <div class="auth-form-group">
                                 <label for="first_name" class="auth-label">
                                     <i class="fas fa-user-circle"></i> First Name <span class="text-danger">*</span>
@@ -258,7 +269,7 @@
                                 <small :class="`invalid-feedback ${errors.first_name ? 'd-block' : ''}`" x-text="errors.first_name"></small>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-6 col-md-12 col-lg-6">
                             <div class="auth-form-group">
                                 <label for="last_name" class="auth-label">
                                     <i class="fas fa-user-circle"></i> Last Name <span class="text-danger">*</span>
@@ -276,15 +287,16 @@
                         </label>
                         <input type="date" id="birthday" x-model="birthday" class="auth-input"
                             placeholder="Select your birthday">
+                        <small :class="`invalid-feedback ${errors.birthday ? 'd-block' : ''}`" x-text="errors.birthday"></small>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
+                    <div class="row" x-data="{ showPassword: false }">
+                        <div class="col-sm-6 col-md-12 col-lg-6">
                             <div class="auth-form-group">
                                 <label for="password" class="auth-label">
                                     <i class="fas fa-lock"></i> Password <span class="text-danger">*</span>
                                 </label>
-                                <div class="auth-password-wrapper" x-data="{ showPassword: false }">
+                                <div class="auth-password-wrapper">
                                     <input :type="showPassword ? 'text' : 'password'" id="password" x-model="password" class="auth-input" required
                                         placeholder="Enter your password">
                                     <button type="button" :class="`auth-toggle-password ${showPassword ? 'active' : ''}`"
@@ -295,12 +307,12 @@
                                 <small :class="`invalid-feedback ${errors.password ? 'd-block' : ''}`" x-text="errors.password"></small>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-6 col-md-12 col-lg-6">
                             <div class="auth-form-group">
                                 <label for="password_confirmation" class="auth-label">
                                     <i class="fas fa-lock"></i> Confirm Password <span class="text-danger">*</span>
                                 </label>
-                                <div class="auth-password-wrapper" x-data="{ showPassword: false }">
+                                <div class="auth-password-wrapper" >
                                     <input :type="showPassword ? 'text' : 'password'" id="password_confirmation" x-model="password_confirmation" class="auth-input" required
                                         placeholder="Confirm your password">
                                     <button type="button" :class="`auth-toggle-password ${showPassword ? 'active' : ''}`"
@@ -346,6 +358,29 @@
                 <p class="auth-signup-text">
                     Already have an account? <a href="{{ route('login') }}" class="auth-link">Login here</a>
                 </p>
+            </div>
+        </div>
+        <div class="auth-left-side auth-left-side-register wow fadeInUp" data-wow-delay="0.5s">
+            <div class="auth-brand">
+                <div class="auth-logo-icon">
+                    <img src="{{ asset("storage/logo-bookio.webp") }}" alt="Logo website" style="width: 100%; height: 100%;">
+                </div>
+                <h1 class="auth-brand-title">Bookio</h1>
+                <p class="auth-brand-subtitle">Your Modern Bookstore Platform</p>
+            </div>
+            <div class="auth-benefits">
+                <div class="auth-benefit-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Secure & Reliable</span>
+                </div>
+                <div class="auth-benefit-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>User-Friendly Interface</span>
+                </div>
+                <div class="auth-benefit-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>24/7 Customer Support</span>
+                </div>
             </div>
         </div>
     </div>
