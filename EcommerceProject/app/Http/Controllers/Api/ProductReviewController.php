@@ -49,12 +49,18 @@ class ProductReviewController extends BaseApiController
                             $innerQuery->whereBetween('rating', [$minRating, $maxRating]);
                         }
                     }
+                )->when(
+                    $request->boolean('with_trashed'),
+                    fn($innerQuery) => $innerQuery->withTrashed()
                 );
 
                 $query->where('product_id', $productId);
             },
             perPage: $this->getPerPage($request),
-            columns: self::API_FIELDS,
+            columns: array_merge(
+                self::API_FIELDS,
+                $request->boolean('with_trashed') ? ['deleted_at'] : []
+            ),
             pageName: 'page'
         );
 
@@ -65,6 +71,7 @@ class ProductReviewController extends BaseApiController
                 $reviews->withQueryString()->toArray(),
                 $request->boolean('with_rating_stats') ? ['rating_distribution' => $this->repository->getRatingDistribution($productId)] : [],
                 $request->boolean('with_can_review') ? ['can_review' => $this->repository->hasUserPurchasedProduct($productId)] : [],
+                $request->boolean('with_my_review') ? ['my_review' => $this->repository->getFirstUserReview()] : []
             )
         );
     }

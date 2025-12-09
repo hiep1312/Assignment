@@ -21,6 +21,8 @@ export default defineConfig({
                 'resources/css/review-list.css',
                 'resources/css/review-card.css',
                 'resources/css/auth.css',
+                'resources/css/404.css',
+                'resources/css/500.css',
                 'resources/js/app.js',
                 'resources/js/image-picker.js',
                 'resources/js/editor-handler.js'

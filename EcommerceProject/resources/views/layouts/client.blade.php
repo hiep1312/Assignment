@@ -54,6 +54,8 @@
         </div>
 
         <main class="content-wrapper">
+            @livewire('client.partials.error')
+
             @hasSection('content')
                 @yield('content')
             @else

@@ -1,0 +1,84 @@
+@import './errors.css';
+
+:root {
+    /* Primary Color - Orange */
+    --color-primary-product: #ff8c00;
+    --color-primary-light-product: #ffa500;
+    --color-primary-dark-product: #e67e00;
+    --color-white-product: #ffffff;
+    --color-light-gray-product: #f8f9fa;
+    --color-gray-product: #e9ecef;
+    --color-dark-gray-product: #6c757d;
+    --color-black-product: #212529;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #666666;
+    --color-danger-product: #dc3545;
+}
+
+.err-page {
+    background: linear-gradient(
+        135deg,
+        var(--color-danger-product) 0%,
+        #e74c3c 50%,
+        #c0392b 100%
+    );
+}
+
+.err-page::before {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.err-page::after {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.err-icon {
+    color: var(--color-white-product);
+}
+
+.err-code {
+    animation: err-pulse 2s infinite ease-in-out;
+    margin-bottom: 10px;
+}
+
+@keyframes err-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.err-button {
+    background: var(--color-white-product);
+    color: var(--color-danger-product);
+}
+
+.err-button:hover {
+    color: var(--color-danger-product) !important;
+    background: var(--color-light-gray-product);
+}
+
+.err-button-secondary {
+    background: transparent;
+    color: var(--color-white-product);
+    border: 2px solid var(--color-white-product);
+}
+
+.err-button-secondary:hover {
+    background: var(--color-white-product);
+    color: var(--color-danger-product);
+}
+
+.err-details {
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--color-white-product);
+    border-radius: 5px;
+    padding: 15px;
+    margin-top: 15px;
+    text-align: left;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+}

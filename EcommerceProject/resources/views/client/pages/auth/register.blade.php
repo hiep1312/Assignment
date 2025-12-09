@@ -12,7 +12,7 @@
                 if(response.data.user) {
                     window.location = @json(route('client.index'));
                 }
-            });
+            }).catch(() => {});
 
             super.init();
         },

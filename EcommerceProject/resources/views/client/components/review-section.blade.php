@@ -67,6 +67,14 @@
             @endisset
 
             {{ $slot }}
+
+            @isset($loadMoreButton)
+                <div class="text-center {{ $loadMoreButton->attributes->get('wrapper-class') }}">
+                    <button {{ $loadMoreButton->attributes->class(['pdp-btn-load-more'])->except('wrapper-class') }}>
+                        <i class="fas fa-chevron-down"></i> Load more reviews
+                    </button>
+                </div>
+            @endisset
         </div>
     </div>
 @else
@@ -145,5 +153,13 @@
         @endisset
 
         {{ $slot }}
+
+        @isset($loadMoreButton)
+            <div class="text-center {{ $loadMoreButton->attributes->get('wrapper-class') }}">
+                <button {{ $loadMoreButton->attributes->class(['pdp-btn-load-more'])->except('wrapper-class') }}>
+                    <i class="fas fa-chevron-down"></i> Load more reviews
+                </button>
+            </div>
+        @endisset
     </div>
 @endif

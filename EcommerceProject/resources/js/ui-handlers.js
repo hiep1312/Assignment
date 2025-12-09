@@ -181,6 +181,41 @@ window.BasePageController = {
         for(const [eventName, handler] of Object.entries(this.events)) {
             document.removeEventListener(eventName, handler);
         }
+    },
+
+    showError(status) {
+        if(typeof status !== 'number') {
+            throw new TypeError('Status must be a number');
+        }
+
+        if($wire) {
+            $wire.$dispatchTo('client.partials.error', 'error:show', { status });
+        }else {
+            Livewire.dispatchTo('client.partials.error', 'error:show', { status });
+        }
+
+        Livewire.hook('morphed', this._hidePageForError);
+    },
+
+    _hidePageForError() {
+        const mainComponent = document.getElementById('main-component');
+        const navbar = document.querySelector('nav.navbar');
+        const heroHeader = document.querySelector('.hero-header');
+
+        if(mainComponent && (mainComponent.getAttribute('wire:ignore') === null || mainComponent.style.display !== 'none')) {
+            mainComponent.setAttribute('wire:ignore', '');
+            mainComponent.style.display = 'none';
+        }
+
+        if(navbar && (navbar.getAttribute('wire:ignore') === null || !navbar.classList.contains('navbar-no-breadcrumb'))) {
+            navbar.setAttribute('wire:ignore', '');
+            navbar.classList.add('navbar-no-breadcrumb');
+        }
+
+        if(heroHeader && (heroHeader.getAttribute('wire:ignore') === null || heroHeader.style.display !== 'none')) {
+            heroHeader.setAttribute('wire:ignore', '');
+            heroHeader.style.display = 'none';
+        }
     }
 };
 

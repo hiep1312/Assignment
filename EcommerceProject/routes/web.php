@@ -144,6 +144,12 @@ Route::name('client.')->group(function() {
     });
 });
 
+Route::prefix('/errors')->name('errors.')->group(function() {
+    Route::view('/404', 'client.pages.404')->name('404');
+
+    Route::view('/500', 'client.pages.500')->name('500');
+});
+
 Route::prefix('template')->name('template.')->group(function() {
     /* Admin */
     Route::match(['get', 'post'], '/admin', fn() => view('admin.template.index'))->name('admin.index');

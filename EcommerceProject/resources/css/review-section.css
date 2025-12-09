@@ -118,6 +118,25 @@
     box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
 }
 
+.pdp-btn-load-more {
+    background-color: var(--pdp-primary-orange);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pdp-btn-load-more:hover {
+    background-color: var(--pdp-orange-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+}
+
 @media (max-width: 768px) {
     .pdp-reviews-section {
         flex-direction: column;

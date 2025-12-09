@@ -8,6 +8,8 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
+use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 
 class AuthController extends BaseApiController
 {
@@ -86,18 +88,35 @@ class AuthController extends BaseApiController
 
     public function refresh(Request $request)
     {
-        $newToken = Auth::guard('jwt')->refresh();
-        $user = $request->user('jwt');
+        try {
+            $newToken = Auth::guard('jwt')->refresh(false, false);
+            $user = $request->user('jwt');
 
-        return $this->response(
-            success: true,
-            code: 200,
-            message: 'Token refreshed successfully.',
-            additionalData: [
-                'user' => $user->only(self::PRIVATE_FIELDS),
-                'token' => $newToken
-            ]
-        );
+            return $this->response(
+                success: true,
+                code: 200,
+                message: 'Token refreshed successfully.',
+                additionalData: [
+                    'user' => $user->only(self::PRIVATE_FIELDS),
+                    'token' => $newToken,
+                ]
+            );
+
+        }catch(TokenBlacklistedException $blacklistedException) {
+            return $this->response(
+                success: false,
+                code: 403,
+                message: 'Token has been invalidated. Please login again.'
+            );
+
+        }catch(Throwable $invalidException) {
+            return $this->response(
+                success: false,
+                code: 401,
+                message: 'Invalid token. Please login again.'
+            );
+
+        }
     }
 
     public function me(Request $request)

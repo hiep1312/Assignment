@@ -35,7 +35,8 @@
             }catch(axiosError) {
                 const message = axiosError.response?.data?.message ?? axiosError.message;
 
-                console.error("Failed to fetch: ", message);
+                console.error("Failed to fetch product: ", message);
+                PageController.showError(404);
             }
         },
 
@@ -64,6 +65,7 @@
                 return {
                     include: 'user',
                     per_page: 5,
+                    with_trashed: 1,
                     ...apiParams
                 };
             }
@@ -87,7 +89,7 @@
                     }catch(axiosError) {
                         const message = axiosError.response?.data?.message ?? axiosError.message;
 
-                        console.error("Failed to fetch: ", message);
+                        console.error("Failed to fetch reviews: ", message);
                     }
                 }
             },
@@ -376,47 +378,42 @@
                 <x-livewire-client::review-section header-class="mb-4" :is-placeholder="!$isReviewsLoaded"
                     :avg-rating="(float) ($currentProduct['reviews_avg_rating'] ?? 0)" :total-reviews="$currentProduct['reviews_count'] ?? 0"
                     :star-counts="$ratingDistribution">
-                    <x-slot:action-button data-bs-toggle="modal" data-bs-target="#reviewModal">
+                    {{-- <x-slot:action-button data-bs-toggle="modal" data-bs-target="#reviewModal">
                         <i class="fas fa-pen"></i> Write a review
-                    </x-slot:action-button>
+                    </x-slot:action-button> --}}
 
                     <x-livewire-client::review-section.review-list>
-                        <div class="pdp-review-card mb-3">
-                            <div class="pdp-review-user">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqRd_vJ-aLY2GDN3jgEsernIPtTxXMpK_GWhQBWjeGS5_tdMuKF7JVr34&s" class="pdp-review-avatar" alt="Avatar">
-                                <div class="pdp-review-user-info">
-                                    <h6 class="pdp-review-user-name">Nguyễn Văn A</h6>
-                                    <div class="pdp-review-stars">
-                                        <i class="fas fa-star pdp-star-filled"></i>
-                                        <i class="fas fa-star pdp-star-filled"></i>
-                                        <i class="fas fa-star pdp-star-filled"></i>
-                                        <i class="fas fa-star pdp-star-filled"></i>
-                                        <i class="fas fa-star pdp-star-filled"></i>
-                                    </div>
-                                </div>
-                                <span class="pdp-review-time">2 tuần trước</span>
-                            </div>
-                            <p class="pdp-review-text">Áo sơ mi này chất lượng thật sự tuyệt vời. Cotton mềm mại, không khó chịu khi mặc. Khâu may chắc chắn, màu sắc bền. Giao hàng nhanh và đóng gói cần thận. Rất hài lòng với mua sắm này!</p>
-                            <div class="pdp-review-actions">
-                                <button class="pdp-review-helpful-btn">
-                                    <i class="fas fa-thumbs-up"></i> Helpful
-                                </button>
-                                <button class="pdp-review-unhelpful-btn">
-                                    <i class="fas fa-thumbs-down"></i> Not helpful
-                                </button>
+                        @if($isReviewsLoaded)
+                            @forelse($reviewsData as $review)
+                                @php
+                                    $name = $review['user'] ? trim("{$review['user']['first_name']} {$review['user']['last_name']}") : 'Unknown User';
+                                @endphp
+                                <x-livewire-client::review-section.review-list.card :$name :score="$review['rating']" :time="now()->diffForHumans($review['created_at'])" class="mb-4" wire:key="review-{{ $review['id'] }}">
+                                    <x-slot:avatar :src="asset('storage/' . ($review['user']['avatar'] ?? DefaultImage::AVATAR->value))" :alt="'Avatar of ' . $name"></x-slot:avatar>
 
-                                <button class="pdp-review-delete-btn" onclick="deleteReview(this)">
-                                    <i class="fas fa-trash-alt"></i> Delete review
-                                </button>
-                            </div>
-                        </div>
+                                    {{ $review['content'] }}
+
+                                    <x-slot:helpful-button>Helpful</x-slot:helpful-button>
+                                    <x-slot:unhelpful-button>Not helpful</x-slot:unhelpful-button>
+                                    {{-- <x-slot:delete-button>Delete review</x-slot:delete-button> --}}
+                                </x-livewire-client::review-section.review-list.card>
+                            @empty
+                                <x-livewire-client::alert type="info" title="No Reviews Yet" icon="fas fa-info-circle">
+                                    There are currently no reviews for this product.
+
+                                    <x-slot:btn-close data-bs-dismiss="alert"></x-slot:btn-close>
+                                </x-livewire-client::alert>
+                            @endforelse
+                        @else
+                            @for($i = 0; $i < 5; $i++)
+                                <x-livewire-client::review-section.review-list.card-placeholder class="mb-4" wire:key="review-placeholder-{{ $i }}"></x-livewire-client::review-section.review-list.card-placeholder>
+                            @endfor
+                        @endif
                     </x-livewire-client::review-section.review-list>
 
-                    <div class="text-center mt-4">
-                        <button class="pdp-btn-load-more">
-                            <i class="fas fa-chevron-down"></i> Xem thêm đánh giá
-                        </button>
-                    </div>
+                    @if(count($reviewsData))
+                        <x-slot:load-more-button wrapper-class="mt-4"></x-slot:load-more-button>
+                    @endif
                 </x-livewire-client::review-section>
             </div>
         </div>

@@ -15,6 +15,14 @@ interface ProductReviewRepositoryInterface extends RepositoryInterface
     public function hasUserPurchasedProduct($productId, $userId = null);
 
     /**
+     * Get the first product review for a specific user.
+     *
+     * @param int|null $userId The ID of the user whose review to retrieve. Defaults to authenticated user.
+     * @return object|null The product review object or null if not found.
+     */
+    public function getFirstUserReview($userId = null);
+
+    /**
      * Get the distribution of ratings for a specific product.
      *
      * @param int $productId The ID of the product to get rating distribution for

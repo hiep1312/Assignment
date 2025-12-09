@@ -63,6 +63,7 @@
                 const message = axiosError.response?.data?.message ?? axiosError.message;
 
                 console.error("Failed to fetch: ", message);
+                PageController.showError(500);
             }
         },
 

@@ -28,3 +28,46 @@ Object.defineProperty(window, 'http', {
         }
     })
 });
+
+/*  */
+window.http.interceptors.response.use(
+    response => response,
+    async error => {
+        const requestConfig = error.config;
+        let token;
+
+        if(
+            window.temp === 2 ||
+            error.response?.status !== 401 ||
+            requestConfig._retry ||
+            !(token = window.getCookie('auth_token', localStorage.getItem('auth_token')))
+        ) {
+            return Promise.reject(error);
+        }
+
+        requestConfig._retry = true;
+
+        try {
+            const { data } = await window.http.post(import.meta.env.VITE_APP_URL + '/refresh');
+
+            if(data.success && data.token) {
+                const newToken = data.token;
+                requestConfig.headers['Authorization'] = `Bearer ${newToken}`;
+
+                if(window.getCookie('auth_token')) {
+                    window.setCookie('auth_token', newToken);
+                }else {
+                    window.localStorage.setItem('auth_token', newToken);
+                }
+
+                return window.http(requestConfig);
+            }
+
+            return Promise.reject(error);
+
+        }catch(refreshError) {
+            return Promise.reject(refreshError);
+        }
+    },
+    { synchronous: false }
+);

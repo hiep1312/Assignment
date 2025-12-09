@@ -19,6 +19,7 @@ class ProductReviewRepository extends BaseRepository implements ProductReviewRep
     {
         if(is_null($userId)) {
             $userId = authPayload(key: 'sub', throw: false) ?? Auth::id();
+            if(is_null($userId)) return false;
         }
 
         return DB::table('orders', 'o')
@@ -28,6 +29,20 @@ class ProductReviewRepository extends BaseRepository implements ProductReviewRep
             ->where('o.user_id', $userId)
             ->where('o.status', OrderStatus::COMPLETED->value)
             ->exists();
+    }
+
+    public function getFirstUserReview($userId = null)
+    {
+        if(is_null($userId)) {
+            $userId = authPayload(key: 'sub', throw: false) ?? Auth::id();
+            if(is_null($userId)) return null;
+        }
+
+        return DB::table($this->model->getTable(), 'pr')
+            ->join('products as p', 'p.id', '=', 'pr.product_id')
+            ->where('pr.user_id', $userId)
+            ->whereNull('p.deleted_at')
+            ->first('pr.*');
     }
 
     public function getRatingDistribution($productId)

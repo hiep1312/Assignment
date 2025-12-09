@@ -27,9 +27,9 @@ Route::name('api.')->group(function() {
         Route::post('/login', 'login')->name('login');
         Route::post('/register', 'register')->name('register');
         Route::post('/logout', 'logout')->name('logout');
+        Route::post('/refresh', 'refresh')->name('refresh');
 
         Route::middleware('auth:jwt')->group(function() {
-            Route::post('/refresh', 'refresh')->name('refresh');
             Route::get('/me', 'me')->name('me');
         });
     });
@@ -50,7 +50,7 @@ Route::name('api.')->group(function() {
             'blogs' => BlogController::class,
         ], [
             'excluded_middleware_for' => [
-                'index' => ['auth:jwt'],
+                // 'index' => ['auth:jwt'],
                 'show' => ['auth:jwt']
             ]
         ]);

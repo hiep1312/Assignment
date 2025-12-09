@@ -1,0 +1,56 @@
+@import './errors.css';
+
+.err-page {
+    background: linear-gradient(
+        135deg,
+        var(--color-primary-product) 0%,
+        var(--color-primary-light-product) 50%,
+        var(--color-primary-dark-product) 100%
+    );
+}
+
+.err-page::before {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.err-page::after {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.err-icon {
+    color: var(--color-white-product);
+}
+
+.err-code {
+    animation: err-bounce 2s infinite ease-in-out;
+}
+
+@keyframes err-bounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.err-button {
+    background: var(--color-white-product);
+    color: var(--color-primary-product);
+}
+
+.err-button:hover {
+    background: var(--color-light-gray-product);
+}
+
+.err-button-secondary {
+    background: transparent;
+    color: var(--color-white-product);
+    border: 2px solid var(--color-white-product);
+}
+
+.err-button-secondary:hover {
+    background: var(--color-white-product);
+    color: var(--color-primary-product);
+}

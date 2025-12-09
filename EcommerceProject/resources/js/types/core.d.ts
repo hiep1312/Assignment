@@ -71,6 +71,8 @@ interface Window {
 
         registerEvents(): void;
         unregisterEvents(): void;
+        showError(status: number): void;
+        _hidePageForError(): void;
     };
 
     getCookie(
