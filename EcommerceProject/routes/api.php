@@ -50,8 +50,8 @@ Route::name('api.')->group(function() {
             'blogs' => BlogController::class,
         ], [
             'excluded_middleware_for' => [
-                // 'index' => ['auth:jwt'],
-                'show' => ['auth:jwt']
+                'index' => ['auth:jwt'],
+                // 'show' => ['auth:jwt']
             ]
         ]);
 
@@ -95,13 +95,16 @@ Route::name('api.')->group(function() {
 
         /* Cart & Cart Items */
         Route::withoutMiddleware(['auth:jwt'])->group(function() {
-            Route::apiResources([
-                'carts' => CartController::class,
-                'carts.items' => CartItemController::class
-            ]);
-
+            Route::apiSingleton('cart', CartController::class)
+                ->creatable();
+            Route::apiResource('carts.items', CartItemController::class)
+                ->shallow();
             Route::delete('/carts/{cart}/items', [CartController::class, 'deleteItems'])
                 ->name('carts.items.delete');
+            Route::post('/carts/refresh', [CartController::class, 'refresh'])
+                ->name('carts.refresh')
+                ->withoutMiddleware('throttle:api')
+                ->middleware('throttle:cart-refresh');
         });
 
         /* Checkout */

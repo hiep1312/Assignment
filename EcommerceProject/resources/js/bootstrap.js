@@ -29,15 +29,16 @@ Object.defineProperty(window, 'http', {
     })
 });
 
-/*  */
+/* Axios interceptor for automatic token refresh */
 window.http.interceptors.response.use(
     response => response,
     async error => {
-        const requestConfig = error.config;
         let token;
+        const requestConfig = error.config;
+        const refreshEndpoint = import.meta.env.VITE_APP_URL + '/refresh';
 
         if(
-            window.temp === 2 ||
+            requestConfig.url === refreshEndpoint ||
             error.response?.status !== 401 ||
             requestConfig._retry ||
             !(token = window.getCookie('auth_token', localStorage.getItem('auth_token')))
@@ -48,7 +49,7 @@ window.http.interceptors.response.use(
         requestConfig._retry = true;
 
         try {
-            const { data } = await window.http.post(import.meta.env.VITE_APP_URL + '/refresh');
+            const { data } = await window.http.post(refreshEndpoint);
 
             if(data.success && data.token) {
                 const newToken = data.token;
@@ -66,7 +67,7 @@ window.http.interceptors.response.use(
             return Promise.reject(error);
 
         }catch(refreshError) {
-            return Promise.reject(refreshError);
+            return Promise.reject(error);
         }
     },
     { synchronous: false }

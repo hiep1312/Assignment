@@ -1,146 +1,56 @@
-interface Window {
-    toggleSelectAll: (
-        checkboxElement: HTMLElement & { dataset: DOMStringMap },
-        isComponentScoped?: boolean
-    ) => void;
+type HookFunction = () => void;
+type HookMap = Record<string, HookFunction[]>;
 
-    updateSelectAllState: () => void;
-
-    confirmModalAction: (
-        callingElement: HTMLElement & { dataset: DOMStringMap },
-        eventTarget?: boolean | string
-    ) => void;
-
-    humanizeTimeDifference: (
-        baseTime: Date | number,
-        targetTime?: Date | number
-    ) => string;
-
-    copyToClipboard: (
-        text: string,
-        button: HTMLElement
-    ) => void;
-
-    getPaginationFromApi: (
-        response: {
-            current_page: number;
-            last_page: number;
-            per_page: number;
-            first_page_url: string;
-            last_page_url: string;
-            links: Array<object>;
-            next_page_url: string | null;
-            prev_page_url: string | null;
-            path: string;
-            from: number;
-            to: number;
-            total: number;
-        } | any
-    ) => {
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        first_page_url: string;
-        last_page_url: string;
-        links: Array<object>;
-        next_page_url: string | null;
-        prev_page_url: string | null;
-        path: string;
-        from: number;
-        to: number;
-        total: number;
-    } | {};
-
-    setQueryParams: (
-        keyOrObject: Record<string, any> | string,
-        value?: string | null
-    ) => string;
-
-    getQueryParams(
-        fields?: string | string[]
-    ): string | null | Record<string, string>;
-
-    BasePageController: {
-        init(): void;
-        fetchData(): Promise<any>;
-        refreshData(): void;
-
-        _buildApiParams: Record<string, Function>;
-        _internal: Record<string, any>;
-        events: Record<string, (event: any) => void>;
-
-        registerEvents(): void;
-        unregisterEvents(): void;
-        showError(status: number): void;
-        _hidePageForError(): void;
-    };
-
-    getCookie(
-        key?: string | string[] | null,
-        defaultValue?: any
-    ): any | any[] | Record<string, string>;
-
-    setCookie(
-        key: string | Record<string, any>,
-        value?: any,
-        options?: {
-            expires?: number | Date;
-            path?: string;
-            domain?: string;
-            secure?: boolean;
-            sameSite?: 'Strict' | 'Lax' | 'None';
-        }
-    ): void;
+interface Trait {
+    [key: string]: any;
 }
 
-interface Wire {
-    [key: string]: any;
+interface PaginationResponse {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    first_page_url: string;
+    last_page_url: string;
+    links: object[];
+    next_page_url: string | null;
+    prev_page_url: string | null;
+    path: string;
+    from: number;
+    to: number;
+    total: number;
+}
 
-    $parent: Wire | null;
+interface BasePageController {
+    _internal: Record<string, any>;
+    _traits: Trait[];
+    _hooks: HookMap;
 
-    $el: HTMLElement;
+    init(): void;
+    registerEvents(): void;
+    unregisterEvents(): void;
+    showError(status: number): void;
+    _hidePageForError(): void;
 
-    $id: string;
+    _applyHook(hookName: string): void;
+    _applyTraits(): void;
+    _applyTraitObject(traitObj: Trait, override?: boolean): void;
 
-    $get(name: string): any;
+    events: Record<string, EventListenerOrEventListenerObject>;
+}
 
-    $set(name: string, value: any, live?: boolean): void;
+interface FetchableTrait extends Trait {
+    init?(): void;
+    fetchData(): Promise<any>;
+    refreshData(): void;
+    _buildApiParams: Record<string, Function>;
+}
 
-    $toggle(name: string, live?: boolean): void;
+interface PaginationTrait extends Trait {
+    getPagination(response: any): PaginationResponse;
+}
 
-    $js(name: string, callback: Function): void;
-
-    $entangle(name: string, live?: boolean): any;
-
-    $refresh(): void;
-
-    $commit(): void;
-
-    $on(event: string, callback: Function): void;
-
-    $dispatch(event: string, params?: Record<string, any>): void;
-
-    $dispatchTo(
-        otherComponentName: string,
-        event: string,
-        params?: Record<string, any>
-    ): void;
-
-    $dispatchSelf(event: string, params?: Record<string, any>): void;
-
-    $upload(
-        name: string,
-        file: File,
-        finish?: () => void,
-        error?: () => void,
-        progress?: (event: { detail: { progress: number } }) => void
-    ): void;
-
-    $uploadMultiple(
-        name: string,
-        files: File[],
-        finish?: () => void,
-        error?: () => void,
-        progress?: (event: { detail: { progress: number } }) => void
-    ): void;
+interface Window {
+    BasePageController: BasePageController;
+    Fetchable: FetchableTrait;
+    ApiPagination: PaginationTrait;
 }

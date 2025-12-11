@@ -26,16 +26,23 @@ class CreateCheckoutRequest extends FormRequest
             'quantity' => 'required|integer|min:1',
         ];
 
-        if($this->has('carts')) {
-            $cartIds = is_array($this->input('carts')) ? $this->input('carts') : explode(',', $this->input('carts'));
-            $this->merge([
-                'carts' => $cartIds
-            ]);
+        if($this->has('cart_items')) {
+            if($this->input('cart_items') === 'all') {
+                $rules = [
+                    'cart_items' => 'required|string|in:all'
+                ];
 
-            $rules = [
-                'carts' => 'required|array',
-                'carts.*' => 'required|integer|exists:carts,id',
-            ];
+            }else {
+                $cartItemIds = is_array($this->input('cart_items')) ? $this->input('cart_items') : explode(',', $this->input('cart_items'));
+                $this->merge([
+                    'cart_items' => $cartItemIds
+                ]);
+
+                $rules = [
+                    'cart_items' => 'required|array',
+                    'cart_items.*' => 'required|integer|exists:cart_items,id',
+                ];
+            }
         }
 
         return $rules;
@@ -52,11 +59,13 @@ class CreateCheckoutRequest extends FormRequest
             'quantity.integer' => 'The quantity must be a valid number.',
             'quantity.min' => 'The quantity must be at least 1.',
 
-            'carts.required' => 'The cart items are required.',
-            'carts.array' => 'The cart items must be a valid list.',
-            'carts.*.required' => 'Each cart item is required.',
-            'carts.*.integer' => 'Each cart item must be a valid number.',
-            'carts.*.exists' => 'One or more selected cart items do not exist.',
+            'cart_items.required' => 'The cart items are required.',
+            'cart_items.string' => 'The cart items must be a valid text.',
+            'cart_items.in' => 'The cart items must be "all" or a valid list of item IDs.',
+            'cart_items.array' => 'The cart items must be a valid list.',
+            'cart_items.*.required' => 'Each cart item is required.',
+            'cart_items.*.integer' => 'Each cart item must be a valid number.',
+            'cart_items.*.exists' => 'One or more selected cart items do not exist.'
         ];
     }
 }

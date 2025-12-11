@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->unique()->nullable()->constrained('users')->onDelete('cascade');
             $table->string('guest_token', 100)->unique()->nullable();
             $table->tinyInteger('status')->default(1)->index()
                 ->comment('Status rules: 1 -> active | 2 -> expired');

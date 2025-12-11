@@ -84,6 +84,7 @@
     <!-- Website Javascript -->
     <script src="{{ asset('client/assets/js/main.js') }}"></script>
     @vite('resources/js/app.js')
+    @vite('resources/js/core.js')
 
     <!-- Page JS -->
     @stack('scripts')

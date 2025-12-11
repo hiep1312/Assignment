@@ -9,6 +9,7 @@ use App\Repositories\Contracts\CartItemRepositoryInterface;
 use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Services\CartService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends BaseApiController
 {
@@ -34,7 +35,7 @@ class CartController extends BaseApiController
     protected function getAllowedAggregateRelations(): array
     {
         return [
-            'count' => 'items'
+            'count' => 'items',
         ];
     }
 
@@ -43,35 +44,6 @@ class CartController extends BaseApiController
         protected CartItemRepositoryInterface $cartItemRepository,
         protected CartService $service
     ){}
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        $carts = $this->repository->getAll(
-            criteria: function(&$query) use ($request) {
-                $this->getRequestedAggregateRelations($request, $query)
-                    ->with($this->getRequestedRelations($request));
-
-                $query->when(
-                    isset($request->status),
-                    fn($innerQuery) => $innerQuery->where('status', $request->status)
-                );
-
-                $query->when(...CartService::userQueryConditions());
-            },
-            perPage: $this->getPerPage($request),
-            columns: self::API_FIELDS,
-            pageName: 'page'
-        );
-
-        return $this->response(
-            success: true,
-            message: 'Cart list retrieved successfully.',
-            additionalData: $carts->withQueryString()->toArray()
-        );
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -179,6 +151,38 @@ class CartController extends BaseApiController
                 'deleted_count' => (int) $isDeleted,
                 'requested_item_ids' => $validatedData['item_ids']
             ]
+        );
+    }
+
+    public function refresh(Request $request)
+    {
+        if(!(Auth::guard('jwt')->check() || request()->cookie('cart_guest'))) {
+            return $this->response(
+                success: false,
+                message: 'Unauthorized: No valid user or guest token found.',
+                code: 401
+            );
+        }
+
+        $this->repository->refreshAndCleanupCarts(5, 'DAY');
+        $cart = $this->repository->first(
+            criteria: function($query) use ($request){
+                $this->getRequestedAggregateRelations($request, $query)
+                    ->with($this->getRequestedRelations($request));
+
+                $query->when(...CartService::userQueryConditions());
+            },
+            columns: self::API_FIELDS,
+            throwNotFound: false
+        );
+
+        return $this->response(
+            success: (bool) $cart,
+            message: $cart
+                ? 'Cart refreshed successfully.'
+                : 'Cart not found or expired.',
+            code: $cart ? 200 : 404,
+            data: $cart?->toArray() ?? []
         );
     }
 }

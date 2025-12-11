@@ -1,3 +1,7 @@
+@assets
+    @vite('resources/js/scSortable.js')
+@endassets
+
 @use('App\Livewire\Admin\Components\FormPanel\ImageUploader')
 @use('App\Enums\DefaultImage')
 <div class="container-xxl flex-grow-1 container-p-y" id="main-component" x-data="{ isEditing: false, resetVariantModal: () => {

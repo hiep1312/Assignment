@@ -26,11 +26,12 @@ class CartItemRequest extends FormRequest
     {
         $rules = [
             'quantity' => 'required|integer|min:1',
-            'sku' => 'required|string|max:100|exists:product_variants,sku'
         ];
 
         if($this->isUpdate('item')) {
-            unset($rules['sku']);
+            $rules['item_id'] = "required|integer|exists:order_items,id";
+        }else {
+            $rules['sku'] = "required|string|max:100|exists:product_variants,sku";
         }
 
         return $rules;

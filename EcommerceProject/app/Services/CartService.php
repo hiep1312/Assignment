@@ -46,7 +46,7 @@ class CartService
         if(Auth::guard('jwt')->check()){
             $cartData = array_merge($cartData, [
                 'user_id' => authPayload('sub', -1, false),
-                'expires_at' => now()->addDays(7)
+                'expires_at' => now()->addDays(5)
             ]);
         }else {
             $cartGuestToken = Str::uuid();

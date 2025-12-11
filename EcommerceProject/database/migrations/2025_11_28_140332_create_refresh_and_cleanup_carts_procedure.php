@@ -49,7 +49,11 @@ return new class extends Migration
                     WHEN 'YEAR' THEN DATE_ADD(CURRENT_TIMESTAMP, INTERVAL p_extend_value YEAR)
                     ELSE DATE_ADD(CURRENT_TIMESTAMP, INTERVAL p_extend_value DAY)
                 END,
-                updated_at = CURRENT_TIMESTAMP;
+                updated_at = CURRENT_TIMESTAMP
+                WHERE status = 0 AND expires_at <= CURRENT_TIMESTAMP AND user_id IS NOT NULL;
+
+            DELETE FROM carts
+            WHERE status = 0 AND expires_at <= CURRENT_TIMESTAMP AND user_id IS NULL;
 
             COMMIT;
         END;

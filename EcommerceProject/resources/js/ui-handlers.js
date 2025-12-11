@@ -94,25 +94,6 @@ window.copyToClipboard = function(text, button) {
     });
 };
 
-window.getPaginationFromApi = function(response) {
-    if(typeof response !== 'object') return {};
-
-    return {
-        current_page: response.current_page,
-        last_page: response.last_page,
-        per_page: response.per_page,
-        first_page_url: response.first_page_url,
-        last_page_url: response.last_page_url,
-        links: response.links,
-        next_page_url: response.next_page_url,
-        prev_page_url: response.prev_page_url,
-        path: response.path,
-        from: response.from,
-        to: response.to,
-        total: response.total
-    };
-}
-
 window.setQueryParams = function(keyOrObject, value = null) {
     const params = new URLSearchParams(window.location.search);
     const applyParam = function(key, value){
@@ -147,77 +128,6 @@ window.getQueryParams = function(fields) {
 
     return params.get(fields);
 }
-
-window.BasePageController = {
-    init() {
-        /* Fetch initial data */
-        this.fetchData();
-        this.registerEvents();
-    },
-
-    fetchData: async () => {},
-
-    refreshData() {
-        $wire.$set('isDataLoading', true);
-        this.fetchData();
-    },
-
-    _buildApiParams: {},
-
-    _internal: {},
-
-    events: {},
-
-    registerEvents() {
-        for(const [eventName, handler] of Object.entries(this.events)) {
-            document.addEventListener(eventName, handler);
-        }
-
-        /* Register default events and ensure cleanup on page unload */
-        window.addEventListener('beforeunload', this.unregisterEvents);
-    },
-
-    unregisterEvents() {
-        for(const [eventName, handler] of Object.entries(this.events)) {
-            document.removeEventListener(eventName, handler);
-        }
-    },
-
-    showError(status) {
-        if(typeof status !== 'number') {
-            throw new TypeError('Status must be a number');
-        }
-
-        if($wire) {
-            $wire.$dispatchTo('client.partials.error', 'error:show', { status });
-        }else {
-            Livewire.dispatchTo('client.partials.error', 'error:show', { status });
-        }
-
-        Livewire.hook('morphed', this._hidePageForError);
-    },
-
-    _hidePageForError() {
-        const mainComponent = document.getElementById('main-component');
-        const navbar = document.querySelector('nav.navbar');
-        const heroHeader = document.querySelector('.hero-header');
-
-        if(mainComponent && (mainComponent.getAttribute('wire:ignore') === null || mainComponent.style.display !== 'none')) {
-            mainComponent.setAttribute('wire:ignore', '');
-            mainComponent.style.display = 'none';
-        }
-
-        if(navbar && (navbar.getAttribute('wire:ignore') === null || !navbar.classList.contains('navbar-no-breadcrumb'))) {
-            navbar.setAttribute('wire:ignore', '');
-            navbar.classList.add('navbar-no-breadcrumb');
-        }
-
-        if(heroHeader && (heroHeader.getAttribute('wire:ignore') === null || heroHeader.style.display !== 'none')) {
-            heroHeader.setAttribute('wire:ignore', '');
-            heroHeader.style.display = 'none';
-        }
-    }
-};
 
 window.getCookie = function(key = null, defaultValue = null) {
     const cookies = document.cookie.split(';').reduce((accumulator, cookie) => {

@@ -7,6 +7,7 @@
 <script>
     const PageController = {
         __proto__: window.BasePageController,
+        _traits: [window.Fetchable],
 
         _internal: {
             localStorageKeys: ['reviewPage'],
@@ -51,7 +52,8 @@
                 const allowedFields = {
                     page: () => localStorage.getItem('reviewPage'),
                     with_rating_stats: () => !$wire.isReviewsLoaded,
-                    with_can_review: () => !$wire.isReviewsLoaded
+                    with_can_review: () => !$wire.isReviewsLoaded,
+                    with_my_review: () => !$wire.isReviewsLoaded
                 };
 
                 for(const [key, getter] of Object.entries(allowedFields)) {
@@ -66,6 +68,7 @@
                     include: 'user',
                     per_page: 5,
                     with_trashed: 1,
+                    exclude_my_review: 1,
                     ...apiParams
                 };
             }
@@ -260,7 +263,7 @@
                             </label>
                             <div class="d-flex flex-wrap gap-2 mb-1">
                                 @foreach($currentProduct['variants'] as $variant)
-                                    <button :class="`pdp-size-btn ${selectedVariant.id === {{ $variant['id'] }} ? 'pdp-size-btn-active' : ''}`" {{-- @disabled(!($variant['inventory']['stock'] ?? 0)) --}}
+                                    <button :class="`pdp-size-btn ${selectedVariant.id === {{ $variant['id'] }} ? 'pdp-size-btn-active' : ''}`" @disabled(!($variant['inventory']['stock'] ?? 0))
                                         x-on:click="selectedVariant = @js($variant)">{{ $variant['name'] }}</button>
                                 @endforeach
                             </div>

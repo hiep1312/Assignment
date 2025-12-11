@@ -22,6 +22,7 @@
 <script>
     const PageController = {
         __proto__: window.BasePageController,
+        _traits: [window.Fetchable, window.ApiPagination],
 
         _internal: {
             localStorageKeys: ['filter_categories', 'filter_availability', 'filter_ratings'],
@@ -53,7 +54,7 @@
                 $wire.categories = axiosCategoryData.data;
                 $wire.ratingStatistics = axiosRatingSummaryData.data;
                 $wire.products = axiosProductData.data;
-                $wire.pagination = window.getPaginationFromApi(axiosProductData);
+                $wire.pagination = PageController.getPagination(axiosProductData);
                 $wire.priceRange = axiosProductData.price_range;
                 $wire.isDataLoading = false;
                 $wire.$refresh();

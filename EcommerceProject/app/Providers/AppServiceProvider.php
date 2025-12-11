@@ -49,9 +49,17 @@ class AppServiceProvider extends ServiceProvider
             return Auth::check() && in_array(Auth::user()->role->value, $roles);
         });
 
-        // Configure rate limiter for API
+        // Configure rate limiter
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(120)->by($request->user('jwt')?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('cart-refresh', function (Request $request) {
+            return Limit::perMinute(10)->by(
+                $request->user('jwt')?->id
+                    ?: $request->cookie('cart_guest')
+                    ?: $request->ip()
+            );
         });
     }
 }

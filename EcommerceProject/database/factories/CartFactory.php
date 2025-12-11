@@ -26,7 +26,7 @@ class CartFactory extends Factory
 
         switch($forUser){
             case true:
-                $userId = $this->faker->randomElement(self::$userIds ?? [User::factory()]);
+                $userId = $this->faker->unique()->randomElement(self::$userIds ?? [User::factory()]);
                 break;
             case false:
                 $guestToken = $this->faker->userAgent();

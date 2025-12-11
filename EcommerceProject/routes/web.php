@@ -33,6 +33,7 @@ use App\Livewire\Admin\Users\UserEdit;
 use App\Livewire\Admin\Users\UserIndex;
 use App\Livewire\Client\Auth\Login as LoginClient;
 use App\Livewire\Client\Auth\Register;
+use App\Livewire\Client\Cart\CartIndex;
 use App\Livewire\Client\Products\ProductIndex as ProductIndexClient;
 use App\Livewire\Client\Products\ProductShow;
 use Illuminate\Support\Facades\Route;
@@ -142,12 +143,11 @@ Route::name('client.')->group(function() {
         Route::get('/', ProductIndexClient::class)->name('index');
         Route::get('/{product}', ProductShow::class)->name('show');
     });
-});
 
-Route::prefix('/errors')->name('errors.')->group(function() {
-    Route::view('/404', 'client.pages.404')->name('404');
-
-    Route::view('/500', 'client.pages.500')->name('500');
+    /* Cart */
+    Route::prefix('cart')->name('cart.')->group(function(){
+        Route::get('/', CartIndex::class)->name('index');
+    });
 });
 
 Route::prefix('template')->name('template.')->group(function() {

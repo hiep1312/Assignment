@@ -5,16 +5,20 @@ namespace App\Repositories\Contracts;
 interface CartItemRepositoryInterface extends RepositoryInterface
 {
     /**
-     * Retrieve available cart items for the given cart IDs.
+     * Retrieve available cart items for the authenticated user.
      *
-     * @param array $cartIds Array of cart IDs to check availability for
+     * @param array $cartItemIds Optional array of specific cart item IDs to check. If empty, checks all items in the user's active cart.
+     *                           This allows for partial cart validation (e.g., checking only selected items during checkout).
      * @param bool $useSharedLock Whether to apply a shared lock during the query (default: false).
-     *                            Only applied when inside a database transaction.
-     * @return \Illuminate\Support\Collection Collection of available cart items with stock information
+     *                            Only applied when inside a database transaction. Recommended for order placement to prevent race conditions.
      *
-     * @throws \InvalidArgumentException If $cartIds is empty
+     * @return \Illuminate\Support\Collection Collection of available cart items with the following attributes:
+     *                         - All cart_items table columns (ci.*)
+     *                         - stock: Current available inventory (pvi.stock)
+     *                         - sold_number: Total units sold (pvi.sold_number)
+     *                         Returns empty collection if user is not authenticated.
      */
-    public function getAvailableByCartIds(array $cartIds, $useSharedLock = false);
+    public function getAvailableCartItems(array $cartItemIds = [], $useSharedLock = false)
 
     /**
      * Create a new record by product variant SKU with associated attributes.

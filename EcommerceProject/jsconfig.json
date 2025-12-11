@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "checkJs": false,
+        "allowJs": true,
+        "strict": false,
+        "baseUrl": ".",
+        "ignoreDeprecations": "6.0",
+    },
+    "include": [
+        "resources/js/**/*.js",
+        "resources/js/types/**/*.d.ts"
+    ]
+}

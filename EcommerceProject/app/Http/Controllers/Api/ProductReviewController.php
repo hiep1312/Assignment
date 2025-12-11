@@ -8,6 +8,7 @@ use App\Http\Requests\Client\ProductReviewRequest;
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use App\Services\ProductReviewService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductReviewController extends BaseApiController
 {
@@ -52,6 +53,9 @@ class ProductReviewController extends BaseApiController
                 )->when(
                     $request->boolean('with_trashed'),
                     fn($innerQuery) => $innerQuery->withTrashed()
+                )->when(
+                    $request->boolean('exclude_my_review') && Auth::guard('jwt')->check(),
+                    fn($innerQuery) => $innerQuery->whereNot('user_id', authPayload('sub'))
                 );
 
                 $query->where('product_id', $productId);

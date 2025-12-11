@@ -8,7 +8,6 @@ use App\Repositories\Contracts\CartItemRepositoryInterface;
 use App\Services\CartItemService;
 use App\Services\CartService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class CartItemController extends BaseApiController
 {
@@ -95,15 +94,14 @@ class CartItemController extends BaseApiController
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $cartId, string $id)
+    public function show(Request $request, string $id)
     {
         $cartItem = $this->repository->first(
-            criteria: function($query) use ($request, $cartId, $id) {
+            criteria: function($query) use ($request, $id) {
                 $query->with($this->getRequestedRelations($request))
                     ->where('id', $id)
-                    ->whereHas('cart', function($subQuery) use ($cartId, $request){
-                        $subQuery->where('id', $cartId)
-                            ->when(...CartService::userQueryConditions());
+                    ->whereHas('cart', function($subQuery){
+                        $subQuery->when(...CartService::userQueryConditions());
                     });
             },
             columns: self::API_FIELDS,
@@ -123,15 +121,14 @@ class CartItemController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(CartItemRequest $request, string $cartId, string $id)
+    public function update(CartItemRequest $request, string $id)
     {
         $validatedData = $request->validated();
         $isUpdated = $this->repository->update(
-            idOrCriteria: function ($query) use ($cartId, $id){
+            idOrCriteria: function ($query) use ($id){
                 $query->where('id', $id)
-                    ->whereHas('cart', function($subQuery) use ($cartId){
-                        $subQuery->where('id', $cartId)
-                            ->where('status', 1)
+                    ->whereHas('cart', function($subQuery){
+                        $subQuery->where('status', 1)
                             ->where('expires_at', '>', now())
                             ->when(...CartService::userQueryConditions());
                     });
@@ -154,14 +151,13 @@ class CartItemController extends BaseApiController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $cartId, string $id)
+    public function destroy(string $id)
     {
         $isDeleted = $this->repository->delete(
-            idOrCriteria: function($query) use ($cartId, $id){
+            idOrCriteria: function($query) use ($id){
                 $query->where('id', $id)
-                    ->whereHas('cart', function($subQuery) use ($cartId) {
-                        $subQuery->where('id', $cartId)
-                            ->when(...CartService::userQueryConditions());
+                    ->whereHas('cart', function($subQuery){
+                        $subQuery->when(...CartService::userQueryConditions());
                     });
             }
         );

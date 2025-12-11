@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
         )->create();
 
         /* Add 10 random users */
-        $usersAdded = $usersAdded->concat(User::factory(10)->create());
+        $usersAdded = $usersAdded->concat(User::factory(20)->create());
 
         /* Create random user addresses */
         foreach ($usersAdded->pluck('id') as $userId) {

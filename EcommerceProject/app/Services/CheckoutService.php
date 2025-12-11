@@ -11,6 +11,7 @@ use App\Repositories\Contracts\ProductVariantInventoryRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -35,17 +36,16 @@ class CheckoutService
             DB::beginTransaction();
             $sourceItems = collect();
 
-            if(!empty($data['carts']) && is_array($data['carts'])) {
-                $availableCartItems = $this->cartItemRepository->getAvailableByCartIds($data['carts'], true);
-                $availableCartIds = $availableCartItems->pluck('cart_id')->unique();
+            if(!empty($data['cart_items'])) {
+                $availableCartItems = $this->cartItemRepository->getAvailableCartItems(is_string($data['cart_items']) ? [] : (array) $data['cart_items'], true);
 
-                if($availableCartItems->isEmpty() || count($data['carts']) !== $availableCartIds->count()) {
-                    throw new RuntimeException('Some carts are empty, expired, or contain items with insufficient stock.');
+                if($availableCartItems->isEmpty() || (!is_string($data['cart_items']) && count((array) $data['cart_items']) !== $availableCartItems->count())) {
+                    throw new RuntimeException('Your cart is empty, expired, or some items are unavailable or have insufficient stock.');
                 }
 
                 $sourceItems = $availableCartItems;
                 $this->cartItemRepository->delete(
-                    idOrCriteria: fn($query) => $query->whereIn('id', $availableCartIds->toArray())
+                    idOrCriteria: fn($query) => $query->whereIn('id', $availableCartItems->pluck('id')->toArray())
                 );
             }else {
                 $variant = $this->variantRepository->first(
@@ -271,35 +271,54 @@ class CheckoutService
                 throw new RuntimeException('Order not found, already paid, or cannot be cancelled.');
             }
 
+            $userCart = $this->cartRepository->first(
+                criteria: function($query) {
+                    $query->with('items')
+                        ->where('user_id', authPayload('sub'))
+                        ->where('status', 1)
+                        ->where('expires_at', '>', now());
+                }
+            );
+            $cartItemsByVariant = $userCart?->items->keyBy('product_variant_id') ?? collect();
+
+            if(!$userCart){
+                $userCart = $this->cartRepository->create([
+                    'user_id' => authPayload('sub'),
+                    'status' => 1,
+                    'expires_at' => now()->addDays(2)
+                ]);
+            }
+
             $cartItemsPayload = [];
             $stockAdjustments = [];
 
             foreach($order->items as $item){
-                $cartItemsPayload[] = $item->only('product_variant_id', 'quantity', 'price');
+                $variantId = $item->product_variant_id;
+                $cartItemsPayload[$variantId] = [
+                    'id' => $cartItemsByVariant[$variantId]?->id ?? null,
+                    'cart_id' => $userCart->id,
+                    'product_variant_id' => $variantId,
+                    'quantity' => $item->quantity + min($cartItemsByVariant[$variantId]?->quantity ?? 0, $item->productVariant->inventory->stock),
+                    'price' => $item->price
+                ];
 
                 $stockAdjustments[] = [
                     'variant_id' => $item->product_variant_id,
                     'stock' => $item->productVariant->inventory->stock + $item->quantity,
-                    'sold_number' => $item->productVariant->inventory->sold_number - $item->quantity
+                    'sold_number' => max(0, $item->productVariant->inventory->sold_number - $item->quantity)
                 ];
             }
 
-            $restoredCart = $this->cartRepository->create([
-                'user_id' => authPayload('sub'),
-                'status' => 1,
-                'expires_at' => now()->addDays(2)
-            ]);
-
-            $createdItems = $restoredCart->items()->createMany($cartItemsPayload);
-            $restoredCart->setRelation('items', $createdItems);
+            $this->cartItemRepository->upsert($cartItemsPayload, ['id', 'cart_id', 'product_variant_id']);
             $this->variantInventoryRepository->upsert($stockAdjustments, ['variant_id']);
             $order->forceDelete();
             DB::commit();
+            $userCart->setRelation('items', $cartItemsByVariant->merge($cartItemsPayload)->values());
 
             return [
                 'success' => true,
                 'message' => 'Order cancelled successfully. Items have been restored to your cart.',
-                'data' => $restoredCart
+                'data' => $userCart
             ];
 
         }catch(QueryException $dbException) {
