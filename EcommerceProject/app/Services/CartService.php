@@ -35,7 +35,16 @@ class CartService
         if(!$availableVariants){
             return [
                 'success' => false,
+                'code' => 422,
                 'message' => 'No available products found for the requested SKUs or all are out of stock.'
+            ];
+        }else if($this->repository->exists(
+            criteria: fn($query) => $query->where('user_id', authPayload('sub', -1, false))
+        )) {
+            return [
+                'success' => false,
+                'code' => 409,
+                'message' => 'An active cart already exists for this user. A new cart cannot be created.',
             ];
         }
 
@@ -83,6 +92,7 @@ class CartService
 
         return [
             'success' => true,
+            'code' => 201,
             'message' => empty($outOfStockSkus)
                 ? 'Cart created successfully.'
                 : 'Cart created with some items limited by stock.',

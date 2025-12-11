@@ -51,7 +51,7 @@ Route::name('api.')->group(function() {
         ], [
             'excluded_middleware_for' => [
                 'index' => ['auth:jwt'],
-                // 'show' => ['auth:jwt']
+                'show' => ['auth:jwt']
             ]
         ]);
 

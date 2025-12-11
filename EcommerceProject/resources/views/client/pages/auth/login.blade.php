@@ -94,12 +94,19 @@
                     x-data="{ showAlert: false, message: '' }"
                     x-init="
                         document.addEventListener('login:success', event => {
+                            let countdown = 3;
                             showAlert = true;
-                            message = 'You have logged in successfully. Redirecting...';
+                            message = `You have logged in successfully. Redirecting in ${countdown}s...`;
 
-                            setTimeout(() => {
-                                window.location = '{{ route('client.index') }}';
-                            }, 3000);
+                            const interval = setInterval(() => {
+                                if(countdown > 0) {
+                                    countdown--;
+                                    message = `You have logged in successfully. Redirecting in ${countdown}s...`;
+                                }else {
+                                    clearInterval(interval);
+                                    window.location = '{{ route('client.index') }}';
+                                }
+                            }, 1000);
                         });
                     "
                     x-show="showAlert" wire:transition

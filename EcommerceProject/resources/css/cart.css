@@ -366,6 +366,7 @@
     font-weight: 600;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     margin-bottom: 0.75rem;
+    text-decoration: none;
 }
 
 .cart-summary__button:hover {

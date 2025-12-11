@@ -8,6 +8,9 @@ use Livewire\Component;
 
 class CartIndex extends Component
 {
+    public bool $isGuest = false;
+    public array $currentUser = [];
+
 
     #[Title('Shopping Cart - Bookio')]
     #[Layout('layouts.client')]

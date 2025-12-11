@@ -55,6 +55,7 @@
     --bs-info-text-emphasis-origin: #055160;
     --bs-info-bg-subtle-origin: #cff4fc;
     --bs-info-border-subtle-origin: #9eeaf9;
+    --bs-toast-border-radius-origin: var(--bs-border-radius-origin);
 }
 
 /* Client */
