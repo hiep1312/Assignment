@@ -7,13 +7,20 @@ use Livewire\Component;
 
 class ProductShow extends Component
 {
+    public $routeSlug;
+    public ?array $currentUser = null;
+
     public bool $isDataLoading = true;
-    public string $routeSlug;
     public array $currentProduct = [];
+    public array $productCategories = [];
     public ?array $selectedVariant = [];
+
     public bool $isReviewsLoaded = false;
-    public array $reviewsData = [];
     public array $ratingDistribution = [];
+    public array $reviewsData = [];
+    public ?array $myReview = null;
+    public array $reviewsPagination = [];
+    public bool $isLoadingMore = false;
     public bool $canReview = false;
 
     public function mount(string $product)
@@ -34,6 +41,11 @@ class ProductShow extends Component
         $this->js(<<<JS
             window.reviewsApiUrl = "{$reviewsApiUrl}";
         JS);
+    }
+
+    public function updatedReviewsData()
+    {
+        $this->isLoadingMore = false;
     }
 
     #[Layout('layouts.client')]

@@ -10,10 +10,11 @@ class ProductIndex extends Component
 {
     public array $categories = [];
     public array $ratingStatistics = [];
+    public array $priceRange = [];
+
+    public bool $isDataLoading = true;
     public array $products = [];
     public array $pagination = [];
-    public bool $isDataLoading = true;
-    public array $priceRange = [];
 
     #[Title('Explore Books - Bookio')]
     #[Layout('layouts.client')]

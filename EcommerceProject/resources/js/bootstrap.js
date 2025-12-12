@@ -72,7 +72,3 @@ window.http.interceptors.response.use(
     },
     { synchronous: false }
 );
-
-const temp = window.http.get(import.meta.env.VITE_APP_URL + '/me')
-    .then(response => window.secure_userInfo = response.data.user)
-    .catch(error => window.secure_userInfo = null);

@@ -48,7 +48,7 @@ window.confirmModalAction = function(callingElement, eventTarget = false){
                 $wire.$dispatch('modal.show', data);
                 break;
             default:
-                $wire.$dispatchTo('admin.components.confirm-modal', 'modal.show', data)
+                $wire.$dispatchTo(location.pathname.includes('admin') ? 'admin.components.confirm-modal' : 'client.components.confirm-modal', 'modal.show', data)
                 break;
         }
     }

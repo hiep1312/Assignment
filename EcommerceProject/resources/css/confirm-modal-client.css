@@ -1,0 +1,214 @@
+.cp-modal .modal-content {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.cp-modal .modal-header {
+    border: none;
+    padding: 0;
+    position: relative;
+    background: transparent;
+}
+
+.cp-modal .modal-body {
+    padding: 40px 30px 15px;
+    text-align: center;
+}
+
+.cp-modal .modal-footer {
+    border: none;
+    padding: 15px 30px 22px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap-reverse;
+    gap: 10px;
+}
+
+.cp-modal .btn-close {
+    z-index: 1055;
+}
+
+.cp-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 17px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    position: relative;
+    animation: cp-bounce 0.6s ease;
+}
+
+@keyframes cp-bounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.cp-icon-wrapper i {
+    font-size: 36px;
+    color: white;
+}
+
+.cp-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #2d3748;
+}
+
+.cp-message {
+    font-size: 15px;
+    color: #718096;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+.cp-btn-confirm {
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cp-btn-confirm:hover {
+    transform: translateY(-1px);
+}
+
+.cp-btn-cancel {
+    background: #e2e8f0;
+    color: #64748b;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cp-btn-cancel:hover {
+    background: #cbd5e1;
+    color: #475569;
+}
+
+.cp-modal-success .cp-icon-wrapper,
+.cp-modal-success .cp-btn-confirm {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.cp-modal-success .cp-btn-confirm:hover {
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.cp-modal-warning .cp-icon-wrapper,
+.cp-modal-warning .cp-btn-confirm {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.cp-modal-warning .cp-btn-confirm:hover {
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+}
+
+.cp-modal-danger .cp-icon-wrapper,
+.cp-modal-danger .cp-btn-confirm {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.cp-modal-danger .cp-btn-confirm:hover {
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.cp-modal-info .cp-icon-wrapper,
+.cp-modal-info .cp-btn-confirm {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.cp-modal-info .cp-btn-confirm:hover {
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.cp-modal-question .cp-icon-wrapper,
+.cp-modal-question .cp-btn-confirm {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.cp-modal-question .cp-btn-confirm:hover {
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+}
+
+.cp-modal-modern .cp-icon-wrapper,
+.cp-modal-modern .cp-btn-confirm {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.cp-modal-modern .cp-btn-confirm:hover {
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.cp-modal-minimal .cp-icon-wrapper {
+    background: #f8fafc;
+    border: 3px solid #e2e8f0;
+    box-shadow: none;
+}
+
+.cp-modal-minimal .cp-icon-wrapper i {
+    color: #64748b;
+}
+
+.cp-modal-minimal .cp-btn-confirm {
+    background: #1e293b;
+}
+
+.cp-modal-minimal .cp-btn-confirm:hover {
+    background: #0f172a;
+}
+
+.cp-modal-glass .modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cp-modal-glass .cp-icon-wrapper,
+.cp-modal-glass .cp-btn-confirm {
+    background: rgba(59, 130, 246, 0.9);
+    backdrop-filter: blur(5px);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .cp-modal .modal-body {
+        padding: 30px 20px 15px;
+    }
+
+    .cp-modal .modal-footer {
+        padding: 15px 20px 20px;
+    }
+
+    .cp-icon-wrapper {
+        width: 70px;
+        height: 70px;
+    }
+
+    .cp-icon-wrapper i {
+        font-size: 30px;
+    }
+
+    .cp-title {
+        font-size: 20px;
+    }
+
+    .cp-message {
+        font-size: 14px;
+    }
+}

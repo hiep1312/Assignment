@@ -106,6 +106,7 @@ class ProductReviewController extends BaseApiController
         $review = $this->repository->first(
             criteria: function($query) use ($request, $id){
                 $query->with($this->getRequestedRelations($request))
+                    ->when($request->boolean('with_trashed'), fn($innerQuery) => $innerQuery->withTrashed())
                     ->where('id', $id);
             },
             columns: self::API_FIELDS,
@@ -149,16 +150,15 @@ class ProductReviewController extends BaseApiController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
         ['role' => $role, 'sub' => $userId] = authPayload();
 
-        $isDeleted = $this->repository->delete(
-            idOrCriteria: function($query) use ($id, $role, $userId){
-                $query->where('id', $id)
-                    ->when($role === UserRole::USER->value, fn($innerQuery) => $innerQuery->where('user_id', $userId));
-            }
-        );
+        $criteria = function($query) use ($id, $role, $userId){
+            $query->where('id', $id)
+                ->when($role === UserRole::USER->value, fn($innerQuery) => $innerQuery->where('user_id', $userId));
+        };
+        $isDeleted = $request->boolean('force_delete') ? $this->repository->forceDelete(idOrCriteria: $criteria) : $this->repository->delete(idOrCriteria: $criteria);
 
         return $this->response(
             success: (bool) $isDeleted,

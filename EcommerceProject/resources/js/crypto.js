@@ -16,38 +16,27 @@ async function getCryptoKey() {
     );
 }
 
-Object.defineProperties(window, {
-    encrypt: {
-        configurable: false,
-        enumerable: false,
-        value: async function(data) {
-            const cryptoKey = await getCryptoKey();
-            const encryptedBuffer = await crypto.subtle.encrypt(
-                { name: 'AES-GCM', iv: ivBytes },
-                cryptoKey,
-                (data instanceof Uint8Array || data instanceof ArrayBuffer) ? data : encoder.encode(String(data))
-            );
+async function encryptData(data) {
+    const cryptoKey = await getCryptoKey();
+    const encryptedBuffer = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv: ivBytes },
+        cryptoKey,
+        (data instanceof Uint8Array || data instanceof ArrayBuffer) ? data : encoder.encode(String(data))
+    );
 
-            return new Uint8Array(encryptedBuffer).toBase64();
-        },
-        writable: false
-    },
+    return new Uint8Array(encryptedBuffer).toBase64({ alphabet: "base64" });
+}
 
-    decrypt: {
-        configurable: false,
-        enumerable: false,
-        value: async function(cipherData) {
-            const cryptoKey = await getCryptoKey();
-            const decryptedBuffer = await crypto.subtle.decrypt(
-                { name: 'AES-GCM', iv: encoder.encode(rawIV) },
-                cryptoKey,
-                (cipherData instanceof Uint8Array || cipherData instanceof ArrayBuffer) ? cipherData : Uint8Array.fromBase64(String(cipherData))
-            );
 
-            return decoder.decode(decryptedBuffer);
-        },
-        writable: false
-    },
-});
+async function decryptData(cipherData) {
+    const cryptoKey = await getCryptoKey();
+    const decryptedBuffer = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: encoder.encode(rawIV) },
+        cryptoKey,
+        (cipherData instanceof Uint8Array || cipherData instanceof ArrayBuffer) ? cipherData : Uint8Array.fromBase64(String(cipherData), { alphabet: "base64" })
+    );
 
-window.encrypt('hello world').then(result => window.decrypt(result)).then(result => console.log(result));
+    return decoder.decode(decryptedBuffer);
+}
+
+export { encryptData, decryptData };

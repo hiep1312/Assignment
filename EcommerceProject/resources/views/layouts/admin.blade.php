@@ -45,6 +45,7 @@
 
     <!-- Core JS -->
     <script src="{{ asset("admin/assets/js/bootstrap.js") }}"></script>
+    @vite('resources/js/app.js')
 </head>
 <body>
     @section('body')
@@ -77,7 +78,6 @@
     <script src="{{ asset("admin/assets/libs/popper/popper.js") }}"></script>
     <script src="{{ asset("admin/assets/libs/perfect-scrollbar/perfect-scrollbar.js") }}"></script>
     <script src="{{ asset("admin/assets/js/menu.js") }}"></script>
-    @vite('resources/js/app.js')
     <!-- endbuild -->
 
     <!-- Main JS -->

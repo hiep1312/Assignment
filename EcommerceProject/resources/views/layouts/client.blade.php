@@ -38,6 +38,11 @@
 
     <!-- Page CSS -->
     @stack('styles')
+
+    <!-- Core JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    @vite('resources/js/app.js')
+    @vite('resources/js/user-manager.js')
 </head>
 <body class="bg-white p-0">
     {{-- @include('client.partials.spinner') --}}
@@ -71,7 +76,6 @@
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('client/assets/lib/wow/wow.min.js') }}"></script>
     <script src="{{ asset('client/assets/lib/easing/easing.min.js') }}"></script>
     <script src="{{ asset('client/assets/lib/waypoints/waypoints.min.js') }}"></script>
@@ -82,8 +86,7 @@
     <script src="{{ asset('client/assets/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js') }}"></script>
 
     <!-- Website Javascript -->
-    <script src="{{ asset('client/assets/js/main.js') }}"></script>
-    @vite('resources/js/app.js')
+    {{-- <script src="{{ asset('client/assets/js/main.js') }}"></script> --}}
     @vite('resources/js/core.js')
 
     <!-- Page JS -->

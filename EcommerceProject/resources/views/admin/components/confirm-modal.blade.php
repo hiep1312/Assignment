@@ -44,6 +44,7 @@ $typeBtn = match($type){
 
         condition ? modal.show() : modal.hide();
     }
+
     syncModal();
 </script>
 @endscript

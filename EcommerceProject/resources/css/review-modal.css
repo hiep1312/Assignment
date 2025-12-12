@@ -1,0 +1,84 @@
+/* Modal */
+.pdp-modal-content {
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.pdp-modal-header {
+    background-color: rgba(255, 140, 0, 0.05);
+    border-bottom: 2px solid var(--pdp-border-color);
+    padding: 1rem 1.5rem;
+}
+
+.pdp-modal-header .modal-title {
+    color: var(--pdp-text-primary);
+    font-weight: 700;
+}
+
+.pdp-modal-body {
+    padding: 1rem 1.5rem;
+}
+
+.pdp-modal-footer {
+    border-top: 1px solid var(--pdp-border-color);
+    padding: 1rem 1.5rem;
+    background-color: var(--pdp-gray-light);
+}
+
+.pdp-rating-input {
+    display: flex;
+}
+
+.pdp-star-input {
+    background: none;
+    border: none;
+    font-size: 1.85rem;
+    cursor: pointer;
+    color: var(--pdp-gray-medium);
+    transition: all 0.3s ease;
+}
+
+.pdp-star-input:hover,
+.pdp-star-input.active {
+    color: var(--pdp-warning);
+    transform: scale(1.1);
+}
+
+.pdp-form-input,
+.pdp-form-textarea {
+    border: 2px solid var(--pdp-border-color);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.pdp-form-input:focus,
+.pdp-form-textarea:focus {
+    border-color: var(--pdp-primary-orange);
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+    outline: none;
+}
+
+.pdp-icon-label {
+  margin-right: 0.1rem;
+  color: var(--pdp-primary-orange);
+}
+
+.pdp-modal-footer .btn {
+    border: none;
+    border-radius: 0.5rem;
+    padding: .54rem .75rem;
+    transition: all 0.3s ease;
+}
+
+.pdp-btn-submit-review {
+    background-color: var(--pdp-primary-orange);
+    color: white;
+}
+
+.pdp-btn-submit-review:hover {
+    background-color: var(--pdp-orange-dark);
+    color: white;
+}

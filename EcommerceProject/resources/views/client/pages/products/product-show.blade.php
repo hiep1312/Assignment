@@ -9,19 +9,7 @@
         __proto__: window.BasePageController,
         _traits: [window.Fetchable],
 
-        _internal: {
-            localStorageKeys: ['reviewPage'],
-        },
-
-        init() {
-            /* Clear local storage */
-            for(const key of PageController._internal.localStorageKeys) {
-                localStorage.removeItem(key);
-            }
-
-            super.init();
-            console.log(window.secure_userInfo);
-        },
+        _internal: {},
 
         fetchData: async () => {
             try {
@@ -30,6 +18,7 @@
                 const { data: axiosProductData } = productResponse;
 
                 $wire.currentProduct = axiosProductData.data;
+                $wire.productCategories = axiosProductData.data.categories;
                 $wire.isDataLoading = false;
                 $wire.$refresh();
 
@@ -44,14 +33,14 @@
 
         _buildApiParams: {
             productQueryParams: () => ({
-                include: 'variants.inventory, images',
+                include: 'variants.inventory, images, categories',
                 aggregate: 'count:reviews, avg:reviews.rating, sum:inventories.sold_number'
             }),
 
             reviewQueryParams: () => {
                 const apiParams = {};
                 const allowedFields = {
-                    page: () => localStorage.getItem('reviewPage'),
+                    page: () => ($wire.reviewsPagination?.current_page ?? 0) + 1,
                     with_rating_stats: () => !$wire.isReviewsLoaded,
                     with_can_review: () => !$wire.isReviewsLoaded,
                     with_my_review: () => !$wire.isReviewsLoaded
@@ -79,20 +68,23 @@
             "reviews:load": async (event) => {
                 if(!$wire.isReviewsLoaded) {
                     try {
-                        const reviewResponse = await window.http.get(window.reviewsApiUrl, { params: PageController._buildApiParams.reviewQueryParams() });
+                        const { data: axiosReviewData } = await window.http.get(window.reviewsApiUrl, { params: PageController._buildApiParams.reviewQueryParams() });
 
-                        const { data: axiosReviewData } = reviewResponse;
-
-                        if(axiosReviewData.my_review){
+                        if(axiosReviewData.my_review) {
                             axiosReviewData.my_review.user = window.secure_userInfo;
-                            axiosReviewData.data.unshift(axiosReviewData.my_review);
                         }
 
                         $wire.reviewsData = axiosReviewData.data;
+                        $wire.myReview = axiosReviewData.my_review;
+                        $wire.reviewsPagination = {
+                            current_page: axiosReviewData.current_page,
+                            last_page: axiosReviewData.last_page,
+                            total: axiosReviewData.total
+                        };
                         $wire.ratingDistribution = axiosReviewData.rating_distribution;
                         $wire.canReview = axiosReviewData.can_review;
                         $wire.isReviewsLoaded = true;
-                        localStorage.setItem('reviewPage', axiosReviewData.current_page);
+                        $wire.currentUser = window.secure_userInfo;
                         $wire.$refresh();
 
                     }catch(axiosError) {
@@ -102,7 +94,30 @@
                     }
                 }
             },
-        }
+
+            "reviews:more": async (event) => {
+                if($wire.isReviewsLoaded && $wire.reviewsPagination.current_page < $wire.reviewsPagination.last_page) {
+                    try {
+                        $wire.isLoadingMore = true;
+                        const { data: axiosReviewData } = await window.http.get(window.reviewsApiUrl, { params: PageController._buildApiParams.reviewQueryParams() });
+
+                        $wire.reviewsData = [...$wire.reviewsData, ...axiosReviewData.data];
+                        $wire.reviewsPagination = {
+                            current_page: axiosReviewData.current_page,
+                            last_page: axiosReviewData.last_page,
+                            total: axiosReviewData.total
+                        };
+                        $wire.$refresh();
+
+                    }catch(axiosError) {
+                        const message = axiosError.response?.data?.message ?? axiosError.message;
+                        $wire.isLoadingMore = false;
+
+                        console.error("Failed to load more reviews: ", message);
+                    }
+                }
+            },
+        },
     };
 
     PageController.init();
@@ -381,31 +396,97 @@
                         <p>{{ $currentProduct['description'] ?? 'The detailed description of this book is currently unavailable.' }}</p>
                     @endif
                 </div>
+                <div class="pdp-categories-section">
+                    <h5 class="pdp-categories-title">
+                        <i class="fas fa-tags"></i>
+                        Categories
+                    </h5>
+
+                    @if($isDataLoading)
+                        <div class="pdp-categories-list placeholder-glow">
+                            <span class="placeholder pdp-category-badge" style="width: 120px; height: 30px;"></span>
+                            <span class="placeholder pdp-category-badge" style="width: 120px; height: 30px;"></span>
+                            <span class="placeholder pdp-category-badge" style="width: 120px; height: 30px;"></span>
+                        </div>
+                    @else
+                        <div class="pdp-categories-list">
+                            @forelse($productCategories as $category)
+                                <a href="{{ route('client.products.index', ['category' => $category['slug']]) }}" class="pdp-category-badge" title="View products in {{ $category['name'] }}">
+                                    <i class="fas fa-folder"></i> {{ $category['name'] }}
+                                </a>
+                            @empty
+                                <div class="pdp-categories-empty">
+                                    <i class="fas fa-inbox me-1"></i>
+                                    No categories assigned to this product
+                                </div>
+                            @endforelse
+                        </div>
+                    @endif
+                </div>
             </div>
 
             <div class="tab-pane fade" id="reviews-content" role="tabpanel" wire:key="reviews-content" wire:ignore.self>
                 <x-livewire-client::review-section header-class="mb-4" :is-placeholder="!$isReviewsLoaded"
                     :avg-rating="(float) ($currentProduct['reviews_avg_rating'] ?? 0)" :total-reviews="$currentProduct['reviews_count'] ?? 0"
                     :star-counts="$ratingDistribution">
-                    {{-- <x-slot:action-button data-bs-toggle="modal" data-bs-target="#reviewModal">
-                        <i class="fas fa-pen"></i> Write a review
-                    </x-slot:action-button> --}}
+                    @if($currentUser)
+                        <x-slot:action-button data-bs-toggle="modal" data-bs-target="#reviewModal">
+                            <i class="fas fa-pen"></i> Write a review
+                        </x-slot:action-button>
+                    @elseif($isReviewsLoaded)
+                        <x-livewire-client::alert type="warning" title="Login Required" icon="fas fa-sign-in-alt" class="mb-4" wire:key="auth-warning-alert">
+                            You must be logged in to write a review. Please <a href="{{ route('login') }}" class="alert-link fw-bold">sign in</a>
+                            or
+                            <a href="{{ route('register') }}" class="alert-link fw-bold">create an account</a> to continue.
+
+                            <x-slot:btn-close data-bs-dismiss="alert"></x-slot:btn-close>
+                        </x-livewire-client::alert>
+                    @endif
 
                     <x-livewire-client::review-section.review-list>
                         @if($isReviewsLoaded)
-                            @forelse($reviewsData as $review)
+                            @php
+                                $mergedReviews = $reviewsData;
+
+                                if($myReview) {
+                                    array_unshift($mergedReviews, $myReview);
+                                }
+                            @endphp
+                            @forelse($mergedReviews as $review)
                                 @php
                                     $name = $review['user'] ? trim("{$review['user']['first_name']} {$review['user']['last_name']}") : 'Unknown User';
                                 @endphp
                                 <x-livewire-client::review-section.review-list.card :$name :score="$review['rating']" :time="now()->diffForHumans($review['created_at'])" class="mb-4" wire:key="review-{{ $review['id'] }}">
                                     <x-slot:avatar :src="asset('storage/' . ($review['user']['avatar'] ?? DefaultImage::AVATAR->value))" :alt="'Avatar of ' . $name"></x-slot:avatar>
 
-                                    {{ $review['content'] }}
+                                    @if($review['deleted_at'])
+                                        <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background: linear-gradient(to right, #ffebee 0%, #fff5f5 100%); border-left: 3px solid #f44336;">
+                                            <i class="fas fa-ban flex-shrink-0" style="color: #d32f2f; font-size: 16px;"></i>
+                                            <span class="fst-italic" style="color: #c62828; margin-top: 3px !important;">
+                                                This review has been removed by the administrator for violating community guidelines.
+                                            </span>
+                                        </div>
+                                    @elseif(empty($review['content']))
+                                        <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background-color: #fff8e1; border-left: 3px solid #ffb300;">
+                                            <i class="fas fa-star text-warning" style="font-size: 18px;"></i>
+                                            <div class="flex-grow-1 mt-1">
+                                                <span class="text-muted fst-italic">
+                                                    This user rated the product but did not leave a written review.
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @else
+                                        {{ $review['content'] }}
+                                    @endif
 
                                     <x-slot:helpful-button>Helpful</x-slot:helpful-button>
                                     <x-slot:unhelpful-button>Not helpful</x-slot:unhelpful-button>
 
-                                    <x-slot:delete-button ::x-if="window.secure_userInfo && ">Delete review</x-slot:delete-button>
+                                    @if($currentUser && ($currentUser['id'] === $review['user_id'] || $currentUser['role'] === 'admin'))
+                                        <x-slot:delete-button title="Delete Review" onclick="confirmModalAction(this)" data-title="Delete Review"
+                                            data-type="warning" data-message="Are you sure you want to delete your review? This action cannot be undone." data-confirm-label="Confirm Delete"
+                                            data-event-name="review.deleted" data-event-data="{{ $review['id'] }}">Delete review</x-slot:delete-button>
+                                    @endif
                                 </x-livewire-client::review-section.review-list.card>
                             @empty
                                 <x-livewire-client::alert type="info" title="No Reviews Yet" icon="fas fa-info-circle">
@@ -414,6 +495,12 @@
                                     <x-slot:btn-close data-bs-dismiss="alert"></x-slot:btn-close>
                                 </x-livewire-client::alert>
                             @endforelse
+
+                            <div x-show="$wire.isLoadingMore" wire:key="review-placeholder-load-more">
+                                @for($i = 5; $i < 10; $i++)
+                                    <x-livewire-client::review-section.review-list.card-placeholder class="mb-4" wire:key="review-placeholder-{{ $i }}"></x-livewire-client::review-section.review-list.card-placeholder>
+                                @endfor
+                            </div>
                         @else
                             @for($i = 0; $i < 5; $i++)
                                 <x-livewire-client::review-section.review-list.card-placeholder class="mb-4" wire:key="review-placeholder-{{ $i }}"></x-livewire-client::review-section.review-list.card-placeholder>
@@ -421,8 +508,8 @@
                         @endif
                     </x-livewire-client::review-section.review-list>
 
-                    @if(count($reviewsData))
-                        <x-slot:load-more-button wrapper-class="mt-4"></x-slot:load-more-button>
+                    @if(count($reviewsData) && $reviewsPagination['current_page'] < $reviewsPagination['last_page'])
+                        <x-slot:load-more-button wrapper-class="mt-4" onclick="document.dispatchEvent(new Event('reviews:more'))"></x-slot:load-more-button>
                     @endif
                 </x-livewire-client::review-section>
             </div>
@@ -436,46 +523,5 @@
         </x-livewire-client::empty-state>
     </div>
 
-    <div class="modal fade" id="reviewModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content pdp-modal-content">
-                <div class="modal-header pdp-modal-header">
-                    <h5 class="modal-title"><i class="fas fa-pen-fancy"></i> Viết đánh giá</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body pdp-modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-star pdp-icon-label"></i> Đánh giá sao</label>
-                            <div class="pdp-rating-input">
-                                <button type="button" class="pdp-star-input" data-rating="1"><i class="fas fa-star"></i></button>
-                                <button type="button" class="pdp-star-input" data-rating="2"><i class="fas fa-star"></i></button>
-                                <button type="button" class="pdp-star-input" data-rating="3"><i class="fas fa-star"></i></button>
-                                <button type="button" class="pdp-star-input" data-rating="4"><i class="fas fa-star"></i></button>
-                                <button type="button" class="pdp-star-input" data-rating="5"><i class="fas fa-star"></i></button>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="reviewTitle" class="form-label"><i class="fas fa-heading pdp-icon-label"></i> Tiêu đề đánh giá</label>
-                            <input type="text" class="form-control pdp-form-input" id="reviewTitle" placeholder="Nhập tiêu đề đánh giá">
-                        </div>
-                        <div class="mb-3">
-                            <label for="reviewContent" class="form-label"><i class="fas fa-pen-fancy pdp-icon-label"></i> Nội dung đánh giá</label>
-                            <textarea class="form-control pdp-form-textarea" id="reviewContent" rows="5" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
-                        </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="verifiedPurchase">
-                            <label class="form-check-label" for="verifiedPurchase">
-                                <i class="fas fa-check"></i> Tôi đã mua sản phẩm này
-                            </label>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer pdp-modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn pdp-btn-submit-review">Gửi đánh giá</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <livewire:client.components.confirm-modal wire:key="confirm-modal">
 </div>
