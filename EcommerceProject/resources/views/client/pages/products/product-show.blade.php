@@ -20,6 +20,7 @@
             }
 
             super.init();
+            console.log(window.secure_userInfo);
         },
 
         fetchData: async () => {
@@ -81,6 +82,11 @@
                         const reviewResponse = await window.http.get(window.reviewsApiUrl, { params: PageController._buildApiParams.reviewQueryParams() });
 
                         const { data: axiosReviewData } = reviewResponse;
+
+                        if(axiosReviewData.my_review){
+                            axiosReviewData.my_review.user = window.secure_userInfo;
+                            axiosReviewData.data.unshift(axiosReviewData.my_review);
+                        }
 
                         $wire.reviewsData = axiosReviewData.data;
                         $wire.ratingDistribution = axiosReviewData.rating_distribution;
@@ -398,7 +404,8 @@
 
                                     <x-slot:helpful-button>Helpful</x-slot:helpful-button>
                                     <x-slot:unhelpful-button>Not helpful</x-slot:unhelpful-button>
-                                    {{-- <x-slot:delete-button>Delete review</x-slot:delete-button> --}}
+
+                                    <x-slot:delete-button ::x-if="window.secure_userInfo && ">Delete review</x-slot:delete-button>
                                 </x-livewire-client::review-section.review-list.card>
                             @empty
                                 <x-livewire-client::alert type="info" title="No Reviews Yet" icon="fas fa-info-circle">

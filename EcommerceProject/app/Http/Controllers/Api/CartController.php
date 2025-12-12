@@ -56,7 +56,7 @@ class CartController extends BaseApiController
         return $this->response(
             success: $creationResult['success'],
             message: $creationResult['message'],
-            code: $creationResult['success'] ? 201 : 422,
+            code: $creationResult['code'],
             data: $creationResult['data']?->only(['items', ...self::API_FIELDS]) ?? [],
             additionalData: isset($creationResult['insufficient_stock_skus'])
                 ? ['insufficient_stock_skus' => $creationResult['insufficient_stock_skus']]

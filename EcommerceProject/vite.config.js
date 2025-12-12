@@ -24,6 +24,7 @@ export default defineConfig({
                 'resources/css/404.css',
                 'resources/css/500.css',
                 'resources/css/cart.css',
+                'resources/css/toast.css',
                 'resources/js/app.js',
                 'resources/js/image-picker.js',
                 'resources/js/editor-handler.js',

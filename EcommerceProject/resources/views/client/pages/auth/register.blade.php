@@ -75,15 +75,22 @@
                     x-data="{ showAlert: false, message: '' }"
                     x-init="
                         document.addEventListener('register:success', event => {
+                            let countdown = 3;
                             showAlert = true;
-                            message = 'Account created successfully. Redirecting to login...';
+                            message = `Account created successfully. Redirecting to login page in ${countdown}s...`;
 
-                            setTimeout(() => {
-                                const { email, password } = event.detail;
-                                localStorage.setItem('_username', email);
-                                localStorage.setItem('_password', password);
-                                window.location = '{{ route('login') }}';
-                            }, 3000);
+                            const interval = setInterval(() => {
+                                if(countdown > 0) {
+                                    countdown--;
+                                    message = `Account created successfully. Redirecting to login page in ${countdown}s...`;
+                                }else {
+                                    clearInterval(interval);
+                                    const { email, password } = event.detail;
+                                    localStorage.setItem('_username', email);
+                                    localStorage.setItem('_password', password);
+                                    window.location = '{{ route('login') }}';
+                                }
+                            }, 1000);
                         });
                     "
                     x-show="showAlert" wire:transition style="margin-top: -15px;" wire:key="register-success-alert">
