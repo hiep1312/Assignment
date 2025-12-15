@@ -29,7 +29,7 @@
     <x-livewire-admin::data-table caption="Mail Batch Records" class="mt-3">
         <x-slot:actions>
             <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Delete Batches"
-                x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
+                x-show="$wire.selectedRecordIds.length" x-transition onclick="showConfirmModal(this)"
                 data-title="Delete Mail Batches" data-type="warning" x-bind:data-message="`Are you sure you want to delete these ${$wire.selectedRecordIds.length} mail batches? This action cannot be undone.`"
                 data-confirm-label="Confirm Delete" data-event-name="mailBatch.deleted" wire:key="delete">
                 <i class="fas fa-times-circle me-1"></i>
@@ -137,7 +137,7 @@
                                         aria-expanded="false" aria-controls="collapseBatch{{ $batch->batch_key }}" wire:key="collapse-batch-{{ $batch->batch_key }}" wire:ignore.self>
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                    <button class="btn btn-outline-danger btn-action" title="Delete" onclick="showConfirmModal(this)"
                                         data-title="Delete Mail Batch" data-type="warning" data-message="Are you sure you want to delete this mail batch #{{ $batch->batch_key }}? This action cannot be undone."
                                         data-confirm-label="Confirm Delete" data-event-name="mailBatch.deleted" data-event-data='"{{ $batch->batch_key }}"'>
                                         <i class="fas fa-trash"></i>

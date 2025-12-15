@@ -28,7 +28,7 @@ window.updateSelectAllState = function(){
     toggleAllElement.dataset.state = toggleAllElement.checked = +stateNew;
 }
 
-window.confirmModalAction = function(callingElement, eventTarget = false){
+window.showConfirmModal = function(callingElement, eventTarget = false){
     let { title, type, message, id, confirmLabel, eventName, eventData } = callingElement.dataset;
     if(
         eventData &&
@@ -53,6 +53,28 @@ window.confirmModalAction = function(callingElement, eventTarget = false){
         }
     }
 }
+
+window.showToast = function(source, eventTarget = false){
+    let { title, message, type, duration = 12, time, animation, icon, show = true } = source instanceof Element ? source.dataset : Object(source);
+
+    if($wire){
+        const data = { title, message, type, duration: Number(duration), time, animation, icon, show: Boolean(show) };
+
+        switch(true){
+            case typeof eventTarget === 'string':
+                $wire.$dispatchTo(eventTarget, 'toast.show', data);
+                break;
+
+            case eventTarget === true:
+                $wire.$dispatch('toast.show', data);
+                break;
+
+            default:
+                $wire.$dispatchTo('client.components.toast', 'toast.show', data);
+                break;
+        }
+    }
+};
 
 window.humanizeTimeDifference = function(baseTime, targetTime = new Date()){
     const units = {
@@ -153,7 +175,7 @@ window.setCookie = function(key, value = '', options = {}) {
             if(options.expires instanceof Date) {
                 cookieStr += `; expires=${options.expires.toUTCString()}`;
             }else {
-                cookieStr += `; max-age=${options.expires}`;
+                cookieStr += `; max-age=${parseInt(options.expires, 10) || 0}`;
             }
         }
 

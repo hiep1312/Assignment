@@ -9,6 +9,8 @@ use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use App\Services\ProductReviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProductReviewController extends BaseApiController
 {
@@ -67,6 +69,12 @@ class ProductReviewController extends BaseApiController
             ),
             pageName: 'page'
         );
+
+        if(($request->boolean('with_can_review') || $request->boolean('with_my_review')) && authPayload(throw: false) === null) {
+            try {
+                @JWTAuth::parseToken()->refresh(false, false);
+            }catch(Throwable $exception) {}
+        }
 
         return $this->response(
             success: true,

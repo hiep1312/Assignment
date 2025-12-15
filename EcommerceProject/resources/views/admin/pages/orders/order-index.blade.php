@@ -119,7 +119,7 @@
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Orders` : `Restore All Orders`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Restore Orders` : `Restore All Orders`" data-type="question"
+                    onclick="showConfirmModal(this)" :data-title="$wire.selectedRecordIds.length ? `Restore Orders` : `Restore All Orders`" data-type="question"
                     x-bind:data-message="$wire.selectedRecordIds.length
                         ? `Are you sure you want to restore these ${$wire.selectedRecordIds.length} orders? They will be moved back to the active orders list.`
                         : `Are you sure you want to restore all orders? They will be moved back to the active orders list.`
@@ -129,7 +129,7 @@
                     <span x-text="$wire.selectedRecordIds.length ? `Restore Orders` : `Restore All Orders`"></span>
                 </button>
                 <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Permanently Delete Orders` : `Permanently Delete All Orders`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Permanently Delete Orders` : `Permanently Delete All Orders`" data-type="warning"
+                    onclick="showConfirmModal(this)" :data-title="$wire.selectedRecordIds.length ? `Permanently Delete Orders` : `Permanently Delete All Orders`" data-type="warning"
                     x-bind:data-message="$wire.selectedRecordIds.length
                         ? `Are you sure you want to permanently delete these ${$wire.selectedRecordIds.length} orders? This action cannot be undone.`
                         : `Are you sure you want to permanently delete all orders? This action cannot be undone.`
@@ -145,7 +145,7 @@
                 </button>
             @else
                 <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Remove Orders"
-                    x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
+                    x-show="$wire.selectedRecordIds.length" x-transition onclick="showConfirmModal(this)"
                     data-title="Remove Orders" data-type="warning" x-bind:data-message="`Are you sure you want to remove these ${$wire.selectedRecordIds.length} orders? They can be restored later.`"
                     data-confirm-label="Confirm Delete" data-event-name="order.deleted" wire:key="delete">
                     <i class="fas fa-times-circle me-1"></i>
@@ -286,12 +286,12 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     @if($isTrashed)
-                                        <button class="btn btn-outline-warning btn-action" title="Restore" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-warning btn-action" title="Restore" onclick="showConfirmModal(this)"
                                             data-title="Restore Order" data-type="question" data-message="Are you sure you want to restore this order {{ $order->order_code }}? The order will be moved back to the active orders list."
                                             data-confirm-label="Confirm Restore" data-event-name="order.restored" data-event-data="{{ $order->id }}">
                                             <i class="fas fa-undo"></i>
                                         </button>
-                                        <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="showConfirmModal(this)"
                                             data-title="Permanently Delete Order" data-type="warning" data-message="Are you sure you want to permanently delete this order {{ $order->order_code }}? This action cannot be undone."
                                             data-confirm-label="Confirm Delete" data-event-name="order.forceDeleted" data-event-data="{{ $order->id }}">
                                             <i class="fas fa-trash-alt"></i>
@@ -301,7 +301,7 @@
                                             data-bs-toggle="modal" data-bs-target="#orderDetailModal" wire:click="$set('recordDetail', {{ $order->id }})">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-danger btn-action" title="Delete" onclick="showConfirmModal(this)"
                                             data-title="Remove Order" data-type="warning" data-message="Are you sure you want to remove this order {{ $order->order_code }}? The order can be restored later."
                                             data-confirm-label="Confirm Delete" data-event-name="order.deleted" data-event-data="{{ $order->id }}">
                                             <i class="fas fa-trash"></i>

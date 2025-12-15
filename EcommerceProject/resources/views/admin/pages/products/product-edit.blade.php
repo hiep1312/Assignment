@@ -202,7 +202,7 @@
                                             data-bs-toggle="modal" data-bs-target="#variantModal" wire:click="editVariant('{{ $keyId }}')" x-on:click="isEditing = true">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                        <button type="button" class="btn btn-outline-danger btn-action" title="Delete" onclick="showConfirmModal(this)"
                                             data-title="Delete Variant" data-type="warning" data-message="Are you sure you want to delete this variant #{{ $keyId }}?"
                                             data-confirm-label="Confirm Delete" data-event-name="variant.removed" data-event-data='@json($keyId)'>
                                             <i class="fas fa-trash"></i>

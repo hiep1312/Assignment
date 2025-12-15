@@ -77,7 +77,7 @@
                     </div>
 
                     <div class="cancel-button-group" wire:key="cancel-order-button-group">
-                        <button type="button" class="btn-cancel-order" onclick="confirmModalAction(this)"
+                        <button type="button" class="btn-cancel-order" onclick="showConfirmModal(this)"
                             data-title="Cancel Order" data-type="warning" data-message="Are you sure you want to cancel this order {{ $this->order->order_code }}? This action cannot be undone."
                             data-confirm-label="Confirm Cancellation" data-event-name="order.cancelled" data-event-data="{{ $this->order->id }}" data-id="confirmModalDetail">
                             <i class="fas fa-times-circle"></i> Cancel Order

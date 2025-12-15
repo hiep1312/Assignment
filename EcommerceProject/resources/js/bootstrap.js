@@ -12,7 +12,7 @@ Object.defineProperty(window, 'http', {
         headers: {
             common: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Authorization': `Bearer ${window.getCookie('auth_token', localStorage.getItem('auth_token')) ?? ''}`,
+                'Authorization': `Bearer ${window.getCookie('auth_token', '')}`,
                 'Content-Type': 'application/json'
             }
         },
@@ -41,7 +41,7 @@ window.http.interceptors.response.use(
             requestConfig.url === refreshEndpoint ||
             error.response?.status !== 401 ||
             requestConfig._retry ||
-            !(token = window.getCookie('auth_token', localStorage.getItem('auth_token')))
+            !(token = window.getCookie('auth_token'))
         ) {
             return Promise.reject(error);
         }
@@ -55,11 +55,13 @@ window.http.interceptors.response.use(
                 const newToken = data.token;
                 requestConfig.headers['Authorization'] = `Bearer ${newToken}`;
 
-                if(window.getCookie('auth_token')) {
-                    window.setCookie('auth_token', newToken);
-                }else {
-                    window.localStorage.setItem('auth_token', newToken);
-                }
+                const tokenExpiresAt = Date.parse(window.getCookie('token_expires_at'));
+                window.setCookie('auth_token', newToken, {
+                    expires: tokenExpiresAt ? new Date(tokenExpiresAt) : undefined,
+                    path: '/',
+                    secure: true,
+                    sameSite: 'Lax'
+                });
 
                 return window.http(requestConfig);
             }
@@ -67,7 +69,7 @@ window.http.interceptors.response.use(
             return Promise.reject(error);
 
         }catch(refreshError) {
-            return Promise.reject(error);
+            return Promise.reject(refreshError);
         }
     },
     { synchronous: false }

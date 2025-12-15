@@ -113,12 +113,12 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     @if($isTrashed)
-                                        <button class="btn btn-outline-warning btn-action" title="Restore" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-warning btn-action" title="Restore" onclick="showConfirmModal(this)"
                                             data-title="Restore Variant" data-type="question" data-message="Are you sure you want to restore this variant #{{ $variant->id }}? The variant will be moved back to the active variants list."
                                             data-confirm-label="Confirm Restore" data-event-name="variant.restored" data-event-data="{{ $variant->id }}" data-id="confirmModalDetail">
                                             <i class="fas fa-undo"></i>
                                         </button>
-                                        <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="showConfirmModal(this)"
                                             data-title="Permanently Delete Variant" data-type="warning" data-message="Are you sure you want to permanently delete this variant #{{ $variant->id }}? This action cannot be undone."
                                             data-confirm-label="Confirm Delete" data-event-name="variant.forceDeleted" data-event-data="{{ $variant->id }}" data-id="confirmModalDetail">
                                             <i class="fas fa-trash-alt"></i>
@@ -127,7 +127,7 @@
                                         <a href="{{ route('admin.products.variants.edit', [$product_id, $variant->id]) }}" class="btn btn-outline-warning btn-action" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-danger btn-action" title="Delete" onclick="showConfirmModal(this)"
                                             data-title="Remove Variant" data-type="warning" data-message="Are you sure you want to remove this variant #{{ $variant->id }}? The variant can be restored later."
                                             data-confirm-label="Confirm Delete" data-event-name="variant.deleted" data-event-data="{{ $variant->id }}" data-id="confirmModalDetail">
                                             <i class="fas fa-trash"></i>

@@ -7,16 +7,17 @@ use Livewire\Component;
 
 class Toast extends Component
 {
-    public string $title;
-    public string $message;
-    public string $type;
+    public string $toastId = 'notification-toast';
+    public string $title = '';
+    public string $message = '';
+    public string $type = 'light';
     public int $duration = 12;
     public string $time = '';
     public string $animation = '';
     public string $icon = '';
+    public bool $show = false;
 
-
-    #[On('toast:show')]
+    #[On('toast.show')]
     public function show(
         string $title,
         string $message,
@@ -24,9 +25,11 @@ class Toast extends Component
         int $duration = 12,
         string $time = '',
         string $animation = '',
-        string $icon = ''
+        string $icon = '',
+        bool $show = true
     ){
-        $this->fill(compact('title', 'message', 'type', 'duration', 'time', 'animation', 'icon'));
+        $this->fill(compact('title', 'message', 'type', 'duration', 'time', 'animation', 'icon', 'show'));
+        $this->js("window.initLiveToast");
     }
 
     public function render()

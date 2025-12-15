@@ -34,7 +34,6 @@ use App\Livewire\Admin\Users\UserIndex;
 use App\Livewire\Client\Auth\Login as LoginClient;
 use App\Livewire\Client\Auth\Register;
 use App\Livewire\Client\Cart\CartIndex;
-use App\Livewire\Client\Components\ConfirmModal;
 use App\Livewire\Client\Products\ProductIndex as ProductIndexClient;
 use App\Livewire\Client\Products\ProductShow;
 use Illuminate\Support\Facades\Route;
@@ -150,8 +149,6 @@ Route::name('client.')->group(function() {
         Route::get('/', CartIndex::class)->name('index');
     });
 });
-
-Route::get('/temp', ConfirmModal::class);
 
 Route::prefix('template')->name('template.')->group(function() {
     /* Admin */

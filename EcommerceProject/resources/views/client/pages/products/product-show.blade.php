@@ -91,6 +91,15 @@
                         const message = axiosError.response?.data?.message ?? axiosError.message;
 
                         console.error("Failed to fetch reviews: ", message);
+                        window.showToast({
+                            title: 'Failed to Load Reviews',
+                            message: 'Unable to load product reviews. Please refresh the page to try again.',
+                            type: 'danger',
+                            duration: 300,
+                            time: new Date().toISOString(),
+                            icon: 'fas fa-lock',
+                            animation: 'slideInRight'
+                        });
                     }
                 }
             },
@@ -107,6 +116,8 @@
                             last_page: axiosReviewData.last_page,
                             total: axiosReviewData.total
                         };
+
+                        $wire.myReview.rating = 5;
                         $wire.$refresh();
 
                     }catch(axiosError) {
@@ -114,9 +125,77 @@
                         $wire.isLoadingMore = false;
 
                         console.error("Failed to load more reviews: ", message);
+                        window.showToast({
+                            title: 'Failed to Load More Reviews',
+                            message: 'Unable to load additional reviews. Please try again.',
+                            type: 'danger',
+                            duration: 300,
+                            time: new Date().toISOString(),
+                            icon: 'fas fa-lock',
+                            animation: 'slideInRight'
+                        });
                     }
                 }
             },
+
+            "review:deleted": async (event) => {
+                try {
+                    const [reviewId, apiUrlDelete] = event.detail;
+
+                    if(!reviewId || !apiUrlDelete) {
+                        console.error("Missing review ID or API URL for deletion.");
+                        return;
+                    }
+
+                    const isAdminHide = (window.secure_userInfo?.role === 'admin' && $wire.myReview?.id !== reviewId);
+                    const { data: axiosData } = await window.http.delete(apiUrlDelete, {
+                        params: { force_delete: Number(isAdminHide) }
+                    });
+
+                    if(isAdminHide) {
+                        const reviewIndex = $wire.reviewsData.findIndex(review => review.id === reviewId);
+
+                        if(reviewIndex !== -1) {
+                            $wire.reviewsData[reviewIndex].deleted_at = new Date().toISOString();
+                        }
+
+                    }else {
+                        $wire.reviewsData = $wire.reviewsData.filter(review => review.id !== reviewId);
+
+                        if($wire.myReview?.id === reviewId) {
+                            $wire.myReview = null;
+                        }
+
+                        $wire.reviewsPagination.total > 0 && $wire.reviewsPagination.total--;
+                        $wire.currentProduct.reviews_count > 0 && $wire.currentProduct.reviews_count--;
+                    }
+
+                    $wire.$refresh();
+                    window.showToast({
+                        title: 'Review Deleted Successfully',
+                        message: isAdminHide ? 'The review has been successfully deleted.' : 'Your review has been permanently removed.',
+                        type: 'success',
+                        duration: 60,
+                        time: new Date().toISOString(),
+                        icon: isAdminHide ? 'fas fa-eye-slash' : 'fas fa-check-circle',
+                        animation: 'slideInRight'
+                    });
+
+                }catch(axiosError) {
+                    const message = axiosError.response?.data?.message ?? axiosError.message;
+
+                    console.error("Failed to delete review: ", message);
+                    window.showToast({
+                        title: 'Failed to Delete Review',
+                        message: 'Unable to delete the review. Please try again.',
+                        type: 'danger',
+                        duration: 60,
+                        time: new Date().toISOString(),
+                        icon: 'fas fa-exclamation-circle',
+                        animation: 'slideInRight'
+                    });
+                }
+            }
         },
     };
 
@@ -124,6 +203,9 @@
 </script>
 @endscript
 <div class="container-xl my-4" id="main-component" style="padding: 12px;">
+    <livewire:client.components.toast wire:key="toast-container">
+    <livewire:client.components.confirm-modal wire:key="confirm-modal">
+
     <div class="row px-1 px-lg-0 g-4" x-data="{
             selectedVariant: $wire.$entangle('selectedVariant'),
             activeImage: '{{ asset('storage/' . ($currentProduct['main_image']['image_url'] ?? DefaultImage::PRODUCT->value)) }}',
@@ -482,10 +564,10 @@
                                     <x-slot:helpful-button>Helpful</x-slot:helpful-button>
                                     <x-slot:unhelpful-button>Not helpful</x-slot:unhelpful-button>
 
-                                    @if($currentUser && ($currentUser['id'] === $review['user_id'] || $currentUser['role'] === 'admin'))
-                                        <x-slot:delete-button title="Delete Review" onclick="confirmModalAction(this)" data-title="Delete Review"
+                                    @if($currentUser && ($currentUser['id'] === $review['user_id'] || ($currentUser['role'] === 'admin' && !$review['deleted_at'])))
+                                        <x-slot:delete-button title="Delete Review" onclick="showConfirmModal(this)" data-title="Delete Review"
                                             data-type="warning" data-message="Are you sure you want to delete your review? This action cannot be undone." data-confirm-label="Confirm Delete"
-                                            data-event-name="review.deleted" data-event-data="{{ $review['id'] }}">Delete review</x-slot:delete-button>
+                                            data-event-name="review:deleted" :data-event-data="json_encode([$review['id'], route('api.reviews.destroy', $review['id'])])">Delete review</x-slot:delete-button>
                                     @endif
                                 </x-livewire-client::review-section.review-list.card>
                             @empty
@@ -523,5 +605,62 @@
         </x-livewire-client::empty-state>
     </div>
 
-    <livewire:client.components.confirm-modal wire:key="confirm-modal">
+    @if($currentUser)
+        <x-livewire-client::review-section.modal id="reviewModal" :title="$myReview ? 'Edit Your Review' : 'Write a review'"
+            x-data="{
+                rating: 0,
+                content: '',
+                isEditing: false,
+                isDeleted: false,
+                canReview: false,
+                errors: {},
+
+                initializeState() {
+                    this.rating = $wire.myReview?.rating ?? 0;
+                    this.content = $wire.myReview?.content ?? '';
+                    this.isEditing = Boolean($wire.myReview);
+                    this.isDeleted = Boolean($wire.myReview?.deleted_at);
+                    this.canReview = Boolean($wire.canReview);
+                    this.errors = {};
+                },
+
+                init() {
+                    this.initializeState();
+
+                    this.$watch('$wire.myReview', value => {
+                        this.rating = value?.rating ?? 0;
+                        this.content = value?.content ?? '';
+                        this.isEditing = Boolean(value);
+                        this.isDeleted = Boolean(value?.deleted_at);
+                    });
+
+                    this.$el.addEventListener('hidden.bs.modal', this.initializeState.bind(this));
+                }
+            }"
+            wire:key="review-modal" wire:ignore.self>
+            <x-slot:alert>
+                <x-livewire-client::alert type="warning" title="Cannot Write Review" icon="fas fa-exclamation-triangle" x-show="!canReview" wire:key="review-alert-cannot">
+                    You need to purchase this product before you can write a review.
+                </x-livewire-client::alert>
+
+                <x-livewire-client::alert type="danger" title="Review Removed" icon="fas fa-ban" x-show="isEditing && isDeleted" wire:key="review-alert-deleted">
+                    Your original review has been removed by an administrator for violating community guidelines. You can only update the star rating.
+                </x-livewire-client::alert>
+
+                <x-livewire-client::alert type="info" title="Editing Your Review" icon="fas fa-info-circle" x-show="isEditing && !isDeleted" wire:key="review-alert-editing">
+                    You are editing your existing review. Make your changes and click "Update Review" to save.
+                </x-livewire-client::alert>
+            </x-slot:alert>
+
+            <x-slot:form >
+                <x-slot:star-button ::class="{ 'active': Number($el.dataset.rating) <= rating }" x-on:click="rating = Number($el.dataset.rating) === rating ? 0 : Number($el.dataset.rating)" ::disabled="!canReview"></x-slot:star-button>
+                <x-slot:star-message></x-slot:star-message>
+
+                <x-slot:textarea x-model="content" ::readonly="!canReview || isDeleted"></x-slot:textarea>
+                <x-slot:content-message></x-slot:content-message>
+
+                <x-slot:submit-button ::disabled="!canReview" x-text="isEditing ? 'Update Review' : 'Submit Review'"></x-slot:submit-button>
+            </x-slot:form>
+        </x-livewire-client::review-section.modal>
+    @endif
 </div>

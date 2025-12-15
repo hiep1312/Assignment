@@ -27,7 +27,7 @@
     <x-livewire-admin::data-table caption="Notification Records">
         <x-slot:actions>
             <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Delete Notifications"
-                x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
+                x-show="$wire.selectedRecordIds.length" x-transition onclick="showConfirmModal(this)"
                 data-title="Delete Notifications" data-type="warning" x-bind:data-message="`Are you sure you want to delete these ${$wire.selectedRecordIds.length} notifications? This action cannot be undone.`"
                 data-confirm-label="Confirm Delete" data-event-name="notification.deleted" wire:key="delete">
                 <i class="fas fa-times-circle me-1"></i>
@@ -102,7 +102,7 @@
                                     <a href="{{ route('admin.notifications.edit', $notification->id) }}" class="btn btn-outline-warning btn-action" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                    <button class="btn btn-outline-danger btn-action" title="Delete" onclick="showConfirmModal(this)"
                                         data-title="Delete Notification" data-type="warning" data-message="Are you sure you want to delete this notification #{{ $notification->id }}? This action cannot be undone."
                                         data-confirm-label="Confirm Delete" data-event-name="notification.deleted" data-event-data="{{ $notification->id }}">
                                         <i class="fas fa-trash"></i>

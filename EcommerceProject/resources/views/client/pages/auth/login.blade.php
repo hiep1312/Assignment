@@ -21,16 +21,23 @@
             "login:submit": async (event) => {
                 try {
                     const { username, password, remember } = event.detail;
+                    const { data: axiosData } = await window.http.post(@js(route('api.auth.login')), { username, password });
 
-                    const response = await window.http.post(@js(route('api.auth.login')), { username, password });
-
-                    const { data: axiosData } = response;
-
+                    let authTokenTtl;
                     if(remember) {
-                        window.setCookie('auth_token', axiosData.token);
-                    }else {
-                        localStorage.setItem('auth_token', axiosData.token);
+                        authTokenTtl = new Date();
+                        authTokenTtl.setDate(authTokenTtl.getDate() + 30);
                     }
+
+                    window.setCookie({
+                        auth_token: axiosData.token,
+                        token_expires_at: authTokenTtl
+                    }, {
+                        expires: authTokenTtl,
+                        path: '/',
+                        secure: true,
+                        sameSite: 'Lax'
+                    });
 
                     document.dispatchEvent(new Event('login:success'));
 
@@ -118,7 +125,10 @@
                 </x-livewire-client::alert>
 
                 <x-livewire-client::alert type="danger" title="Login Failed" icon="fas fa-exclamation-triangle" x-data="{ showAlert: false, message: '' }"
-                    x-init="document.addEventListener('login:failed', event => { showAlert = true; message = event.detail.message; })"
+                    x-init="
+                        document.addEventListener('login:failed', event => { showAlert = true; message = event.detail.message; });
+                        document.addEventListener('login:success', event => { showAlert = false; message = ''; });
+                    "
                     x-show="showAlert" wire:transition style="margin-top: -15px;" wire:key="login-failed-alert">
 
                     <span x-text="message"></span>

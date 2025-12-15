@@ -32,7 +32,7 @@
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Categories` : `Restore All Categories`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Restore Categories` : `Restore All Categories`" data-type="question"
+                    onclick="showConfirmModal(this)" :data-title="$wire.selectedRecordIds.length ? `Restore Categories` : `Restore All Categories`" data-type="question"
                     x-bind:data-message="$wire.selectedRecordIds.length
                         ? `Are you sure you want to restore these ${$wire.selectedRecordIds.length} categories? They will be moved back to the active categories list.`
                         : `Are you sure you want to restore all categories? They will be moved back to the active categories list.`
@@ -42,7 +42,7 @@
                     <span x-text="$wire.selectedRecordIds.length ? `Restore Categories` : `Restore All Categories`"></span>
                 </button>
                 <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Permanently Delete Categories` : `Permanently Delete All Categories`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Permanently Delete Categories` : `Permanently Delete All Categories`" data-type="warning"
+                    onclick="showConfirmModal(this)" :data-title="$wire.selectedRecordIds.length ? `Permanently Delete Categories` : `Permanently Delete All Categories`" data-type="warning"
                     x-bind:data-message="$wire.selectedRecordIds.length
                         ? `Are you sure you want to permanently delete these ${$wire.selectedRecordIds.length} categories? This action cannot be undone.`
                         : `Are you sure you want to permanently delete all categories? This action cannot be undone.`
@@ -58,7 +58,7 @@
                 </button>
             @else
                 <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Remove Categories"
-                    x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
+                    x-show="$wire.selectedRecordIds.length" x-transition onclick="showConfirmModal(this)"
                     data-title="Remove Categories" data-type="warning" x-bind:data-message="`Are you sure you want to remove these ${$wire.selectedRecordIds.length} categories? They can be restored later.`"
                     data-confirm-label="Confirm Delete" data-event-name="category.deleted" wire:key="delete">
                     <i class="fas fa-folder-minus me-1"></i>
@@ -138,12 +138,12 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     @if($isTrashed)
-                                        <button class="btn btn-outline-warning btn-action" title="Restore" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-warning btn-action" title="Restore" onclick="showConfirmModal(this)"
                                             data-title="Restore Category" data-type="question" data-message="Are you sure you want to restore this category #{{ $category->id }}? The category will be moved back to the active categories list."
                                             data-confirm-label="Confirm Restore" data-event-name="category.restored" data-event-data="{{ $category->id }}">
                                             <i class="fas fa-undo"></i>
                                         </button>
-                                        <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="showConfirmModal(this)"
                                             data-title="Permanently Delete Category" data-type="warning" data-message="Are you sure you want to permanently delete this category #{{ $category->id }}? This action cannot be undone."
                                             data-confirm-label="Confirm Delete" data-event-name="category.forceDeleted" data-event-data="{{ $category->id }}">
                                             <i class="fas fa-trash-alt"></i>
@@ -152,7 +152,7 @@
                                         <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-outline-warning btn-action" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-danger btn-action" title="Delete" onclick="showConfirmModal(this)"
                                             data-title="Remove Category" data-type="warning" data-message="Are you sure you want to remove this category #{{ $category->id }}? The category can be restored later."
                                             data-confirm-label="Confirm Delete" data-event-name="category.deleted" data-event-data="{{ $category->id }}">
                                             <i class="fas fa-trash"></i>

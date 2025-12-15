@@ -4,7 +4,7 @@ window.secure_userInfo = null;
 window.userManager = {
     async initializeUserData() {
         try {
-            const authToken = window.getCookie('auth_token', localStorage.getItem('auth_token'));
+            const authToken = window.getCookie('auth_token');
 
             if(!authToken) {
                 window.secure_userInfo = null;
@@ -38,7 +38,7 @@ window.userManager = {
                 window.setCookie('cipher_user', encryptedUserData, {
                     path: '/',
                     secure: true,
-                    sameSite: 'Strict'
+                    sameSite: 'Lax'
                 });
 
                 return data.user;

@@ -36,7 +36,7 @@
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Reviews` : `Restore All Reviews`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Restore Reviews` : `Restore All Reviews`" data-type="question"
+                    onclick="showConfirmModal(this)" :data-title="$wire.selectedRecordIds.length ? `Restore Reviews` : `Restore All Reviews`" data-type="question"
                     x-bind:data-message="$wire.selectedRecordIds.length
                         ? `Are you sure you want to restore these ${$wire.selectedRecordIds.length} reviews? They will be moved back to the active reviews list.`
                         : `Are you sure you want to restore all reviews? They will be moved back to the active reviews list.`
@@ -46,7 +46,7 @@
                     <span x-text="$wire.selectedRecordIds.length ? `Restore Reviews` : `Restore All Reviews`"></span>
                 </button>
                 <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Permanently Delete Reviews` : `Permanently Delete All Reviews`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Permanently Delete Reviews` : `Permanently Delete All Reviews`" data-type="warning"
+                    onclick="showConfirmModal(this)" :data-title="$wire.selectedRecordIds.length ? `Permanently Delete Reviews` : `Permanently Delete All Reviews`" data-type="warning"
                     x-bind:data-message="$wire.selectedRecordIds.length
                         ? `Are you sure you want to permanently delete these ${$wire.selectedRecordIds.length} reviews? This action cannot be undone.`
                         : `Are you sure you want to permanently delete all reviews? This action cannot be undone.`
@@ -62,7 +62,7 @@
                 </button>
             @else
                 <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Remove Reviews"
-                    x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
+                    x-show="$wire.selectedRecordIds.length" x-transition onclick="showConfirmModal(this)"
                     data-title="Remove Reviews" data-type="warning" x-bind:data-message="`Are you sure you want to remove these ${$wire.selectedRecordIds.length} reviews? They can be restored later.`"
                     data-confirm-label="Confirm Delete" data-event-name="review.deleted" wire:key="delete">
                     <i class="fas fa-times-circle me-1"></i>
@@ -215,12 +215,12 @@
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
                                                         @if($isTrashed)
-                                                            <button class="btn btn-outline-warning btn-action" title="Restore" onclick="confirmModalAction(this)"
+                                                            <button class="btn btn-outline-warning btn-action" title="Restore" onclick="showConfirmModal(this)"
                                                                 data-title="Restore Review" data-type="question" data-message="Are you sure you want to restore this review #{{ $review->id }}? The review will be moved back to the active reviews list."
                                                                 data-confirm-label="Confirm Restore" data-event-name="review.restored" data-event-data="{{ $review->id }}">
                                                                 <i class="fas fa-undo"></i>
                                                             </button>
-                                                            <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="confirmModalAction(this)"
+                                                            <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="showConfirmModal(this)"
                                                                 data-title="Permanently Delete Review" data-type="warning" data-message="Are you sure you want to permanently delete this review #{{ $review->id }}? This action cannot be undone."
                                                                 data-confirm-label="Confirm Delete" data-event-name="review.forceDeleted" data-event-data="{{ $review->id }}">
                                                                 <i class="fas fa-trash-alt"></i>
@@ -230,7 +230,7 @@
                                                                 data-bs-toggle="modal" data-bs-target="#reviewPreview" wire:click="$set('selectedReviewId', {{ $review->id }})">
                                                                 <i class="fas fa-eye"></i>
                                                             </button>
-                                                            <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                                            <button class="btn btn-outline-danger btn-action" title="Delete" onclick="showConfirmModal(this)"
                                                                 data-title="Remove Review" data-type="warning" data-message="Are you sure you want to remove this review #{{ $review->id }}? The review can be restored later."
                                                                 data-confirm-label="Confirm Delete" data-event-name="review.deleted" data-event-data="{{ $review->id }}">
                                                                 <i class="fas fa-trash"></i>

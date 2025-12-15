@@ -88,7 +88,7 @@
         <x-slot:actions>
             @if($isTrashed)
                 <button type="button" class="btn btn-outline-secondary bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Restore Products` : `Restore All Products`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Restore Products` : `Restore All Products`" data-type="question"
+                    onclick="showConfirmModal(this)" :data-title="$wire.selectedRecordIds.length ? `Restore Products` : `Restore All Products`" data-type="question"
                     x-bind:data-message="$wire.selectedRecordIds.length
                         ? `Are you sure you want to restore these ${$wire.selectedRecordIds.length} products? They will be moved back to the active products list.`
                         : `Are you sure you want to restore all products? They will be moved back to the active products list.`
@@ -98,7 +98,7 @@
                     <span x-text="$wire.selectedRecordIds.length ? `Restore Products` : `Restore All Products`"></span>
                 </button>
                 <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" :title="$wire.selectedRecordIds.length ? `Permanently Delete Products` : `Permanently Delete All Products`"
-                    onclick="confirmModalAction(this)" :data-title="$wire.selectedRecordIds.length ? `Permanently Delete Products` : `Permanently Delete All Products`" data-type="warning"
+                    onclick="showConfirmModal(this)" :data-title="$wire.selectedRecordIds.length ? `Permanently Delete Products` : `Permanently Delete All Products`" data-type="warning"
                     x-bind:data-message="$wire.selectedRecordIds.length
                         ? `Are you sure you want to permanently delete these ${$wire.selectedRecordIds.length} products? This action cannot be undone.`
                         : `Are you sure you want to permanently delete all products? This action cannot be undone.`
@@ -114,7 +114,7 @@
                 </button>
             @else
                 <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Remove Products"
-                    x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
+                    x-show="$wire.selectedRecordIds.length" x-transition onclick="showConfirmModal(this)"
                     data-title="Remove Products" data-type="warning" x-bind:data-message="`Are you sure you want to remove these ${$wire.selectedRecordIds.length} products? They can be restored later.`"
                     data-confirm-label="Confirm Delete" data-event-name="product.deleted" wire:key="delete">
                     <i class="fas fa-times-circle me-1"></i>
@@ -207,12 +207,12 @@
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     @if($isTrashed)
-                                        <button class="btn btn-outline-warning btn-action" title="Restore" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-warning btn-action" title="Restore" onclick="showConfirmModal(this)"
                                             data-title="Restore Product" data-type="question" data-message="Are you sure you want to restore this product #{{ $product->id }}? The product will be moved back to the active products list."
                                             data-confirm-label="Confirm Restore" data-event-name="product.restored" data-event-data="{{ $product->id }}">
                                             <i class="fas fa-undo"></i>
                                         </button>
-                                        <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-danger btn-action" title="Permanently Delete" onclick="showConfirmModal(this)"
                                             data-title="Permanently Delete Product" data-type="warning" data-message="Are you sure you want to permanently delete this product #{{ $product->id }}? This action cannot be undone."
                                             data-confirm-label="Confirm Delete" data-event-name="product.forceDeleted" data-event-data="{{ $product->id }}">
                                             <i class="fas fa-trash-alt"></i>
@@ -225,7 +225,7 @@
                                         <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-outline-warning btn-action" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                        <button class="btn btn-outline-danger btn-action" title="Delete" onclick="showConfirmModal(this)"
                                             data-title="Remove Product" data-type="warning" data-message="Are you sure you want to remove this product #{{ $product->id }}? The product can be restored later."
                                             data-confirm-label="Confirm Delete" data-event-name="product.deleted" data-event-data="{{ $product->id }}">
                                             <i class="fas fa-trash"></i>

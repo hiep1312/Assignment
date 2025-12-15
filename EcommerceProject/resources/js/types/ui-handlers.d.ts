@@ -6,9 +6,14 @@ interface Window {
 
     updateSelectAllState: () => void;
 
-    confirmModalAction: (
+    showConfirmModal: (
         callingElement: HTMLElement & { dataset: DOMStringMap },
         eventTarget?: boolean | string
+    ) => void;
+
+    showToast: (
+        source: ToastPayload | HTMLElement & { dataset: DOMStringMap },
+        eventTarget?: string | boolean
     ) => void;
 
     humanizeTimeDifference: (
@@ -46,4 +51,15 @@ interface Window {
             sameSite?: 'Strict' | 'Lax' | 'None';
         }
     ): void;
+}
+
+interface ToastPayload {
+    title?: string;
+    message?: string;
+    type?: string;
+    duration?: number | string;
+    time?: string;
+    animation?: string;
+    icon?: string;
+    show?: boolean;
 }

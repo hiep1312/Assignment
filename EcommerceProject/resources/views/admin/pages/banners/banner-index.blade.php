@@ -31,13 +31,13 @@
     <x-livewire-admin::data-table caption="Banner Records">
         <x-slot:actions>
             <button type="button" class="btn btn-outline-danger bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Delete Banners"
-                x-show="$wire.selectedRecordIds.length" x-transition onclick="confirmModalAction(this)"
+                x-show="$wire.selectedRecordIds.length" x-transition onclick="showConfirmModal(this)"
                 data-title="Delete Banners" data-type="warning" x-bind:data-message="`Are you sure you want to delete these ${$wire.selectedRecordIds.length} banners? This action cannot be undone.`"
                 data-confirm-label="Confirm Delete" data-event-name="banner.deleted" wire:key="delete">
                 <i class="fas fa-trash-alt me-1"></i>
                 Delete Banners
             </button>
-            <button type="button" class="btn btn-outline-primary bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Reorder Positions" onclick="confirmModalAction(this)"
+            <button type="button" class="btn btn-outline-primary bootstrap-focus" style="padding: 0.4rem 1.25rem;" title="Reorder Positions" onclick="showConfirmModal(this)"
                 data-title="Reorder Banner Positions" data-type="question" data-message="Are you sure you want to reorder all banner positions? All positions will be reorganized sequentially starting from 1."
                 data-confirm-label="Confirm Reorder" data-event-name="banner.reordered" wire:key="reorder">
                 <i class="fas fa-sort-numeric-down me-1"></i>
@@ -124,7 +124,7 @@
                                     <a href="{{ route('admin.banners.edit', $banner->id) }}" class="btn btn-outline-warning btn-action" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button class="btn btn-outline-danger btn-action" title="Delete" onclick="confirmModalAction(this)"
+                                    <button class="btn btn-outline-danger btn-action" title="Delete" onclick="showConfirmModal(this)"
                                         data-title="Delete Banner" data-type="warning" data-message="Are you sure you want to permanently delete this banner #{{ $banner->id }}? This action cannot be undone."
                                         data-confirm-label="Confirm Delete" data-event-name="banner.deleted" data-event-data="{{ $banner->id }}">
                                         <i class="fas fa-trash"></i>
