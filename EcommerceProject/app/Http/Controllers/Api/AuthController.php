@@ -111,8 +111,6 @@ class AuthController extends BaseApiController
             );
 
         }catch(Throwable $invalidException) {
-            dd($invalidException);
-
             return $this->response(
                 success: false,
                 code: 401,

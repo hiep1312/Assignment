@@ -71,7 +71,7 @@
                     <p>Create your account</p>
                 </div>
 
-                <x-livewire-client::alert type="success" title="Registration Successful" icon="fas fa-check-circle"
+                <x-livewire-client::alert type="success" title="Registration Successful" icon="fas fa-check-circle" wire:cloak
                     x-data="{ showAlert: false, message: '' }"
                     x-init="
                         document.addEventListener('register:success', event => {
@@ -100,7 +100,7 @@
                     <x-slot:btn-close @click="showAlert = !showAlert"></x-slot:btn-close>
                 </x-livewire-client::alert>
 
-                <x-livewire-client::alert type="danger" title="Registration Failed" icon="fas fa-exclamation-triangle" x-data="{ showAlert: false, message: '' }"
+                <x-livewire-client::alert type="danger" title="Registration Failed" icon="fas fa-exclamation-triangle" x-data="{ showAlert: false, message: '' }" wire:cloak
                     x-init="
                         document.addEventListener('register:failed', event => { showAlert = true; message = event.detail.message; });
                         document.addEventListener('register:success', event => { showAlert = false; message = ''; });

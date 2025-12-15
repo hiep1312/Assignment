@@ -69,6 +69,10 @@ window.http.interceptors.response.use(
             return Promise.reject(error);
 
         }catch(refreshError) {
+            if(refreshError.url === refreshEndpoint) {
+                window.setCookie('auth_token', null, { expires: new Date(0) });
+            }
+
             return Promise.reject(refreshError);
         }
     },

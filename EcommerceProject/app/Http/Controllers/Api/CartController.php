@@ -67,13 +67,12 @@ class CartController extends BaseApiController
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $id)
+    public function show(Request $request)
     {
         $cart = $this->repository->first(
-            criteria: function($query) use ($request, $id){
+            criteria: function($query) use ($request) {
                 $this->getRequestedAggregateRelations($request, $query)
-                    ->with($this->getRequestedRelations($request))
-                    ->where('id', $id);
+                    ->with($this->getRequestedRelations($request));
 
                 $query->when(...CartService::userQueryConditions());
             },
@@ -94,28 +93,27 @@ class CartController extends BaseApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(CartRequest $request, string $id)
+    public function update(CartRequest $request)
     {
         $validatedData = $request->validated();
-        $updationResult = $this->service->update($validatedData, $id);
+        $updationResult = $this->service->update($validatedData);
 
         return $this->response(
             success: $updationResult['success'],
             message: $updationResult['message'],
             code: $updationResult['success'] ? 200 : 422,
-            data: $updationResult['data']?->only(['items', ...self::API_FIELDS]) ?? [],
+            data: ($updationResult['data'] ?? null)?->only(['items', ...self::API_FIELDS]) ?? [],
         );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy()
     {
         $isDeleted = $this->repository->delete(
-            idOrCriteria: function($query) use ($id){
-                $query->where('id', $id)
-                    ->when(...CartService::userQueryConditions());
+            idOrCriteria: function($query) {
+                $query->when(...CartService::userQueryConditions());
             }
         );
 
@@ -128,13 +126,12 @@ class CartController extends BaseApiController
         );
     }
 
-    public function deleteItems(DeleteCartItemsRequest $request, string $id)
+    public function deleteItems(DeleteCartItemsRequest $request)
     {
         $validatedData = $request->validated();
         $isDeleted = $this->cartItemRepository->delete(
-            idOrCriteria: function($query) use ($id, $validatedData){
+            idOrCriteria: function($query) use ($validatedData){
                 $query->whereIn('id', $validatedData['item_ids'])
-                    ->where('cart_id', $id)
                     ->whereHas('cart', function($subQuery) {
                         $subQuery->when(...CartService::userQueryConditions());
                     });

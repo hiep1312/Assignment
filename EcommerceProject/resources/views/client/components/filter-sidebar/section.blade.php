@@ -1,5 +1,14 @@
 @assets
-    @vite('resources/css/filter-section.css')
+    <style>
+        .form-label {
+            color: var(--color-black-product);
+            font-size: 0.95rem;
+        }
+
+        .text-primary {
+            color: var(--color-primary-product) !important;
+        }
+    </style>
 @endassets
 
 <div {{ $attributes }}>

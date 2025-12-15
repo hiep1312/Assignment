@@ -32,7 +32,7 @@ window.showConfirmModal = function(callingElement, eventTarget = false){
     let { title, type, message, id, confirmLabel, eventName, eventData } = callingElement.dataset;
     if(
         eventData &&
-        (eventData = JSON.parse(eventData)) &&
+        (eventData = /^\s*[{\[].*[\]}]\s*|[-+]?[\d]+|(true|false)$/u.test(eventData) ? JSON.parse(eventData) : eventData) &&
         !Array.isArray(eventData)
     ){
         eventData = [eventData];

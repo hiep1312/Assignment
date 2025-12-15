@@ -97,10 +97,10 @@ Route::name('api.')->group(function() {
         Route::withoutMiddleware(['auth:jwt'])->group(function() {
             Route::apiSingleton('cart', CartController::class)
                 ->creatable();
+            Route::delete('/cart/items', [CartController::class, 'deleteItems'])
+                ->name('cart.items.delete');
             Route::apiResource('carts.items', CartItemController::class)
                 ->shallow();
-            Route::delete('/carts/{cart}/items', [CartController::class, 'deleteItems'])
-                ->name('carts.items.delete');
             Route::post('/carts/refresh', [CartController::class, 'refresh'])
                 ->name('carts.refresh')
                 ->withoutMiddleware('throttle:api')

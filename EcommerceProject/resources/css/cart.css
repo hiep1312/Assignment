@@ -1,6 +1,6 @@
 /* Header */
 .cart-header {
-    margin-bottom: calc(var(--spacing-unit-product) * 4);
+    margin-bottom: calc(var(--spacing-unit-product) * 3);
     padding-bottom: calc(var(--spacing-unit-product) * 2);
     border-bottom: 3px solid var(--color-primary-product);
     font-family: var(--bs-font-sans-serif-origin);

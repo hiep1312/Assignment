@@ -101,13 +101,12 @@ class CartService
         ];
     }
 
-    public function update(array $data, string $id): array
+    public function update(array $data): array
     {
         try {
             $availableCart = $this->repository->first(
-                criteria: function($query) use ($id) {
+                criteria: function($query) {
                     $query->with('items')
-                        ->where('id', $id)
                         ->where('status', 1)
                         ->where('expires_at', '>', now())
                         ->when(...self::userQueryConditions());
@@ -162,7 +161,7 @@ class CartService
         return [
             Auth::guard('jwt')->check(),
             fn($subQuery) => $subQuery->where('user_id', authPayload('sub', -1, false)),
-            fn($subQuery) => $subQuery->where('guest_token', request()->cookie('cart_guest', ''))
+            fn($subQuery) => $subQuery->where('guest_token', request()->cookie('cart_guest', -1))
         ];
     }
 }

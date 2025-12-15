@@ -18,7 +18,7 @@ interface CartItemRepositoryInterface extends RepositoryInterface
      *                         - sold_number: Total units sold (pvi.sold_number)
      *                         Returns empty collection if user is not authenticated.
      */
-    public function getAvailableCartItems(array $cartItemIds = [], $useSharedLock = false)
+    public function getAvailableCartItems(array $cartItemIds = [], $useSharedLock = false);
 
     /**
      * Create a new record by product variant SKU with associated attributes.

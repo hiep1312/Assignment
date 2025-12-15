@@ -9,7 +9,9 @@
         __proto__: window.BasePageController,
         _traits: [window.Fetchable],
 
-        _internal: {},
+        _internal: {
+            productId: null
+        },
 
         fetchData: async () => {
             try {
@@ -18,6 +20,7 @@
                 const { data: axiosProductData } = productResponse;
 
                 $wire.currentProduct = axiosProductData.data;
+                PageController._internal.productId = axiosProductData.data.id;
                 $wire.productCategories = axiosProductData.data.categories;
                 $wire.isDataLoading = false;
                 $wire.$refresh();
@@ -68,7 +71,7 @@
             "reviews:load": async (event) => {
                 if(!$wire.isReviewsLoaded) {
                     try {
-                        const { data: axiosReviewData } = await window.http.get(window.reviewsApiUrl, { params: PageController._buildApiParams.reviewQueryParams() });
+                        const { data: axiosReviewData } = await window.http.get(@json(route('api.products.reviews.index', ':product')).replace(':product', PageController._internal.productId ?? 0), { params: PageController._buildApiParams.reviewQueryParams() });
 
                         if(axiosReviewData.my_review) {
                             axiosReviewData.my_review.user = window.secure_userInfo;
@@ -108,7 +111,7 @@
                 if($wire.isReviewsLoaded && $wire.reviewsPagination.current_page < $wire.reviewsPagination.last_page) {
                     try {
                         $wire.isLoadingMore = true;
-                        const { data: axiosReviewData } = await window.http.get(window.reviewsApiUrl, { params: PageController._buildApiParams.reviewQueryParams() });
+                        const { data: axiosReviewData } = await window.http.get(@json(route('api.products.reviews.index', ':product')).replace(':product', PageController._internal.productId ?? 0), { params: PageController._buildApiParams.reviewQueryParams() });
 
                         $wire.reviewsData = [...$wire.reviewsData, ...axiosReviewData.data];
                         $wire.reviewsPagination = {
@@ -377,15 +380,9 @@
 
                 <div class="pdp-cart-section d-flex gap-3 mb-3">
                     <div class="pdp-quantity-control">
-                        <button x-on:click="
-                            const quantity = parseInt($el.nextElementSibling.value);
-                            $el.nextElementSibling.value = Math.max(minPurchasable(), Number.isNaN(quantity) ? 0 : (quantity - 1));
-                        " class="pdp-qty-btn pdp-qty-minus"><i class="fas fa-minus"></i></button>
+                        <button x-on:click="selectedQuantity = Math.max(minPurchasable(), Number.isNaN(selectedQuantity) ? 0 : (selectedQuantity - 1))" class="pdp-qty-btn pdp-qty-minus"><i class="fas fa-minus"></i></button>
                         <input type="number" id="quantity" x-model="selectedQuantity" :min="minPurchasable" :max="selectedVariant.inventory?.stock || 0" class="pdp-qty-input" aria-label="Quantity to purchase">
-                        <button x-on:click="
-                            const quantity = parseInt($el.previousElementSibling.value);
-                            $el.previousElementSibling.value = Math.min(Number.isNaN(quantity) ? minPurchasable() : (quantity + 1), parseInt(selectedVariant.inventory?.stock) || 0);
-                        " class="pdp-qty-btn pdp-qty-plus"><i class="fas fa-plus"></i></button>
+                        <button x-on:click="selectedQuantity = Math.min(Number.isNaN(selectedQuantity) ? minPurchasable() : (selectedQuantity + 1), parseInt(selectedVariant.inventory?.stock) || 0)" class="pdp-qty-btn pdp-qty-plus"><i class="fas fa-plus"></i></button>
                     </div>
                     <button class="btn pdp-btn-add-to-cart flex-grow-1"
                         :disabled="!(selectedVariant.id && selectedVariant.inventory?.stock)">

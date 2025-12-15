@@ -1,5 +1,9 @@
 @assets
-    @vite('resources/css/review-list.css')
+    <style>
+        .pdp-reviews-list {
+            margin-top: 1.75rem;
+        }
+    </style>
 @endassets
 
 <div {{ $attributes->class(['pdp-reviews-list']) }}>
