@@ -17,10 +17,8 @@ class ProductReviewRepository extends BaseRepository implements ProductReviewRep
 
     public function hasUserPurchasedProduct($productId, $userId = null)
     {
-        if(is_null($userId)) {
-            $userId = authPayload(key: 'sub', throw: false) ?? Auth::id();
-            if(is_null($userId)) return false;
-        }
+        $userId = $userId ?? authPayload(key: 'sub', throw: false) ?? Auth::id();
+        if(is_null($userId)) return false;
 
         return DB::table('orders', 'o')
             ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
@@ -33,10 +31,8 @@ class ProductReviewRepository extends BaseRepository implements ProductReviewRep
 
     public function getFirstUserReview($userId = null)
     {
-        if(is_null($userId)) {
-            $userId = authPayload(key: 'sub', throw: false) ?? Auth::id();
-            if(is_null($userId)) return null;
-        }
+        $userId = $userId ?? authPayload(key: 'sub', throw: false) ?? Auth::id();
+        if(is_null($userId)) return null;
 
         return DB::table($this->model->getTable(), 'pr')
             ->join('products as p', 'p.id', '=', 'pr.product_id')

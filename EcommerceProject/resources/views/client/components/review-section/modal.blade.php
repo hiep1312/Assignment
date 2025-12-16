@@ -35,10 +35,12 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer pdp-modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button {{ $submitButton->attributes->merge(['class' => 'btn pdp-btn-submit-review']) }}>{{ $submitButton }}</button>
-            </div>
+            @if($showActions)
+                <div class="modal-footer pdp-modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button {{ $submitButton->attributes->merge(['class' => 'btn pdp-btn-submit-review']) }}>{{ $submitButton }}</button>
+                </div>
+            @endif
         </div>
     </div>
 </div>

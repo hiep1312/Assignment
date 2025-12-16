@@ -198,6 +198,78 @@
                         animation: 'slideInRight'
                     });
                 }
+            },
+
+            "review:submit": async (event) => {
+                if(!$wire.canReview) {
+                    window.showToast({
+                        title: 'Cannot Submit Review',
+                        message: 'You need to purchase this product before you can write a review.',
+                        type: 'warning',
+                        duration: 60,
+                        time: new Date().toISOString(),
+                        icon: 'fas fa-exclamation-triangle',
+                        animation: 'slideInRight'
+                    });
+
+                    return;
+                }
+
+                try {
+                    const reviewData = event.detail;
+                    const isUpdating = Boolean($wire.myReview);
+                    const apiUrl = isUpdating
+                        ? @json(route('api.reviews.update', ':review')).replace(':review', $wire.myReview.id)
+                        : @json(route('api.products.reviews.store', ':product')).replace(':product', PageController._internal.productId ?? 0);
+                    const requestMethod = isUpdating ? 'put' : 'post';
+
+                    const { data: axiosReviewData } = await window.http[requestMethod](apiUrl, reviewData);
+
+                    $wire.myReview = axiosReviewData.data;
+
+                    if(!isUpdating) {
+                        $wire.reviewsPagination.total++;
+                        $wire.currentProduct.reviews_count++;
+                    }
+
+                    $wire.$refresh();
+                    window.showToast({
+                        title: isUpdating ? 'Review Updated Successfully' : 'Review Submitted Successfully',
+                        message: isUpdating
+                            ? 'Your review has been updated successfully.'
+                            : 'Thank you for your feedback! Your review has been posted.',
+                        type: 'success',
+                        duration: 12,
+                        time: new Date().toISOString(),
+                        icon: 'fas fa-check-circle',
+                        animation: 'slideInRight'
+                    });
+
+                }catch(axiosError) {
+                    if(axiosError.status === 422) {
+                        const errors = axiosError.response?.data?.errors;
+                        const formattedErrors = {};
+
+                        for(const field in errors) {
+                            formattedErrors[field] = errors[field][0];
+                        }
+
+                        document.dispatchEvent(new CustomEvent('review:errors', { detail: { errors } }));
+                    }else {
+                        const message = axiosError.response?.data?.message ?? axiosError.message;
+
+                        console.error("Failed to submit review: ", message);
+                        window.showToast({
+                            title: 'Failed to Submit Review',
+                            message,
+                            type: 'danger',
+                            duration: 60,
+                            time: new Date().toISOString(),
+                            icon: 'fas fa-exclamation-circle',
+                            animation: 'slideInRight'
+                        });
+                    }
+                }
             }
         },
     };
@@ -223,13 +295,13 @@
                     }
                 });
 
-                this.$watch('selectedQuantity', value => {
+                this.$watch('selectedQuantity', (value, oldValue) => {
                     if(value === '') return;
 
                     let quantity = isNaN(value) ? 1 : parseInt(value);
                     quantity = Math.max(this.minPurchasable(), Math.min(quantity, parseInt(this.selectedVariant.inventory?.stock) || 1));
 
-                    if(quantity !== this.selectedQuantity) {
+                    if(quantity !== oldValue) {
                         this.selectedQuantity = quantity;
                     }
                 });
@@ -603,10 +675,10 @@
     </div>
 
     @if($currentUser)
-        <x-livewire-client::review-section.modal id="reviewModal" :title="$myReview ? 'Edit Your Review' : 'Write a review'"
+        <x-livewire-client::review-section.modal id="reviewModal" :title="$myReview ? 'Edit your review' : 'Write a review'" :show-actions="$canReview"
             x-data="{
                 rating: 0,
-                content: '',
+                content: null,
                 isEditing: false,
                 isDeleted: false,
                 canReview: false,
@@ -614,7 +686,7 @@
 
                 initializeState() {
                     this.rating = $wire.myReview?.rating ?? 0;
-                    this.content = $wire.myReview?.content ?? '';
+                    this.content = $wire.myReview?.content;
                     this.isEditing = Boolean($wire.myReview);
                     this.isDeleted = Boolean($wire.myReview?.deleted_at);
                     this.canReview = Boolean($wire.canReview);
@@ -626,13 +698,48 @@
 
                     this.$watch('$wire.myReview', value => {
                         this.rating = value?.rating ?? 0;
-                        this.content = value?.content ?? '';
+                        this.content = value?.content;
                         this.isEditing = Boolean(value);
                         this.isDeleted = Boolean(value?.deleted_at);
                     });
 
                     this.$el.addEventListener('hidden.bs.modal', this.initializeState.bind(this));
-                }
+
+                    document.forms['reviewForm'].addEventListener('submit', event => {
+                        this.errors = {};
+                        event.preventDefault();
+
+                        const normalizedForm = {
+                            rating: Number(this.rating),
+                            content: this.content.trim(),
+                        };
+
+                        if(!this.canReview) {
+                            this.errors.rating = 'You are not allowed to write a review for this product.';
+                            this.errors.content = 'You are not allowed to write a review for this product.';
+                        }
+
+                        if(Number.isNaN(normalizedForm.rating)) {
+                            this.errors.rating = 'Rating must be a number.';
+                        }else if(normalizedForm.rating < 1 || normalizedForm.rating > 5) {
+                            this.errors.rating = 'Rating must be between 1 and 5 stars.';
+                        }
+
+                        if(normalizedForm.content.length > 500) {
+                            this.errors.content = 'Review content must not exceed 500 characters.';
+                        }else if(this.isDeleted && normalizedForm.content !== $wire.myReview?.content) {
+                            this.errors.content = 'Your review has been removed and its content can no longer be edited.';
+                        }
+
+                        if(!Object.keys(this.errors).length) {
+                            document.dispatchEvent(new CustomEvent('review:submit', { detail: normalizedForm }));
+                        }
+                    });
+
+                    document.addEventListener('review:errors', ({ detail: { errors } }) => {
+                        this.errors = errors;
+                    });
+                },
             }"
             wire:key="review-modal" wire:ignore.self>
             <x-slot:alert>
@@ -649,14 +756,18 @@
                 </x-livewire-client::alert>
             </x-slot:alert>
 
-            <x-slot:form >
+            <x-slot:form name="reviewForm" id="reviewForm" wire:key="review-form" novalidate>
                 <x-slot:star-button ::class="{ 'active': Number($el.dataset.rating) <= rating }" x-on:click="rating = Number($el.dataset.rating) === rating ? 0 : Number($el.dataset.rating)" ::disabled="!canReview"></x-slot:star-button>
-                <x-slot:star-message></x-slot:star-message>
+                <x-slot:star-message>
+                    <small :class="`invalid-feedback ${errors.rating ? 'd-block' : ''}`" x-text="errors.rating"></small>
+                </x-slot:star-message>
 
                 <x-slot:textarea x-model="content" ::readonly="!canReview || isDeleted"></x-slot:textarea>
-                <x-slot:content-message></x-slot:content-message>
+                <x-slot:content-message>
+                    <small :class="`invalid-feedback ${errors.content ? 'd-block' : ''}`" x-text="errors.content"></small>
+                </x-slot:content-message>
 
-                <x-slot:submit-button ::disabled="!canReview" x-text="isEditing ? 'Update Review' : 'Submit Review'"></x-slot:submit-button>
+                <x-slot:submit-button type="submit" form="reviewForm" ::disabled="!canReview" x-text="isEditing ? 'Update Review' : 'Submit Review'"></x-slot:submit-button>
             </x-slot:form>
         </x-livewire-client::review-section.modal>
     @endif

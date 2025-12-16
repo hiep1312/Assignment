@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
 class ProductReviewService
 {
@@ -26,5 +27,28 @@ class ProductReviewService
         }catch(QueryException $queryException) {
             return [false, null];
         }
+    }
+
+    public function update(array $data, string $id): array
+    {
+        $isUpdated = $this->repository->update(
+            idOrCriteria: fn($query) => $query->where('id', $id)
+                ->where('user_id', authPayload('sub')),
+            attributes: array_merge(
+                $data,
+                array_key_exists('content', $data)
+                    ? ['content' => DB::raw("IF(deleted_at IS NULL, ". DB::getPdo()->quote($data['content']) .", content)")]
+                    : []
+            ),
+            rawEnabled: true,
+            updatedModel: $updatedReview,
+        );
+
+        $updatedReview = $updatedReview->first();
+        if($updatedReview && array_key_exists('content', $data) && !$updatedReview->deleted_at) {
+            $updatedReview->content = $data['content'];
+        }
+
+        return [(bool) $isUpdated, $updatedReview];
     }
 }

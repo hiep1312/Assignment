@@ -86,7 +86,7 @@
     <script src="{{ asset('client/assets/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js') }}"></script>
 
     <!-- Website Javascript -->
-    {{-- <script src="{{ asset('client/assets/js/main.js') }}"></script> --}}
+    <script src="{{ asset('client/assets/js/main.js') }}"></script>
     @vite('resources/js/core.js')
 
     <!-- Page JS -->

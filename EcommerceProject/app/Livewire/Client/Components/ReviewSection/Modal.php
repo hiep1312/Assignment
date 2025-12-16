@@ -13,6 +13,7 @@ class Modal extends Component
      */
     public function __construct(
         public string $title,
+        public bool $showActions = true
     ){}
 
     /**

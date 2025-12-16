@@ -9,8 +9,7 @@ use App\Repositories\Contracts\ProductReviewRepositoryInterface;
 use App\Services\ProductReviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Throwable;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\DB;
 
 class ProductReviewController extends BaseApiController
 {
@@ -70,20 +69,14 @@ class ProductReviewController extends BaseApiController
             pageName: 'page'
         );
 
-        if(($request->boolean('with_can_review') || $request->boolean('with_my_review')) && authPayload(throw: false) === null) {
-            try {
-                @JWTAuth::parseToken()->refresh(false, false);
-            }catch(Throwable $exception) {}
-        }
-
         return $this->response(
             success: true,
             message: 'Product review list retrieved successfully.',
             additionalData: array_merge(
                 $reviews->withQueryString()->toArray(),
                 $request->boolean('with_rating_stats') ? ['rating_distribution' => $this->repository->getRatingDistribution($productId)] : [],
-                $request->boolean('with_can_review') ? ['can_review' => $this->repository->hasUserPurchasedProduct($productId)] : [],
-                $request->boolean('with_my_review') ? ['my_review' => $this->repository->getFirstUserReview()] : []
+                $request->boolean('with_can_review') ? ['can_review' => $this->repository->hasUserPurchasedProduct($productId, authPayload(key: 'sub', throw: false, ignoreExpiration: true))] : [],
+                $request->boolean('with_my_review') ? ['my_review' => $this->repository->getFirstUserReview(authPayload(key: 'sub', throw: false, ignoreExpiration: true))] : []
             )
         );
     }
@@ -137,13 +130,7 @@ class ProductReviewController extends BaseApiController
     public function update(ProductReviewRequest $request, string $id)
     {
         $validatedData = $request->validated();
-        $isUpdated = $this->repository->update(
-            idOrCriteria: fn($query) => $query->where('id', $id)
-                ->where('user_id', authPayload('sub')),
-            attributes: $validatedData,
-            updatedModel: $updatedReview
-        );
-        $updatedReview = $updatedReview->first();
+        [$isUpdated, $updatedReview] = $this->service->update($validatedData, $id);
 
         return $this->response(
             success: (bool) $isUpdated,
