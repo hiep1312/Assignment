@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\Api\CartItemController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProductVariantController;
 use App\Repositories\Contracts\CartItemRepositoryInterface;
 use App\Repositories\Contracts\CartRepositoryInterface;
 use App\Repositories\Contracts\ProductVariantRepositoryInterface;
@@ -25,7 +28,7 @@ class CartService
         $availableVariants = $this->productVariantRepository->find(
             idOrCriteria: function($query) use ($data){
                 $query->with('inventory:variant_id,stock')
-                    ->whereIn('sku', array_column($data, 'sku'))
+                    ->whereIn('sku', array_column($data['cart_items'], 'sku'))
                     ->where('status', 1)
                     ->whereHas('inventory', fn($subQuery) => $subQuery->where('stock', '>', 0));
             },
@@ -70,7 +73,7 @@ class CartService
         $createdCart = $this->repository->create($cartData);
         $cartItemsPayload = [];
         $outOfStockSkus = [];
-        $skuQuantities = array_column($data, 'quantity', 'sku');
+        $skuQuantities = array_column($data['cart_items'], 'quantity', 'sku');
 
         foreach($availableVariants as $variant){
             $quantity = $skuQuantities[$variant->sku];
@@ -101,7 +104,7 @@ class CartService
         ];
     }
 
-    public function update(array $data): array
+    public function update(array $data, bool $reloadRelations = false): array
     {
         try {
             $availableCart = $this->repository->first(
@@ -117,9 +120,9 @@ class CartService
                 throw new RuntimeException('Cart not found, expired, or not accessible.');
             }
 
-            $requestedQuantities = array_column($data, 'quantity', 'item_id');
+            $requestedQuantities = array_column($data['cart_items'], 'quantity', 'item_id');
             $existingItems = $availableCart->items->keyBy('id');
-            $validItemIds = array_intersect(array_keys($requestedQuantities), $existingItems->keys());
+            $validItemIds = array_intersect(array_keys($requestedQuantities), $existingItems->keys()->toArray());
             $updatePayload = [];
 
             if(empty($validItemIds)) {
@@ -133,14 +136,26 @@ class CartService
                 $updatePayload[] = [
                     'id' => $itemId,
                     'cart_id' => $availableCart->id,
+                    'product_variant_id' => $existingItem->product_variant_id,
                     'quantity' => $requestedQuantity,
                     'price' => $existingItem->price
                 ];
                 $existingItem->quantity = $requestedQuantity;
             }
 
-            $this->cartItemRepository->upsert($updatePayload, ['id', 'cart_id']);
-            $availableCart->setRelation('items', $existingItems->values());
+            $this->cartItemRepository->upsert($updatePayload, ['id']);
+            if($reloadRelations) {
+                $eagerLoadRelations = [
+                    'items:' . implode(',', CartItemController::API_FIELDS),
+                    'items.productVariant:' . implode(',', ProductVariantController::API_FIELDS),
+                    'items.productVariant.inventory:' . implode(',', ProductVariantController::INVENTORY_FIELDS),
+                    'items.productVariant.product:' . implode(',', ProductController::API_FIELDS)
+                ];
+
+                $availableCart->load($eagerLoadRelations);
+            }else {
+                $availableCart->setRelation('items', $existingItems->values());
+            }
 
             return [
                 'success' => true,
@@ -159,8 +174,8 @@ class CartService
     public static function userQueryConditions(): array
     {
         return [
-            Auth::guard('jwt')->check(),
-            fn($subQuery) => $subQuery->where('user_id', authPayload('sub', -1, false)),
+            authPayload(key: 'sub', default: false, throw: false, ignoreExpiration: true),
+            fn($subQuery) => $subQuery->where('user_id', authPayload(key: 'sub', ignoreExpiration: true)),
             fn($subQuery) => $subQuery->where('guest_token', request()->cookie('cart_guest', -1))
         ];
     }

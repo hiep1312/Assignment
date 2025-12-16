@@ -27,11 +27,12 @@ class ProductVariantRequest extends FormRequest
     public function rules(bool $isEdit = false, int|string|null $recordId = null): array
     {
         $uniqueSuffix = ($isEdit && $recordId) ? ",{$recordId}" : '';
+        $lteSuffix = $this->targetPosition === "product" ? "activeVariantData.price" : 'price';
         $rules = [
             'name' => 'required|string|max:255',
             'sku' => 'required|string|max:100|unique:product_variants,sku' . $uniqueSuffix,
             'price' => 'required|integer|min:0',
-            'discount' => 'nullable|integer|min:0|lte:price',
+            'discount' => 'nullable|integer|min:0|lte:' . $lteSuffix,
             'status' => 'required|integer|in:0,1',
             'stock' => 'required|integer|min:0',
         ];

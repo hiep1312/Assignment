@@ -378,6 +378,11 @@
     transform: translateY(0);
 }
 
+.cart-summary__button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .cart-summary__button--secondary {
     background: var(--color-white-product);
     color: var(--color-primary-product);

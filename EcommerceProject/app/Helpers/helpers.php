@@ -255,7 +255,7 @@ if(!function_exists('authPayload')){
     {
         try {
             if($ignoreExpiration) {
-                $payload = JWTAuth::manager()->getJWTProvider()->decode(JWTAuth::getToken());
+                $payload = JWTAuth::manager()->getJWTProvider()->decode(JWTAuth::getToken() ?? '');
             }else {
                 $payload = JWTAuth::parseToken()->payload();
             }

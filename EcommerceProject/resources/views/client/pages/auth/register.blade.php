@@ -153,18 +153,24 @@
                                 this.errors.email = 'Email is required.';
                             }else if(!regexRules.email.test(normalizedForm.email)) {
                                 this.errors.email = 'Please enter a valid email address.';
+                            }else if(normalizedForm.email.length > 255) {
+                                this.errors.email = 'Email must not exceed 255 characters.';
                             }
 
                             if(!normalizedForm.username) {
                                 this.errors.username = 'Username is required.';
                             }else if(normalizedForm.username.length < 5) {
                                 this.errors.username = 'Username must be at least 5 characters.';
+                            }else if(normalizedForm.username.length > 70) {
+                                this.errors.username = 'Username must not exceed 70 characters.';
                             }
 
                             if(!normalizedForm.password) {
                                 this.errors.password = 'Password is required.';
                             }else if(normalizedForm.password.length < 8) {
                                 this.errors.password = 'Password must be at least 8 characters.';
+                            }else if(normalizedForm.password.length > 100) {
+                                this.errors.password = 'Password must not exceed 100 characters.';
                             }
 
                             if(!normalizedForm.password_confirmation) {
@@ -175,14 +181,22 @@
 
                             if(!normalizedForm.first_name) {
                                 this.errors.first_name = 'First name is required.';
+                            }else if(normalizedForm.first_name.length > 100) {
+                                this.errors.first_name = 'First name must not exceed 100 characters.';
                             }
 
                             if(!normalizedForm.last_name) {
                                 this.errors.last_name = 'Last name is required.';
+                            }else if(normalizedForm.last_name.length > 100) {
+                                this.errors.last_name = 'Last name must not exceed 100 characters.';
                             }
 
-                            if(normalizedForm.birthday !== null && !regexRules.birthday.test(normalizedForm.birthday)) {
-                                this.errors.birthday = 'Please enter a valid date in the format YYYY-MM-DD.';
+                            if(normalizedForm.birthday !== null) {
+                                if(!regexRules.birthday.test(normalizedForm.birthday)) {
+                                    this.errors.birthday = 'Please enter a valid date in the format YYYY-MM-DD.';
+                                }else if(new Date(normalizedForm.birthday) >= new Date()) {
+                                    this.errors.birthday = 'Birthday must be a date in the past.';
+                                }
                             }
 
                             if(normalizedForm.avatar !== null) {

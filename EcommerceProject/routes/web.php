@@ -34,6 +34,7 @@ use App\Livewire\Admin\Users\UserIndex;
 use App\Livewire\Client\Auth\Login as LoginClient;
 use App\Livewire\Client\Auth\Register;
 use App\Livewire\Client\Cart\CartIndex;
+use App\Livewire\Client\Checkout\OrderPreview;
 use App\Livewire\Client\Products\ProductIndex as ProductIndexClient;
 use App\Livewire\Client\Products\ProductShow;
 use Illuminate\Support\Facades\Route;
@@ -147,6 +148,12 @@ Route::name('client.')->group(function() {
     /* Cart */
     Route::prefix('cart')->name('cart.')->group(function(){
         Route::get('/', CartIndex::class)->name('index');
+    });
+
+    /* Checkout */
+    Route::prefix('checkout')->name('checkout.')->group(function(){
+        Route::get('/order-preview/{order}', OrderPreview::class)
+            ->name('order-preview');
     });
 });
 

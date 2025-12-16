@@ -233,6 +233,7 @@
                     }
 
                     $wire.$refresh();
+                    document.dispatchEvent(new CustomEvent('review:close-modal'));
                     window.showToast({
                         title: isUpdating ? 'Review Updated Successfully' : 'Review Submitted Successfully',
                         message: isUpdating
@@ -259,6 +260,7 @@
                         const message = axiosError.response?.data?.message ?? axiosError.message;
 
                         console.error("Failed to submit review: ", message);
+                        document.dispatchEvent(new CustomEvent('review:close-modal'));
                         window.showToast({
                             title: 'Failed to Submit Review',
                             message,
@@ -285,6 +287,7 @@
             selectedVariant: $wire.$entangle('selectedVariant'),
             activeImage: '{{ asset('storage/' . ($currentProduct['main_image']['image_url'] ?? DefaultImage::PRODUCT->value)) }}',
             selectedQuantity: null,
+            isSyncing: false,
             minPurchasable(){
                 return this.selectedVariant.inventory?.stock ? 1 : 0;
             },
@@ -296,13 +299,16 @@
                 });
 
                 this.$watch('selectedQuantity', (value, oldValue) => {
-                    if(value === '') return;
+                    if(value === '' || this.isSyncing) return;
 
                     let quantity = isNaN(value) ? 1 : parseInt(value);
                     quantity = Math.max(this.minPurchasable(), Math.min(quantity, parseInt(this.selectedVariant.inventory?.stock) || 1));
 
-                    if(quantity !== oldValue) {
+                    if(quantity !== Number(this.selectedQuantity)) {
+                        this.isSyncing = true;
                         this.selectedQuantity = quantity;
+
+                        this.$nextTick(() => { this.isSyncing = false });
                     }
                 });
             }
@@ -738,6 +744,11 @@
 
                     document.addEventListener('review:errors', ({ detail: { errors } }) => {
                         this.errors = errors;
+                    });
+
+                    document.addEventListener('review:close-modal', () => {
+                        const modal = bootstrap.Modal.getOrCreateInstance(this.$el);
+                        modal?.hide();
                     });
                 },
             }"

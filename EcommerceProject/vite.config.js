@@ -22,6 +22,8 @@ export default defineConfig({
                 'resources/css/cart.css',
                 'resources/css/toast.css',
                 'resources/css/confirm-modal-client.css',
+                'resources/css/checkout.css',
+                'resources/css/checkout-summary.css',
                 'resources/js/app.js',
                 'resources/js/image-picker.js',
                 'resources/js/editor-handler.js',

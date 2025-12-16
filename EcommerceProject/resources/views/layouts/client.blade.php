@@ -46,6 +46,7 @@
 </head>
 <body class="bg-white p-0">
     {{-- @include('client.partials.spinner') --}}
+    @livewire('client.partials.cart-drawer')
 
     @section('body')
         <div class="container-fluid position-relative p-0">

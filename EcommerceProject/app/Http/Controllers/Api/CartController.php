@@ -96,13 +96,13 @@ class CartController extends BaseApiController
     public function update(CartRequest $request)
     {
         $validatedData = $request->validated();
-        $updationResult = $this->service->update($validatedData);
+        $updationResult = $this->service->update($validatedData, $request->boolean('with_relations'));
 
         return $this->response(
             success: $updationResult['success'],
             message: $updationResult['message'],
             code: $updationResult['success'] ? 200 : 422,
-            data: ($updationResult['data'] ?? null)?->only(['items', ...self::API_FIELDS]) ?? [],
+            data: isset($updationResult['data']) ? $updationResult['data']->only(['items', ...self::API_FIELDS]) : [],
         );
     }
 

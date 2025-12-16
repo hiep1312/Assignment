@@ -309,7 +309,7 @@
                                 </x-slot:feedback>
                             </x-livewire-admin::form-panel.group.input-group>
 
-                            <x-livewire-admin::form-panel.group.input-group label="Status" :icon="$activeVariantData['status'] == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-md-6" required>
+                            <x-livewire-admin::form-panel.group.input-group label="Status" :icon="$activeVariantData['status'] == 1 ? 'fas fa-toggle-on' : 'fas fa-toggle-off'" for="status" column="col-lg-6" required>
                                 <select class="form-select custom-radius-end @error("activeVariantData.status") is-invalid @enderror" id="status"
                                     wire:model.change="activeVariantData.status" wire:key="status">
                                     <option value="1">Active</option>

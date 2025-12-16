@@ -49,7 +49,7 @@
                     params: PageController._buildApiParams.cartQueryParams()
                 });
 
-                const isExpired = new Date(axiosCartData.expires_at) < new Date();
+                const isExpired = new Date(axiosCartData.data.expires_at) < new Date();
                 if(isExpired) {
                     ({ data: axiosCartData } = await window.http.post(@js(route('api.carts.refresh')), {}, {
                         params: PageController._buildApiParams.cartQueryParams()
@@ -84,8 +84,78 @@
         },
 
         events: {
-            'cart-item:delete': (event) => {
+            'cart-item:delete': async (event) => {
+                const itemIds = event.detail;
+                try {
+                    if(itemIds === 'all') {
+                        await window.http.delete(@js(route('api.cart.destroy')));
 
+                        $wire.cartData = null;
+                        $wire.cartItems = [];
+                        $wire.$refresh();
+
+                        window.showToast({
+                            title: 'Cart Cleared',
+                            message: 'Your shopping cart has been cleared successfully.',
+                            type: 'success',
+                            duration: 12,
+                            time: new Date().toISOString(),
+                            icon: 'fas fa-check-circle',
+                            animation: 'slideInRight'
+                        });
+
+                    }else {
+                        const itemIdsArray = Array.isArray(itemIds) ? itemIds : [itemIds];
+                        const { data: deletedItemsResponse } = await window.http.delete(@js(route('api.cart.items.delete')), { item_ids: itemIdsArray });
+
+                        const deletedCount = deletedItemsResponse.data?.deleted_count || 0;
+                        const requestedCount = itemIdsArray.length;
+
+                        if(deletedCount > 0) {
+                            await PageController.refreshData();
+                            const allDeleted = deletedCount === requestedCount;
+
+                            window.showToast({
+                                title: allDeleted ? 'Items Removed' : 'Partially Removed',
+                                message: allDeleted
+                                    ? `${deletedCount} item${deletedCount > 1 ? 's' : ''} removed from your cart successfully.`
+                                    : `${deletedCount} of ${requestedCount} item${requestedCount > 1 ? 's' : ''} removed. Some items were not found or unauthorized.`,
+                                type: allDeleted ? 'success' : 'info',
+                                duration: 12,
+                                time: new Date().toISOString(),
+                                icon: allDeleted ? 'fas fa-check-circle' : 'fas fa-info-circle',
+                                animation: 'slideInRight'
+                            });
+
+                        }else {
+                            window.showToast({
+                                title: 'Delete Failed',
+                                message: 'No items were removed. The selected items were not found or you do not have permission to delete them.',
+                                type: 'warning',
+                                duration: 20,
+                                time: new Date().toISOString(),
+                                icon: 'fas fa-exclamation-triangle',
+                                animation: 'slideInRight'
+                            });
+                        }
+                    }
+
+                    document.dispatchEvent(new CustomEvent('cart:reset-selection'));
+
+                }catch(axiosError) {
+                    const message = axiosError.response?.data?.message ?? axiosError.message;
+
+                    console.error("Failed to delete cart item(s): ", message);
+                    window.showToast({
+                        title: 'Delete Failed',
+                        message: 'Failed to remove items from cart. Please try again.',
+                        type: 'danger',
+                        duration: 60,
+                        time: new Date().toISOString(),
+                        icon: 'fas fa-exclamation-circle',
+                        animation: 'slideInRight'
+                    });
+                }
             },
 
             'cart-item:update': (event) => {
@@ -104,7 +174,7 @@
                     if(cartItems.length === 0) return;
 
                     try {
-                        const { data: axiosCartData } = await window.http.put(@js(route('api.cart.update')), { cart_items: cartItems });
+                        const { data: axiosCartData } = await window.http.put(@js(route('api.cart.update')), { cart_items: cartItems }, { params: { with_relations: true } });
 
                         $wire.cartData = axiosCartData.data;
                         $wire.cartItems = axiosCartData.data.items || [];
@@ -133,8 +203,12 @@
                             icon: 'fas fa-exclamation-circle',
                             animation: 'slideInRight'
                         });
+
+                        for(const [itemId, payload] of Object.entries(batchedUpdates)) {
+                            document.dispatchEvent(new Event(`cart-item:reset.${itemId}`));
+                        }
                     }
-                }, 2000);
+                }, 1500);
             }
         },
     };
@@ -142,7 +216,6 @@
     PageController.init();
 </script>
 @endscript
-
 <div class="container-xl my-4" id="main-component" style="padding: 12px;"
     x-data="{
         selectedItems: [],
@@ -162,7 +235,7 @@
     <livewire:client.components.toast wire:key="toast-container">
     <livewire:client.components.confirm-modal wire:key="confirm-modal">
 
-    <div class="cart-header">
+    <div class="cart-header wow fadeInUp">
         <h1><i class="fas fa-shopping-cart"></i> My Shopping Cart</h1>
     </div>
 
@@ -181,7 +254,7 @@
     </x-livewire-client::alert>
 
     <div class="cart-container">
-        <div class="cart-toolbar">
+        <div class="cart-toolbar wow fadeInUp" data-wow-delay="0.5s">
             <div class="cart-toolbar__actions">
                 @if($isDataLoading)
                     <div class="placeholder-glow d-flex align-items-center gap-2" wire:key="cart-toolbar-placeholder">
@@ -213,7 +286,7 @@
             </div>
         </div>
 
-        <div class="cart-layout">
+        <div class="cart-layout wow fadeInUp" data-wow-delay="0.5s">
             <div class="cart-items">
                 <div class="table-responsive">
                     <table class="cart-items__table">
@@ -263,14 +336,15 @@
                                         $productVariant = $item['product_variant'] ?? [];
                                         $product = $productVariant['product'] ?? null;
                                     @endphp
-                                    <tr class="cart-item" wire:key="cart-item-{{ $item['id'] }}" x-data="{
-                                        selectedQuantity: {{ $item['quantity'] ?? 0 }},
+                                    <tr class="cart-item" wire:key="cart-item-{{ $item['id'] }}-stock-{{ $productVariant['inventory']['stock'] ?? 0 }}" x-data="{
+                                        selectedQuantity: {{ min($item['quantity'] ?? 0, $productVariant['inventory']['stock'] ?? 0) }},
+                                        isSyncing: false,
 
                                         get minPurchasable() {
                                             return @json(
                                                 isset($productVariant['inventory']['stock'])
                                                     ? ($productVariant['inventory']['stock'] ? 1 : 0)
-                                                    : $item['quantity']
+                                                    : 0
                                             );
                                         },
 
@@ -278,28 +352,41 @@
                                             return @json(
                                                 isset($productVariant['inventory']['stock'])
                                                     ? ((int) $productVariant['inventory']['stock'])
-                                                    : $item['quantity']
+                                                    : 0
                                             );
                                         },
 
                                         init() {
                                             this.$watch('selectedQuantity', (value, oldValue) => {
-                                                if(value === '') return;
+                                                if(value === '' || this.isSyncing) return;
 
                                                 let quantity = isNaN(value) ? 1 : parseInt(value);
                                                 quantity = Math.max(this.minPurchasable, Math.min(quantity, this.maxPurchasable));
 
-                                                if(quantity !== oldValue) {
+                                                if(quantity !== Number(this.selectedQuantity)) {
+                                                    this.isSyncing = true;
                                                     this.selectedQuantity = quantity;
 
+                                                    this.$nextTick(() => { this.isSyncing = false });
+                                                }
+
+                                                if(quantity !== Number(oldValue)) {
                                                     document.dispatchEvent(new CustomEvent('cart-item:update', {
                                                         detail: {
                                                             item_id: @json($item['id']),
-                                                            quantity
+                                                            quantity,
                                                         }
                                                     }));
                                                 }
+                                            });
 
+                                            document.addEventListener('cart-item:reset.{{ $item['id'] }}', () => {
+                                                this.isSyncing = true;
+                                                this.selectedQuantity = {{ min($item['quantity'] ?? 0, $productVariant['inventory']['stock'] ?? 0) }};
+
+                                                this.$nextTick(() => {
+                                                    this.isSyncing = false;
+                                                });
                                             });
                                         }
                                     }">
@@ -327,7 +414,7 @@
                                         <td class="cart-item__td text-center">
                                             <div class="pdp-quantity-control">
                                                 <button x-on:click="selectedQuantity = Math.max(minPurchasable, Number.isNaN(selectedQuantity) ? 0 : (selectedQuantity - 1))"  class="pdp-qty-btn pdp-qty-minus"><i class="fas fa-minus"></i></button>
-                                                <input type="number" id="quantity-{{ $item['id'] }}" x-model="selectedQuantity" :min="minPurchasable" :max="maxPurchasable" x-model="selectedQuantity" class="pdp-qty-input" aria-label="Quantity to purchase">
+                                                <input type="number" id="quantity-{{ $item['id'] }}" x-model="selectedQuantity" :min="minPurchasable" :max="maxPurchasable" class="pdp-qty-input" aria-label="Quantity to purchase">
                                                 <button x-on:click="selectedQuantity = Math.min(Number.isNaN(selectedQuantity) ? minPurchasable : (selectedQuantity + 1), maxPurchasable)" class="pdp-qty-btn pdp-qty-plus"><i class="fas fa-plus"></i></button>
                                             </div>
                                         </td>
@@ -361,7 +448,47 @@
                 </div>
             </div>
 
-            <div class="cart-summary">
+            <div class="cart-summary" x-data="{
+                get cartItems() {
+                    return $wire.cartItems || [];
+                },
+
+                get summary() {
+                    if(!this.cartItems.length) {
+                        return {
+                            subtotal: 0,
+                            discount: 0,
+                            shippingFee: 30_000,
+                            total: 0,
+                        };
+                    }
+
+                    let subtotal = 0;
+                    let discount = 0;
+
+                    this.cartItems.forEach(item => {
+                        const variant = item.product_variant;
+                        if(!variant) return;
+
+                        const originalPrice = variant.price ?? 0;
+                        const discountedPrice = item.price;
+                        const quantity = item.quantity;
+
+                        subtotal += discountedPrice * quantity;
+                        discount += (originalPrice > discountedPrice ? (originalPrice - discountedPrice) * quantity : 0);
+                    });
+
+                    const shippingFee = subtotal && 30_000;
+                    const total = subtotal + shippingFee;
+
+                    return {
+                        subtotal,
+                        discount,
+                        shippingFee,
+                        total
+                    };
+                },
+            }">
                 <h2 class="cart-summary__title">Order Summary</h2>
                 @if($isDataLoading)
                     <div class="placeholder-glow">
@@ -387,41 +514,45 @@
                 @else
                     <div class="cart-summary__row">
                         <span>Subtotal:</span>
-                        <span class="cart-summary__amount" id="subtotal">1.098.000 ₫</span>
+                        <span class="cart-summary__amount" id="subtotal" x-text="`${new Intl.NumberFormat('vi-VN').format(summary.subtotal)}đ`"></span>
                     </div>
 
                     <div class="cart-summary__row">
                         <span>Discount:</span>
-                        <span class="cart-summary__amount" id="discount">-100.000 ₫</span>
+                        <span class="cart-summary__amount" id="discount" x-text="`- ${new Intl.NumberFormat('vi-VN').format(summary.discount)}đ`"></span>
                     </div>
 
                     <div class="cart-summary__row">
                         <span>Shipping Fee:</span>
-                        <span class="cart-summary__amount" id="shipping">30.000đ</span>
+                        <span class="cart-summary__amount" id="shipping" x-text="`${new Intl.NumberFormat('vi-VN').format(summary.shippingFee)}đ`"></span>
                     </div>
 
                     <div class="cart-summary__row cart-summary__row--total">
                         <span>Total:</span>
-                        <span id="total" class="cart-summary__amount">998.000 ₫</span>
+                        <span id="total" class="cart-summary__amount" x-text="`${new Intl.NumberFormat('vi-VN').format(summary.total)}đ`"></span>
                     </div>
 
-                    <label class="cart-summary__select-label" for="paymentMode">
-                        <i class="fas fa-cog"></i> Payment Mode
-                    </label>
+                    @if(!$isGuest && $currentUser)
+                        <div wire:key="cart-summary-payment">
+                            <label class="cart-summary__select-label" for="paymentMode">
+                                <i class="fas fa-cog"></i> Payment Mode
+                            </label>
 
-                    <select id="paymentMode" class="form-select mb-3"
-                        style="border-radius: var(--border-radius-input-group); padding-top: .55rem; padding-bottom: .55rem;">
-                        <option value="selected">Pay for selected items</option>
-                        <option value="all">Pay for all items</option>
-                    </select>
+                            <select id="paymentMode" class="form-select mb-3" :disabled="$wire.cartData.length <= 0 || $wire.cartItems.length <= 0" wire:key="paymentMode"
+                                style="border-radius: var(--border-radius-input-group); padding-top: .55rem; padding-bottom: .55rem;">
+                                <option value="selected">Pay for selected items</option>
+                                <option value="all">Pay for all items</option>
+                            </select>
 
-                    <button class="cart-summary__button">
-                        <i class="fas fa-check-circle"></i> Proceed to Checkout
-                    </button>
+                            <button class="cart-summary__button" :disabled="$wire.cartData.length <= 0 || $wire.cartItems.length <= 0 || summary.total <= 0" wire:key="cart-summary-button">
+                                <i class="fas fa-check-circle"></i> Proceed to Checkout
+                            </button>
 
-                    <a href="{{ route('client.products.index') }}" class="cart-summary__button cart-summary__button--secondary d-block text-center">
-                        <i class="fas fa-arrow-left"></i> Continue Shopping
-                    </a>
+                            <a href="{{ route('client.products.index') }}" class="cart-summary__button cart-summary__button--secondary d-block text-center">
+                                <i class="fas fa-arrow-left"></i> Continue Shopping
+                            </a>
+                        </div>
+                    @endif
                 @endif
 
                 <div class="cart-summary__disclaimer">

@@ -1,0 +1,62 @@
+/* Order Summary */
+.cop-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-gray-product);
+}
+
+.cop-summary-row:last-child {
+    border-bottom: none;
+}
+
+.cop-summary-label {
+    font-size: 15px;
+    color: var(--color-text-secondary);
+}
+
+.cop-summary-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.cop-summary-total {
+    background-color: var(--color-light-gray-product);
+    border-radius: 6px;
+    margin-top: 5px;
+}
+
+.cop-summary-total .cop-summary-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.cop-summary-total .cop-summary-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-primary-product);
+}
+
+.cop-summary-security {
+    background-color: #fff3e6;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 15px;
+    border-left: 4px solid var(--color-primary-product);
+}
+
+.cop-summary-security p {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+.cop-summary-security i {
+    color: var(--color-primary-product);
+}
